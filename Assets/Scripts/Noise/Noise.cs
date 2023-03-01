@@ -6,6 +6,12 @@ public static class Noise
 {
     public static float[,] GenerateNoiseMap(int seed, NoiseParams noise, ViewWindow window)
     {
+        float max, min;
+        return GenerateNoiseMap(seed, noise, window, out min, out max);
+    }
+
+    public static float[,] GenerateNoiseMap(int seed, NoiseParams noise, ViewWindow window, out float localMinNoise, out float localMaxNoise)
+    {
         float[,] noiseMap = new float[window.ResolutionX, window.ResolutionY];
 
         int[] seedOffsets = GetOctaveOffsets(seed, noise.Octaves);
@@ -13,7 +19,10 @@ public static class Noise
         float windowSampleFreqX = window.Width / window.ResolutionX;
         float windowSampleFreqY = window.Height / window.ResolutionY;
 
-        float maxNoise = GetMaxNoise(noise);
+        float absoluteMaxNoise = GetMaxNoise(noise);
+
+        localMinNoise = float.MaxValue;
+        localMaxNoise = float.MinValue;
 
         for (int y = 0; y < window.ResolutionY; y++)
         {
@@ -25,8 +34,12 @@ public static class Noise
 
                 for (int i = 0; i < noise.Octaves; i++)
                 {
-                    float sampleX = (x + window.X + seedOffsets[i]) * windowSampleFreqX * noise.Frequency * freq;
-                    float sampleY = (y + window.Y + seedOffsets[i]) * windowSampleFreqY * noise.Frequency * freq;
+                    float offsetX = seedOffsets[i] + window.X * noise.Frequency * freq;
+                    float sampleX = x * windowSampleFreqX * noise.Frequency * freq + offsetX;
+
+
+                    float offsetY = seedOffsets[i] + window.Y * noise.Frequency * freq;
+                    float sampleY = y * windowSampleFreqY * noise.Frequency * freq + offsetY;
                     float perlin = Mathf.PerlinNoise(sampleX, sampleY);
                     //Debug.Log($"perlin [{x},{y}]: [{sampleX},{sampleY}] = {perlin}\nScale={scale}");
                     noiseVal += perlin * amp;
@@ -35,11 +48,21 @@ public static class Noise
                     freq *= noise.Lacunarity;
                 }
 
+                if(noiseVal < localMinNoise)
+                    localMinNoise = noiseVal;
+
+                if(noiseVal > localMaxNoise)
+                    localMaxNoise = noiseVal;
+
                 noiseMap[x, y] = noiseVal;
             }
         }
-        Debug.Log($"max noise: {maxNoise}");
-        return Normalize(noiseMap, maxNoise, 0.0f);
+        Debug.Log($"max noise: {absoluteMaxNoise}");
+
+        //normalize max and min vlaues as well as noisemap
+        localMaxNoise = localMaxNoise / absoluteMaxNoise;
+        localMinNoise = localMinNoise / absoluteMaxNoise;
+        return Normalize(noiseMap, absoluteMaxNoise, 0.0f);
     }
 
     public static float[,] Combine(List<float[,]> noiseLayers, int width, int height)

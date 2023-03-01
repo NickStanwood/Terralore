@@ -6,41 +6,31 @@ using UnityEngine;
 public class MapDisplay : MonoBehaviour
 {
     public Renderer textureRenderer;
+    public MeshFilter meshFilter;
+    public MeshRenderer meshRenderer;
 
-    public Color LandColor;
-    public Color SeaColor;
+    public ColorStyle DisplayVersion = ColorStyle.WaterLand;
 
-    [Range(0.0f, 1.0f)]
-    public float WaterLevel;
-
-    public bool UseGreyScale = false;
-
-    public void DrawNoiseMap(float[,] noiseMap)
+    public void DrawNoiseMap(float[,] noiseMap, float oceanLevel)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
 
-        Texture2D texture = new Texture2D(width, height);
-
-        Color[] colorMap = new Color[width * height];
-
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                if(UseGreyScale)
-                    colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
-                else if (noiseMap[x, y] > WaterLevel)
-                    colorMap[y * width + x] = LandColor;
-                else
-                    colorMap[y * width + x] = SeaColor;                
-            }
-        }
-
-        texture.SetPixels(colorMap);
-        texture.Apply();
+        Texture2D texture = TextureGenerator.GenerateTexture(noiseMap, DisplayVersion, oceanLevel);
 
         textureRenderer.sharedMaterial.mainTexture = texture;
         textureRenderer.transform.localScale = new Vector3(width, 1, height);
+    }
+
+    public void DrawMesh(float[,] noiseMap, MeshData meshData, float oceanLevel)
+    {
+        int width = noiseMap.GetLength(0);
+        int height = noiseMap.GetLength(1);
+
+        Texture2D texture = TextureGenerator.GenerateTexture(noiseMap, DisplayVersion, oceanLevel);
+
+        meshFilter.sharedMesh = meshData.CreateMesh();
+        meshRenderer.sharedMaterial.mainTexture = texture;
+
     }
 }

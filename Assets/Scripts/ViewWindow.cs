@@ -5,7 +5,7 @@ using UnityEngine;
 
 [System.Serializable]
 public class ViewWindow
-{
+{    
     public bool MaintainAspectRatio = true;
 
     //Top left corner
@@ -16,10 +16,12 @@ public class ViewWindow
     public float Width;
     public float Height;
 
+    public float MaxWidth;
+    public float MaxHeight;
+
     //how many pixels/points per edge
     public int ResolutionX;
     public int ResolutionY;
-
 
     [HideInInspector]
     private float _OldWidth;
@@ -59,13 +61,11 @@ public class ViewWindow
             }
             
         }
-        else
-        {
-            Width = (Width < 1) ? 1 : Width;
-            Height = (Height < 1) ? 1 : Height;
-            ResolutionX = (ResolutionX < 16) ? 16 : ResolutionX;
-            ResolutionY = (ResolutionY < 16) ? 16 : ResolutionY;
-        }
+
+        Width   = (Width < 1  || float.IsNaN(Width)  || float.IsInfinity(Width))  ? 1 : Width;
+        Height  = (Height < 1 || float.IsNaN(Height) || float.IsInfinity(Height)) ? 1 : Height;
+        ResolutionX = (ResolutionX < 16) ? 16 : ResolutionX;
+        ResolutionY = (ResolutionY < 16) ? 16 : ResolutionY;
 
         _OldWidth = Width;
         _OldHeight = Height;

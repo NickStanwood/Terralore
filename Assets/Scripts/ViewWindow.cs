@@ -49,12 +49,16 @@ public class ViewWindow
         {
             if(_OldWidth != Width )
             {
+                Width = Mathf.Min(Width, MaxWidth);
+
                 //width is the value that was changed
                 float aspectRatio = _OldWidth / Height;
                 Height = Width / aspectRatio;
             }
             else if(_OldHeight != Height )
             {
+                Height = Mathf.Min(Height, MaxHeight);
+
                 //height is the value that was changed
                 float aspectRatio = Width / _OldHeight;
                 Width = aspectRatio * Height;
@@ -64,6 +68,12 @@ public class ViewWindow
 
         Width   = (Width < 1  || float.IsNaN(Width)  || float.IsInfinity(Width))  ? 1 : Width;
         Height  = (Height < 1 || float.IsNaN(Height) || float.IsInfinity(Height)) ? 1 : Height;
+        if(Width > MaxWidth || Height > MaxHeight)
+        {
+            Width = MaxWidth;
+            Height = MaxHeight;
+        }
+
         ResolutionX = (ResolutionX < 16) ? 16 : ResolutionX;
         ResolutionY = (ResolutionY < 16) ? 16 : ResolutionY;
 

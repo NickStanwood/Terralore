@@ -11,7 +11,7 @@ public static class MeshGenerator
 
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
-        float heightMultiplier = window.MaxWidth / window.Width;
+        float heightMultiplier = (window.MaxWidth*25) / window.Width;
 
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;

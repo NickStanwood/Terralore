@@ -117,10 +117,7 @@ public static class Noise
         int[] seedOffsets = new int[octaves];
         for (int i = 0; i < octaves; i++)
         {
-            if (seed == 0)
-                seedOffsets[i] = 0;
-            else
-                seedOffsets[i] = rand.Next(-100000, 100000);
+            seedOffsets[i] = rand.Next(-100000, 100000);
         }
 
         return seedOffsets;

@@ -1,16 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MapGenerator : MonoBehaviour
 {
     public int Seed;
     public NoiseParams noise;
-    public ViewWindow viewWindow;
+
     public bool AutoUpdate;
 
     [Range(0.0f, 1.0f)]
     public float OceanLevel;
+
+    [HideInInspector]
+    private ViewWindow viewWindow;
+
+    [HideInInspector]
+    private bool MapInvalidated;
+
+    public void start()
+    {
+    }
+
+    public void Update()
+    {
+        if(MapInvalidated)
+        {
+            GenerateMap();
+            MapInvalidated = false;
+        }
+    }
 
     public void GenerateMap()
     {
@@ -23,9 +43,9 @@ public class MapGenerator : MonoBehaviour
         display.DrawMesh(map, meshData, OceanLevel);
     }
 
-    public void OnValidate()
+    public void OnWindowUpdate(ViewWindow window)
     {
-        viewWindow.OnValidate();
-
+        MapInvalidated = true;
+        viewWindow = window;
     }
 }

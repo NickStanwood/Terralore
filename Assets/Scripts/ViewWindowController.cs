@@ -5,13 +5,15 @@ using UnityEngine.Events;
 
 public class ViewWindowController : MonoBehaviour
 {
-    public ViewWindow window;
+    public ViewWindow Window;
 
     private bool RightPressed = false;
     private bool LeftPressed = false;
     private bool UpPressed = false;
     private bool DownPressed = false;
 
+    private bool TrackMouse = false;
+    private Vector3 MousePosition;
     public UnityEvent<ViewWindow> WindowUpdated;
 
     void Start()
@@ -22,24 +24,37 @@ public class ViewWindowController : MonoBehaviour
 
     void Update()
     {
+        //Move view based on arrow keys
         UpdateKeyState(KeyCode.RightArrow, ref RightPressed);
-        UpdateKeyState(KeyCode.LeftArrow , ref LeftPressed);
-        UpdateKeyState(KeyCode.DownArrow , ref DownPressed);
-        UpdateKeyState(KeyCode.UpArrow   , ref UpPressed);
+        UpdateKeyState(KeyCode.LeftArrow, ref LeftPressed);
+        UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
+        UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
 
-        float deltaX = window.Width * Time.deltaTime;
-        float deltaY = window.Height * Time.deltaTime;
+        float deltaX = Window.Width * Time.deltaTime;
+        float deltaY = Window.Height * Time.deltaTime;
 
-        if( TryIncrementDistance(RightPressed, LeftPressed, deltaX, ref window.X))
+        TryIncrementDistance(RightPressed, LeftPressed, deltaX, ref Window.X);
+        TryIncrementDistance(DownPressed, UpPressed, deltaY, ref Window.Y);
+
+        //Move view based on mouse
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            //Debug.Log("calling 'WindowUpdated''");
-            WindowUpdated.Invoke(window);
+            TrackMouse = true;
+            MousePosition = Input.mousePosition;
+        }
+        if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            TrackMouse = false;
         }
 
-        if (TryIncrementDistance(DownPressed, UpPressed, deltaY, ref window.Y))
+        if (TrackMouse)
         {
-            //Debug.Log("calling 'WindowUpdated''");
-            WindowUpdated.Invoke(window);
+            Vector3 delta = Input.mousePosition - MousePosition;
+            MousePosition = Input.mousePosition;
+
+            Window.X -= delta.x * (Window.Width / Window.MaxWidth)*10;
+            Window.Y += delta.y * (Window.Height/ Window.MaxHeight)*10;
+            WindowUpdated.Invoke(Window);
         }
     }
 
@@ -57,6 +72,7 @@ public class ViewWindowController : MonoBehaviour
         if (positive && !negative)
         {
             distance += delta;
+            WindowUpdated.Invoke(Window);
             return true;
 
         }
@@ -64,6 +80,7 @@ public class ViewWindowController : MonoBehaviour
         if (negative && !positive)
         {
             distance -= delta;
+            WindowUpdated.Invoke(Window);
             return true;
 
         }

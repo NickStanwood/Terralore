@@ -12,15 +12,17 @@ public class MapGeneratorEditor : Editor
         
         if(DrawDefaultInspector())
         {
-            if(mapGen.AutoUpdate)
+            ViewWindowController vwController = FindObjectOfType<ViewWindowController>();
+            if (mapGen.AutoUpdate)
             {
-                mapGen.GenerateMap();
+                mapGen.GenerateMap(vwController.Window);
             }
         }
 
         if (GUILayout.Button("Generate"))
         {
-            mapGen.GenerateMap();
+            ViewWindowController vwController = FindObjectOfType<ViewWindowController>();
+            mapGen.GenerateMap(vwController.Window);
         }
     }
 }

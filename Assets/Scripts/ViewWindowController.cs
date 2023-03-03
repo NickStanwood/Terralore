@@ -64,10 +64,12 @@ public class ViewWindowController : MonoBehaviour
             Debug.Log("zoom: " + zoom);
 
             float xPos = Input.mousePosition.x * (Window.Width / Screen.width);
-            float yPos = Input.mousePosition.y * (Window.Height / Screen.height);
+            Debug.Log("xPos: " + xPos);
+            float yPos = Window.Height - (Input.mousePosition.y * (Window.Height / Screen.height));
+            Debug.Log("yPos: " + yPos);
 
-            Zoom(ref Window.Width , ref Window.X, zoom, Window.MaxWidth , 2.0f, xPos);
-            Zoom(ref Window.Height, ref Window.Y, zoom, Window.MaxHeight, 1.0f, yPos);
+            Zoom(ref Window.Width , ref Window.X, zoom, 2.0f, Window.MaxWidth , xPos);
+            Zoom(ref Window.Height, ref Window.Y, zoom, 1.0f, Window.MaxHeight, yPos);
             WindowUpdated.Invoke(Window);
         }
     }
@@ -105,10 +107,13 @@ public class ViewWindowController : MonoBehaviour
     private void Zoom(ref float length, ref float pos, float zoom, float min, float max, float zoomPoint)
     {
         length *= zoom;
-        length = (length < min) ? min : length;
-        length = (length > min) ? max : length;
 
-        pos = (zoomPoint - pos) * zoom;
-
+        if(length < min)
+            length = min;
+        else if(length > max)
+            length = max;
+        else
+            pos += zoomPoint * (1.0f - zoom);
+        
     }
 }

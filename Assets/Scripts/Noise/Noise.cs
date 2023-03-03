@@ -14,7 +14,7 @@ public static class Noise
     {
         float[,] noiseMap = new float[window.ResolutionX, window.ResolutionY];
 
-        int[] seedOffsets = GetOctaveOffsets(seed, noise.Octaves);
+        float[] seedOffsets = GetOctaveOffsets(seed, noise.Octaves);
 
         float windowSampleFreqX = window.Width / window.ResolutionX;
         float windowSampleFreqY = window.Height / window.ResolutionY;
@@ -36,12 +36,14 @@ public static class Noise
                 {
                     float offsetX = seedOffsets[i] + window.X * noise.Frequency * freq;
                     float sampleX = x * windowSampleFreqX * noise.Frequency * freq + offsetX;
-
+                    //string output = $"offset: {offsetX.ToString("N6")} = {seedOffsets[i].ToString("N6")} + {window.X.ToString("N6")}*{noise.Frequency.ToString("N6")}*{freq.ToString("N6")}\n";
+                    //output += $"sample: {sampleX.ToString("N6")} = {x.ToString("N6")}*{windowSampleFreqX.ToString("N6")}*{noise.Frequency.ToString("N6")}*{freq.ToString("N6")}\n";
 
                     float offsetY = seedOffsets[i] + window.Y * noise.Frequency * freq;
                     float sampleY = y * windowSampleFreqY * noise.Frequency * freq + offsetY;
                     float perlin = Mathf.PerlinNoise(sampleX, sampleY);
-                    //Debug.Log($"perlin [{x},{y}]: [{sampleX},{sampleY}] = {perlin}\nScale={scale}");
+                    //output += $"perlin [{x},{y}] -> [{sampleX.ToString("N6")}:{sampleY.ToString("N6")}] = {perlin.ToString("N6")}";
+                    //Debug.Log(output);
                     noiseVal += perlin * amp;
 
                     amp *= noise.Persistence;
@@ -111,13 +113,13 @@ public static class Noise
 
     }
 
-    public static int[] GetOctaveOffsets(int seed, int octaves)
+    public static float[] GetOctaveOffsets(int seed, int octaves)
     {
         System.Random rand = new System.Random(seed);
-        int[] seedOffsets = new int[octaves];
+        float[] seedOffsets = new float[octaves];
         for (int i = 0; i < octaves; i++)
         {
-            seedOffsets[i] = rand.Next(-100000, 100000);
+            seedOffsets[i] = rand.Next(-1000, 1000);
         }
 
         return seedOffsets;

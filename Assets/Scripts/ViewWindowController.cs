@@ -52,8 +52,22 @@ public class ViewWindowController : MonoBehaviour
             Vector3 delta = Input.mousePosition - MousePosition;
             MousePosition = Input.mousePosition;
 
-            Window.X -= delta.x * (Window.Width / Window.MaxWidth)*10;
-            Window.Y += delta.y * (Window.Height/ Window.MaxHeight)*10;
+            Window.X -= delta.x * (Window.Width  / Screen.width);
+            Window.Y += delta.y * (Window.Height / Screen.height);
+            WindowUpdated.Invoke(Window);
+        }
+
+        if(Input.mouseScrollDelta.y != 0)
+        {
+            float zoom =  1.0f - Input.mouseScrollDelta.y * .1f;
+
+            Debug.Log("zoom: " + zoom);
+
+            float xPos = Input.mousePosition.x * (Window.Width / Screen.width);
+            float yPos = Input.mousePosition.y * (Window.Height / Screen.height);
+
+            Zoom(ref Window.Width , ref Window.X, zoom, Window.MaxWidth , 2.0f, xPos);
+            Zoom(ref Window.Height, ref Window.Y, zoom, Window.MaxHeight, 1.0f, yPos);
             WindowUpdated.Invoke(Window);
         }
     }
@@ -86,5 +100,15 @@ public class ViewWindowController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void Zoom(ref float length, ref float pos, float zoom, float min, float max, float zoomPoint)
+    {
+        length *= zoom;
+        length = (length < min) ? min : length;
+        length = (length > min) ? max : length;
+
+        pos = (zoomPoint - pos) * zoom;
+
     }
 }

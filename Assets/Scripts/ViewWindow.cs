@@ -16,8 +16,8 @@ public class ViewWindow
     public float Width    = 2000;
     public float Height   = 1000;
 
-    public float MaxWidth = 20000;
-    public float MaxHeight= 10000;
+    public float MaxWidth = 2000;
+    public float MaxHeight= 1000;
 
     //how many pixels/points per edge
     public int ResolutionX = 256;

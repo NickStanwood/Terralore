@@ -27,16 +27,16 @@ public class MapGenerator : MonoBehaviour
     {
         if(MapInvalidated)
         {
-            GenerateMap();
+            GenerateMap(viewWindow);
             MapInvalidated = false;
         }
     }
 
-    public void GenerateMap()
+    public void GenerateMap(ViewWindow window)
     {
         float maxHeight, minHeight;
-        float[,] map = Noise.GenerateNoiseMap(Seed, noise, viewWindow, out minHeight, out maxHeight);
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewWindow, OceanLevel);
+        float[,] map = Noise.GenerateNoiseMap(Seed, noise, window, out minHeight, out maxHeight);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, window, OceanLevel);
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
         //display.DrawNoiseMap(map);

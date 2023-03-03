@@ -13,15 +13,15 @@ public class ViewWindow
     public float Y;
 
     //distance of the window
-    public float Width;
-    public float Height;
+    public float Width    = 2000;
+    public float Height   = 1000;
 
-    public float MaxWidth;
-    public float MaxHeight;
+    public float MaxWidth = 2000;
+    public float MaxHeight= 1000;
 
     //how many pixels/points per edge
-    public int ResolutionX;
-    public int ResolutionY;
+    public int ResolutionX = 256;
+    public int ResolutionY = 128;
 
     [HideInInspector]
     private float _OldWidth;

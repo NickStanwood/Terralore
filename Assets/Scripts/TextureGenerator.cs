@@ -13,6 +13,8 @@ public static class TextureGenerator
         int height = noiseMap.GetLength(1);
 
         Texture2D texture = new Texture2D(width, height);
+        texture.filterMode = FilterMode.Point;
+        texture.wrapMode = TextureWrapMode.Clamp;
 
         Color[] colorMap = new Color[width * height];
 

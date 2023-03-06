@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-[System.Serializable]
-public class ViewWindow
+[CreateAssetMenu()]
+public class ViewData : UpdatableData
 {    
     public bool MaintainAspectRatio = true;
 
@@ -43,7 +42,7 @@ public class ViewWindow
         return Y + Height;
     }
 
-    public void OnValidate()
+    protected override void OnValidate()
     {
         if(MaintainAspectRatio)
         {
@@ -81,5 +80,7 @@ public class ViewWindow
         _OldHeight = Height;
         _OldResolutionX = ResolutionX;
         _OldResolutionY = ResolutionY;        
+
+        base.OnValidate();
     }
 }

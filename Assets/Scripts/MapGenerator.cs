@@ -5,16 +5,9 @@ using UnityEngine.Events;
 
 public class MapGenerator : MonoBehaviour
 {
-    public int Seed;
-    public NoiseParams noise;
-
-    public bool AutoUpdate;
-
-    [Range(0.0f, 1.0f)]
-    public float OceanLevel;
-
-    [HideInInspector]
-    private ViewWindow viewWindow;
+    public NoiseData noiseData;
+    public TerrainData terrainData;
+    public ViewData viewData;
 
     [HideInInspector]
     private bool MapInvalidated;
@@ -27,25 +20,47 @@ public class MapGenerator : MonoBehaviour
     {
         if(MapInvalidated)
         {
-            GenerateMap(viewWindow);
+            GenerateMap();
             MapInvalidated = false;
         }
     }
 
-    public void GenerateMap(ViewWindow window)
+    public void GenerateMap()
     {
         float maxHeight, minHeight;
-        float[,] map = Noise.GenerateNoiseMap(Seed, noise, window, out minHeight, out maxHeight);
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, window, OceanLevel);
+        float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, out minHeight, out maxHeight);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
-        //display.DrawNoiseMap(map);
-        display.DrawMesh(map, meshData, OceanLevel);
+        display.DrawMesh(map, meshData, terrainData);
     }
 
-    public void OnWindowUpdate(ViewWindow window)
+    public void OnValuesUpdated()
     {
-        MapInvalidated = true;
-        viewWindow = window;
+        if(Application.isPlaying)
+            MapInvalidated = false;
+        else
+            GenerateMap();
+    }
+
+    private void OnValidate()
+    {
+        if(terrainData != null)
+        {
+            terrainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            terrainData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if(noiseData != null)
+        {
+            noiseData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            noiseData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if(viewData != null)
+        {
+            viewData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            viewData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
     }
 }

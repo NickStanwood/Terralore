@@ -9,7 +9,7 @@ public class NoiseData : UpdatableData
 
     NoiseSamplingType Type;
 
-    [Range(0.0001f, 1.0f)]
+    [Range(0.0001f, 0.01f)]
     public float Frequency;     //the larger the value the faster the noise changes
 
     [Range(1, 30)]

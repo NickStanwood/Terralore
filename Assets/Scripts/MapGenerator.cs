@@ -38,7 +38,7 @@ public class MapGenerator : MonoBehaviour
     public void OnValuesUpdated()
     {
         if(Application.isPlaying)
-            MapInvalidated = false;
+            MapInvalidated = true;
         else
             GenerateMap();
     }

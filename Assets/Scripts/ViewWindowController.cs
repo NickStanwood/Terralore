@@ -51,6 +51,7 @@ public class ViewWindowController : MonoBehaviour
 
             Window.X -= delta.x * (Window.Width  / Screen.width);
             Window.Y += delta.y * (Window.Height / Screen.height);
+            Window.NotifyOfUpdatedValues();
         }
 
         if(Input.mouseScrollDelta.y != 0)
@@ -62,6 +63,7 @@ public class ViewWindowController : MonoBehaviour
 
             Zoom(ref Window.Width , ref Window.X, zoom, 2.0f, Window.MaxWidth , xPos);
             Zoom(ref Window.Height, ref Window.Y, zoom, 1.0f, Window.MaxHeight, yPos);
+            Window.NotifyOfUpdatedValues();
         }
     }
 
@@ -79,6 +81,7 @@ public class ViewWindowController : MonoBehaviour
         if (positive && !negative)
         {
             distance += delta;
+            Window.NotifyOfUpdatedValues();
             return true;
 
         }
@@ -86,6 +89,7 @@ public class ViewWindowController : MonoBehaviour
         if (negative && !positive)
         {
             distance -= delta;
+            Window.NotifyOfUpdatedValues();
             return true;
 
         }

@@ -10,12 +10,12 @@ public class MapDisplay : MonoBehaviour
 
     public ColorStyle DisplayVersion = ColorStyle.WaterLand;
 
-    public void DrawMesh(float[,] noiseMap, MeshData meshData, float oceanLevel)
+    public void DrawMesh(float[,] noiseMap, MeshData meshData, TerrainData terrain)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
 
-        Texture2D texture = TextureGenerator.GenerateTexture(noiseMap, DisplayVersion, oceanLevel);
+        Texture2D texture = TextureGenerator.GenerateTexture(noiseMap, DisplayVersion, terrain.OceanLevel);
 
         meshFilter.sharedMesh = meshData.CreateMesh();
         meshRenderer.sharedMaterial.mainTexture = texture;

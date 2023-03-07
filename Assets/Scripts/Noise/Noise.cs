@@ -4,17 +4,17 @@ using UnityEngine;
 
 public static class Noise
 {
-    public static float[,] GenerateNoiseMap(int seed, NoiseParams noise, ViewWindow window)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window)
     {
         float max, min;
-        return GenerateNoiseMap(seed, noise, window, out min, out max);
+        return GenerateNoiseMap(noise, window, out min, out max);
     }
 
-    public static float[,] GenerateNoiseMap(int seed, NoiseParams noise, ViewWindow window, out float localMinNoise, out float localMaxNoise)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, out float localMinNoise, out float localMaxNoise)
     {
         float[,] noiseMap = new float[window.ResolutionX, window.ResolutionY];
 
-        float[] seedOffsets = GetOctaveOffsets(seed, noise.Octaves);
+        float[] seedOffsets = GetOctaveOffsets(noise.Seed, noise.Octaves);
 
         float windowSampleFreqX = window.Width / window.ResolutionX;
         float windowSampleFreqY = window.Height / window.ResolutionY;
@@ -93,7 +93,7 @@ public static class Noise
             }
         }
 
-        return Normalize(noiseMap, max, min);
+        return noiseMap;
     }
 
     public static float[,] Normalize(float[,] noiseMap, float max, float min)
@@ -125,7 +125,7 @@ public static class Noise
         return seedOffsets;
     }
 
-    public static float GetMaxNoise(NoiseParams noise)
+    public static float GetMaxNoise(NoiseData noise)
     {
         float maxNoise = 0.0f;
         float amp = 1.0f;

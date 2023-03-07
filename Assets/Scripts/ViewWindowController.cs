@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class ViewWindowController : MonoBehaviour
 {
-    public ViewWindow Window;
+    public ViewData Window;
 
     private bool RightPressed = false;
     private bool LeftPressed = false;
@@ -14,12 +14,9 @@ public class ViewWindowController : MonoBehaviour
 
     private bool TrackMouse = false;
     private Vector3 MousePosition;
-    public UnityEvent<ViewWindow> WindowUpdated;
 
     void Start()
     {
-        if (WindowUpdated == null)
-            WindowUpdated = new UnityEvent<ViewWindow>();
     }
 
     void Update()
@@ -54,23 +51,19 @@ public class ViewWindowController : MonoBehaviour
 
             Window.X -= delta.x * (Window.Width  / Screen.width);
             Window.Y += delta.y * (Window.Height / Screen.height);
-            WindowUpdated.Invoke(Window);
+            Window.NotifyOfUpdatedValues();
         }
 
         if(Input.mouseScrollDelta.y != 0)
         {
             float zoom =  1.0f - Input.mouseScrollDelta.y * .1f;
 
-            Debug.Log("zoom: " + zoom);
-
             float xPos = Input.mousePosition.x * (Window.Width / Screen.width);
-            Debug.Log("xPos: " + xPos);
             float yPos = Window.Height - (Input.mousePosition.y * (Window.Height / Screen.height));
-            Debug.Log("yPos: " + yPos);
 
             Zoom(ref Window.Width , ref Window.X, zoom, 2.0f, Window.MaxWidth , xPos);
             Zoom(ref Window.Height, ref Window.Y, zoom, 1.0f, Window.MaxHeight, yPos);
-            WindowUpdated.Invoke(Window);
+            Window.NotifyOfUpdatedValues();
         }
     }
 
@@ -88,7 +81,7 @@ public class ViewWindowController : MonoBehaviour
         if (positive && !negative)
         {
             distance += delta;
-            WindowUpdated.Invoke(Window);
+            Window.NotifyOfUpdatedValues();
             return true;
 
         }
@@ -96,7 +89,7 @@ public class ViewWindowController : MonoBehaviour
         if (negative && !positive)
         {
             distance -= delta;
-            WindowUpdated.Invoke(Window);
+            Window.NotifyOfUpdatedValues();
             return true;
 
         }

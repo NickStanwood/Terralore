@@ -8,21 +8,13 @@ public class MapGeneratorEditor : Editor
 {
     public override void OnInspectorGUI()
     {
+        base.OnInspectorGUI();
+
         MapGenerator mapGen = (MapGenerator)target;
-        
-        if(DrawDefaultInspector())
-        {
-            ViewWindowController vwController = FindObjectOfType<ViewWindowController>();
-            if (mapGen.AutoUpdate)
-            {
-                mapGen.GenerateMap(vwController.Window);
-            }
-        }
 
         if (GUILayout.Button("Generate"))
         {
-            ViewWindowController vwController = FindObjectOfType<ViewWindowController>();
-            mapGen.GenerateMap(vwController.Window);
+            mapGen.GenerateMap();
         }
     }
 }

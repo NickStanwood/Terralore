@@ -30,7 +30,7 @@ public class ViewWindowController : MonoBehaviour
         float deltaX = Window.Width * Time.deltaTime;
         float deltaY = Window.Height * Time.deltaTime;
 
-        TryIncrementDistance(RightPressed, LeftPressed, deltaX, ref Window.X);
+        TryIncrementDistance(LeftPressed, RightPressed, deltaX, ref Window.X);
         TryIncrementDistance(DownPressed, UpPressed, deltaY, ref Window.Y);
 
         //Move view based on mouse

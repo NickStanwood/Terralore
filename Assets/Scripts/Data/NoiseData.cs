@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 [CreateAssetMenu()]
 public class NoiseData : UpdatableData
@@ -20,9 +21,20 @@ public class NoiseData : UpdatableData
 
     [Range(1.0f, 10.0f)]
     public float Lacunarity;    //how fast the scale of each octave decreases
+
+    public NoiseAttenuationData AttenuationCurve;
+
+    private void OnValidate()
+    {
+        if (AttenuationCurve != null)
+        {
+            AttenuationCurve.OnValuesUpdated.RemoveListener(NotifyOfUpdatedValues);
+            AttenuationCurve.OnValuesUpdated.AddListener(NotifyOfUpdatedValues);
+        }
+    }
 }
 
-public enum NoiseSamplingType
+    public enum NoiseSamplingType
 {
     Perlin,
     Cellular,

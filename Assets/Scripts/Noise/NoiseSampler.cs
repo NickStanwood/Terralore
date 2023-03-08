@@ -40,7 +40,12 @@ public abstract class NoiseSampler
             freq *= NoiseData.Lacunarity;
         }
 
-        return sum / max;
+        float noiseVal = sum / max;
+
+        if (NoiseData.AttenuationCurve != null)
+            noiseVal *= NoiseData.AttenuationCurve.Evaluate((float)x, (float)y);
+
+        return noiseVal;
     }
 
     /// <summary>

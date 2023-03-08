@@ -12,7 +12,6 @@ public static class MeshGenerator
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
         float heightMultiplier = (window.MaxWidth*terrain.HeightScale) / window.Width;
-        Debug.Log("height multiplier: " + heightMultiplier);
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
 

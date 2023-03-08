@@ -15,6 +15,9 @@ public class ViewData : UpdatableData
     public float Width    = 2000;
     public float Height   = 1000;
 
+    public float MinWidth = 0.02f;
+    public float MinHeight = 0.01f;
+
     public float MaxWidth = 2000;
     public float MaxHeight= 1000;
 
@@ -65,8 +68,14 @@ public class ViewData : UpdatableData
             
         }
 
-        Width   = (Width < 1  || float.IsNaN(Width)  || float.IsInfinity(Width))  ? 1 : Width;
-        Height  = (Height < 1 || float.IsNaN(Height) || float.IsInfinity(Height)) ? 1 : Height;
+        if(float.IsNaN(Width)      || float.IsNaN(Height)      ||
+           float.IsInfinity(Width) || float.IsInfinity(Height) ||
+           Width < MinWidth        || Height < MinHeight)
+        {
+            Width = MinWidth;
+            Height = MinHeight;
+        }
+
         if(Width > MaxWidth || Height > MaxHeight)
         {
             Width = MaxWidth;

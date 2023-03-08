@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 048662d27801ecc4aa167aa7a7fc133d, type: 3}
   m_Name: Terrain
   m_EditorClassIdentifier: 
-  OceanLevel: 0
+  OnValuesUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  AutoUpdate: 1
+  OceanLevel: 0.39
+  HeightScale: 25

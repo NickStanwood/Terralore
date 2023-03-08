@@ -61,8 +61,8 @@ public class ViewWindowController : MonoBehaviour
             float xPos = Input.mousePosition.x * (Window.Width / Screen.width);
             float yPos = Window.Height - (Input.mousePosition.y * (Window.Height / Screen.height));
 
-            Zoom(ref Window.Width , ref Window.X, zoom, 2.0f, Window.MaxWidth , xPos);
-            Zoom(ref Window.Height, ref Window.Y, zoom, 1.0f, Window.MaxHeight, yPos);
+            Zoom(ref Window.Width , ref Window.X, zoom, Window.MinWidth, Window.MaxWidth , xPos);
+            Zoom(ref Window.Height, ref Window.Y, zoom, Window.MinHeight, Window.MaxHeight, yPos);
             Window.NotifyOfUpdatedValues();
         }
     }

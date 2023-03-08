@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55c0a549ab74404fbff2a9214b01077, type: 3}
   m_Name: ViewWindow
   m_EditorClassIdentifier: 
+  OnValuesUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  AutoUpdate: 1
   MaintainAspectRatio: 1
-  X: 0
+  X: 8
   Y: 0
   Width: 2000
   Height: 1000

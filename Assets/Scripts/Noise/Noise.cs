@@ -14,41 +14,23 @@ public static class Noise
     {
         float[,] noiseMap = new float[window.ResolutionX, window.ResolutionY];
 
-        float[] seedOffsets = GetOctaveOffsets(noise.Seed, noise.Octaves);
-
-        float windowSampleFreqX = window.Width / window.ResolutionX;
-        float windowSampleFreqY = window.Height / window.ResolutionY;
+        double windowSampleFreqX = window.Width / window.ResolutionX;
+        double windowSampleFreqY = window.Height / window.ResolutionY;
 
         float absoluteMaxNoise = GetMaxNoise(noise);
 
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
 
+        PerlinSampler sampler = new PerlinSampler(noise);
+
         for (int y = 0; y < window.ResolutionY; y++)
         {
             for (int x = 0; x < window.ResolutionX; x++)
             {
-                float amp = 1.0f;
-                float noiseVal = 0.0f;
-                float freq = 1.0f;
-
-                for (int i = 0; i < noise.Octaves; i++)
-                {
-                    float offsetX = seedOffsets[i] + window.X * noise.Frequency * freq;
-                    float sampleX = x * windowSampleFreqX * noise.Frequency * freq + offsetX;
-                    //string output = $"offset: {offsetX.ToString("N6")} = {seedOffsets[i].ToString("N6")} + {window.X.ToString("N6")}*{noise.Frequency.ToString("N6")}*{freq.ToString("N6")}\n";
-                    //output += $"sample: {sampleX.ToString("N6")} = {x.ToString("N6")}*{windowSampleFreqX.ToString("N6")}*{noise.Frequency.ToString("N6")}*{freq.ToString("N6")}\n";
-
-                    float offsetY = seedOffsets[i] + window.Y * noise.Frequency * freq;
-                    float sampleY = y * windowSampleFreqY * noise.Frequency * freq + offsetY;
-                    float perlin = Mathf.PerlinNoise(sampleX, sampleY);
-                    //output += $"perlin [{x},{y}] -> [{sampleX.ToString("N6")}:{sampleY.ToString("N6")}] = {perlin.ToString("N6")}";
-                    //Debug.Log(output);
-                    noiseVal += perlin * amp;
-
-                    amp *= noise.Persistence;
-                    freq *= noise.Lacunarity;
-                }
+                double sampleX = x * windowSampleFreqX + window.X;
+                double sampleY = y * windowSampleFreqY + window.Y;
+                float noiseVal = sampler.Sample(sampleX, sampleY);
 
                 if(noiseVal < localMinNoise)
                     localMinNoise = noiseVal;

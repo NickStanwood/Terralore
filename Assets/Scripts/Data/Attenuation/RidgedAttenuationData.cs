@@ -14,13 +14,14 @@ public class RidgedAttenuationData : NoiseAttenuationData
         return 1.0f - Mathf.Abs((val-0.5f)*2.0f);
     }
 
-    private void OnValidate()
+    protected override void OnValidate()
     {
         if (Noise != null)
         {
             Sampler = new PerlinSampler(Noise);
-            NoiseData.OnValuesUpdated.RemoveListener(NotifyOfUpdatedValues);
-            NoiseData.OnValuesUpdated.AddListener(NotifyOfUpdatedValues);
+            Noise.OnValuesUpdated.RemoveListener(NotifyOfUpdatedValues);
+            Noise.OnValuesUpdated.AddListener(NotifyOfUpdatedValues);
         }
+        base.OnValidate();
     }
 }

@@ -24,17 +24,19 @@ public class NoiseData : UpdatableData
 
     public NoiseAttenuationData AttenuationCurve;
 
-    private void OnValidate()
+    protected override void OnValidate()
     {
         if (AttenuationCurve != null)
         {
+            Debug.Log("RidgedAttenuationData OnValidate");
             AttenuationCurve.OnValuesUpdated.RemoveListener(NotifyOfUpdatedValues);
             AttenuationCurve.OnValuesUpdated.AddListener(NotifyOfUpdatedValues);
         }
+        base.OnValidate();
     }
 }
 
-    public enum NoiseSamplingType
+public enum NoiseSamplingType
 {
     Perlin,
     Cellular,

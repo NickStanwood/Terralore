@@ -14,6 +14,8 @@ public class MapGeneratorEditor : Editor
 
         if (GUILayout.Button("Generate"))
         {
+            System.Random rand = new System.Random();
+            mapGen.noiseData.Seed = rand.Next(0, 100000);
             mapGen.GenerateMap();
         }
     }

@@ -28,7 +28,6 @@ public class NoiseData : UpdatableData
     {
         if (AttenuationCurve != null)
         {
-            Debug.Log("RidgedAttenuationData OnValidate");
             AttenuationCurve.OnValuesUpdated.RemoveListener(NotifyOfUpdatedValues);
             AttenuationCurve.OnValuesUpdated.AddListener(NotifyOfUpdatedValues);
         }

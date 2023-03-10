@@ -4,10 +4,7 @@ using UnityEngine;
 
 public static class TextureGenerator
 {
-    public static Color LandColor = new Color(24/255f, 149/255f, 52/255f);
-    public static Color WaterColor = new Color(57/255f, 140/255f, 204/255f);
-
-    public static Texture2D GenerateTexture(float[,] noiseMap, ColorStyle style, float waterLevel)
+    public static Texture2D GenerateTexture(float[,] noiseMap, DisplayData display, float waterLevel)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
@@ -22,16 +19,32 @@ public static class TextureGenerator
         {
             for (int x = 0; x < width; x++)
             {
-                switch (style)
+                switch (display.Style)
                 {
                     case ColorStyle.GreyScale:
                         colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
                         break;
+                    case ColorStyle.HeightMap:
+                        if (noiseMap[x, y] < waterLevel)
+                        {
+                            colorMap[y * width + x] = display.WaterColor;
+                            continue;
+                        }
+
+                        foreach (var range in display.HeightMapColors)
+                        {
+                            if (noiseMap[x, y] < range.MaxValue)
+                            {
+                                colorMap[y * width + x] = range.Color;
+                                break;
+                            }
+                        }
+                        break;
                     default:
                         if (noiseMap[x, y] > waterLevel)
-                            colorMap[y * width + x] = LandColor;
+                            colorMap[y * width + x] = Color.white;
                         else
-                            colorMap[y * width + x] = WaterColor;
+                            colorMap[y * width + x] = Color.black;
                         break;
                 }
             }
@@ -42,14 +55,4 @@ public static class TextureGenerator
 
         return texture;
     }
-}
-
-public enum ColorStyle
-{
-    GreyScale,
-    WaterLand,
-    HeightMap,
-    HeatMap,
-    Mountains,
-    Vintage
 }

@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57df8f76f53adc94b8a3f6bb1eb174e1, type: 3}
   m_Name: ContinentNoise
   m_EditorClassIdentifier: 
-  Seed: 0
-  Frequency: 0
-  Octaves: 0
-  Persistence: 0
-  Lacunarity: 0
-  Scale: 0
+  OnValuesUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  AutoUpdate: 1
+  Seed: 13558
+  Frequency: 0.0001
+  Octaves: 17
+  Persistence: 0.488
+  Lacunarity: 2.15
+  AttenuationCurve: {fileID: 0}

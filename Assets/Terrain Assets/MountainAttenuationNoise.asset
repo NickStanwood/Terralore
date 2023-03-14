@@ -15,10 +15,10 @@ MonoBehaviour:
   OnValuesUpdated:
     m_PersistentCalls:
       m_Calls: []
-  AutoUpdate: 0
+  AutoUpdate: 1
   Seed: 0
-  Frequency: 0
-  Octaves: 0
-  Persistence: 0
-  Lacunarity: 0
+  Frequency: 0.00652
+  Octaves: 1
+  Persistence: 0.526
+  Lacunarity: 1.96
   AttenuationCurve: {fileID: 0}

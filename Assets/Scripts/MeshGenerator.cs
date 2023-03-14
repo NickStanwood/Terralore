@@ -42,6 +42,38 @@ public static class MeshGenerator
 
         return meshData;
     }
+
+    public static MeshData GenerateSphereMesh(ViewData window, TerrainData terrain)
+    {
+        float radius = 100.0f;
+        MeshData meshData = new MeshData(360, 180);
+        int vertexIndex = 0;
+
+        for (int lat = -90; lat < 90; lat++)
+        {
+            for(int lon = -180; lon < 180; lon++)
+            {
+                float lat_radians = lat * Mathf.PI / 180.0f;
+                float lon_radians = lon * Mathf.PI / 180.0f;
+                float x = radius * Mathf.Cos(lat_radians) * Mathf.Cos(lon_radians);
+                float y = radius * Mathf.Cos(lat_radians) * Mathf.Sin(lon_radians);
+                float z = radius * Mathf.Sin(lat_radians);
+
+                meshData.Vertices[vertexIndex] = new Vector3(x, y, z);
+                meshData.UVs[vertexIndex] = new Vector2(x / 360.0f, y / 180.0f);
+
+                if (lat < 90 - 1 && lon < 180 - 1)
+                {
+                    meshData.AddTriangle(vertexIndex, vertexIndex + 360 + 1, vertexIndex + 360);
+                    meshData.AddTriangle(vertexIndex + 360 + 1, vertexIndex, vertexIndex + 1);
+                }
+
+                vertexIndex++;
+            }
+        }
+
+        return meshData;
+    }
 }
 
 public class MeshData

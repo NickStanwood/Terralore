@@ -34,7 +34,8 @@ public class MapGenerator : MonoBehaviour
     {
         float maxHeight, minHeight;
         float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, out minHeight, out maxHeight);
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
+        //MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
+        MeshData meshData = MeshGenerator.GenerateSphereMesh(viewData, terrainData);
 
         Texture2D texture = TextureGenerator.GenerateTexture(map, displayData, terrainData.OceanLevel);
 

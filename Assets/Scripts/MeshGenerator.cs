@@ -4,44 +4,44 @@ using UnityEngine;
 
 public static class MeshGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] HeightMap, ViewData window, TerrainData terrain, float localMin)
-    {
-        int width = HeightMap.GetLength(0);
-        int height = HeightMap.GetLength(1);
+    //public static MeshData GenerateTerrainMesh(float[,] HeightMap, ViewData window, TerrainData terrain, float localMin)
+    //{
+    //    int width = HeightMap.GetLength(0);
+    //    int height = HeightMap.GetLength(1);
 
-        float topLeftX = (width - 1) / -2f;
-        float topLeftZ = (height - 1) / 2f;
-        float heightMultiplier = (window.MaxWidth*terrain.HeightScale) / window.Width;
-        MeshData meshData = new MeshData(width, height);
-        int vertexIndex = 0;
+    //    float topLeftX = (width - 1) / -2f;
+    //    float topLeftZ = (height - 1) / 2f;
+    //    float heightMultiplier = (window.MaxWidth*terrain.HeightScale) / window.Width;
+    //    MeshData meshData = new MeshData(width, height);
+    //    int vertexIndex = 0;
 
-        //check if part of the mesh is going to be ocean
-        if(terrain.OceanLevel > localMin)
-            localMin = terrain.OceanLevel;
+    //    //check if part of the mesh is going to be ocean
+    //    if(terrain.OceanLevel > localMin)
+    //        localMin = terrain.OceanLevel;
 
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width ; x++)
-            {
-                float heightY = Mathf.Max(HeightMap[x, y] - localMin, 0.0f);
+    //    for (int y = 0; y < height; y++)
+    //    {
+    //        for (int x = 0; x < width ; x++)
+    //        {
+    //            float heightY = Mathf.Max(HeightMap[x, y] - localMin, 0.0f);
 
-                heightY *= heightMultiplier;
+    //            heightY *= heightMultiplier;
 
-                meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, heightY, topLeftZ - y);
-                meshData.UVs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
+    //            meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, heightY, topLeftZ - y);
+    //            meshData.UVs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
-                if(x < width - 1 && y < height - 1)
-                {
-                    meshData.AddTriangle(vertexIndex            , vertexIndex + width + 1, vertexIndex + width);
-                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex            , vertexIndex + 1);
-                }
+    //            if(x < width - 1 && y < height - 1)
+    //            {
+    //                meshData.AddTriangle(vertexIndex            , vertexIndex + width + 1, vertexIndex + width);
+    //                meshData.AddTriangle(vertexIndex + width + 1, vertexIndex            , vertexIndex + 1);
+    //            }
 
-                vertexIndex++;
-            }
-        }
+    //            vertexIndex++;
+    //        }
+    //    }
 
-        return meshData;
-    }
+    //    return meshData;
+    //}
 
     public static MeshData GenerateSphereMesh(ViewData window, TerrainData terrain)
     {

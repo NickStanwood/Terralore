@@ -33,7 +33,7 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         float maxHeight, minHeight;
-        float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, out minHeight, out maxHeight);
+        float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, terrainData, out minHeight, out maxHeight);
         //MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
         MeshData meshData = MeshGenerator.GenerateSphereMesh(viewData, terrainData);
 

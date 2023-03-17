@@ -4,18 +4,18 @@ using UnityEngine;
 
 public static class Noise
 {
-    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, TerrainData terrain)
     {
         float max, min;
-        return GenerateNoiseMap(noise, window, out min, out max);
+        return GenerateNoiseMap(noise, window, terrain, out min, out max);
     }
 
-    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, out float localMinNoise, out float localMaxNoise)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, TerrainData terrain, out float localMinNoise, out float localMaxNoise)
     {
-        float[,] noiseMap = new float[window.ResolutionX, window.ResolutionY];
+        float[,] noiseMap = new float[window.LonResolution, window.LatResolution];
 
-        double windowSampleFreqX = window.Width / window.ResolutionX;
-        double windowSampleFreqY = window.Height / window.ResolutionY;
+        double lonSampleFreq = window.LonAngle / window.LonResolution;
+        double latSampleFreq = window.LatAngle / window.LatResolution;
 
         float absoluteMaxNoise = GetMaxNoise(noise);
 
@@ -24,13 +24,18 @@ public static class Noise
 
         PerlinSampler sampler = new PerlinSampler(noise);
 
-        for (int y = 0; y < window.ResolutionY; y++)
+        for (int lat = 0; lat < window.LatResolution; lat++)
         {
-            for (int x = 0; x < window.ResolutionX; x++)
+            for (int lon = 0; lon < window.LonResolution; lon++)
             {
-                double sampleX = x * windowSampleFreqX + window.X;
-                double sampleY = y * windowSampleFreqY + window.Y;
-                float noiseVal = sampler.Sample(sampleX, sampleY);
+                double sampleLon = lon * lonSampleFreq + window.LonLeft;
+                double sampleLat = lat * latSampleFreq + window.LatTop;
+
+                double x = terrain.WorldRadius * Mathf.Cos(sampleLat) * Mathf.Cos(sampleLon);
+                double y = terrain.WorldRadius * Mathf.Cos(sampleLat) * Mathf.Sin(sampleLon);
+                double z = terrain.WorldRadius * Mathf.Sin(sampleLat);
+
+                float noiseVal = sampler.Sample(x, y, z);
 
                 if(noiseVal < localMinNoise)
                     localMinNoise = noiseVal;
@@ -38,7 +43,7 @@ public static class Noise
                 if(noiseVal > localMaxNoise)
                     localMaxNoise = noiseVal;
 
-                noiseMap[x, y] = noiseVal;
+                noiseMap[lon, lat] = noiseVal;
             }
         }
         Debug.Log($"max noise: {absoluteMaxNoise}");

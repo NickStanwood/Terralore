@@ -27,11 +27,11 @@ public class ViewWindowController : MonoBehaviour
         UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
         UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
 
-        float deltaX = Window.Width * Time.deltaTime;
-        float deltaY = Window.Height * Time.deltaTime;
+        float deltaLon = Window.LonAngle * Time.deltaTime;
+        float deltaLat = Window.LatAngle * Time.deltaTime;
 
-        TryIncrementDistance(LeftPressed, RightPressed, deltaX, ref Window.X);
-        TryIncrementDistance(DownPressed, UpPressed, deltaY, ref Window.Y);
+        TryIncrementDistance(LeftPressed, RightPressed, deltaLon, ref Window.LonLeft);
+        TryIncrementDistance(DownPressed, UpPressed, deltaLat, ref Window.LatTop);
 
         //Move view based on mouse
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -49,8 +49,8 @@ public class ViewWindowController : MonoBehaviour
             Vector3 delta = Input.mousePosition - MousePosition;
             MousePosition = Input.mousePosition;
 
-            Window.X -= delta.x * (Window.Width  / Screen.width);
-            Window.Y += delta.y * (Window.Height / Screen.height);
+            Window.LonLeft -= delta.x * (Window.LonAngle  / Screen.width);
+            Window.LatTop += delta.y * (Window.LatAngle / Screen.height);
             Window.NotifyOfUpdatedValues();
         }
 
@@ -58,11 +58,11 @@ public class ViewWindowController : MonoBehaviour
         {
             float zoom =  1.0f - Input.mouseScrollDelta.y * .1f;
 
-            float xPos = Input.mousePosition.x * (Window.Width / Screen.width);
-            float yPos = Window.Height - (Input.mousePosition.y * (Window.Height / Screen.height));
+            float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
+            float yPos = Window.LatTop - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
 
-            Zoom(ref Window.Width , ref Window.X, zoom, Window.MinWidth, Window.MaxWidth , xPos);
-            Zoom(ref Window.Height, ref Window.Y, zoom, Window.MinHeight, Window.MaxHeight, yPos);
+            Zoom(ref Window.LonAngle , ref Window.LonLeft, zoom, Window.MinAngle, ViewData.MaxLon, xPos);
+            Zoom(ref Window.LatAngle, ref Window.LatTop, zoom, Window.MinAngle/2f, ViewData.MaxLat, yPos);
             Window.NotifyOfUpdatedValues();
         }
     }

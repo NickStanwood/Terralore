@@ -6,16 +6,26 @@ using UnityEngine;
 public class ViewData : UpdatableData
 {
     #region static properties
-    public static float MaxLon = 2 * Mathf.PI;
-    public static float MaxLat = Mathf.PI;
+    public static float MaxLon = Mathf.PI;
+    public static float MaxLat = Mathf.PI/2;
+
+
+    public static float MinLon = -Mathf.PI;
+    public static float MinLat = -Mathf.PI/2;
     #endregion
 
     //Top left corner
-    public float LonLeft;     
+    [Range(-3.14159f, 3.14159f)]
+    public float LonLeft;
+
+    [Range(-3.14159f/2f, 3.14159f/2f)]
     public float LatTop;
 
     //total angle that the window spans window
+    [Range(0f, 2 * 3.14159f)]
     public float LonAngle;
+
+    [Range(0f, 3.14159f)]
     public float LatAngle;
 
     public float MinAngle = 0.002f;
@@ -48,12 +58,12 @@ public class ViewData : UpdatableData
     {
         if(_OldLonAngle != LonAngle)
         {
-            LonAngle = Mathf.Min(LonAngle, MaxLon);
+            LonAngle = Mathf.Min(LonAngle, MaxLon - MinLon);
             LatAngle = LonAngle / 2f;
         }
         else if(_OldLatAngle != LatAngle)
         {
-            LatAngle = Mathf.Min(LatAngle, MaxLat);
+            LatAngle = Mathf.Min(LatAngle, MaxLat-MinLat);
             LonAngle = LatAngle*2f;
         }
             
@@ -64,12 +74,6 @@ public class ViewData : UpdatableData
         {
             LonAngle = MinAngle;
             LatAngle = MinAngle/2f;
-        }
-
-        if(LonAngle > MaxLon || LatAngle > MaxLat)
-        {
-            LonAngle = MaxLon;
-            LatAngle = MaxLat;
         }
 
         Resolution = (Resolution < 16) ? 16 : Resolution;

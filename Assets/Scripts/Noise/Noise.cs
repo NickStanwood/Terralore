@@ -31,9 +31,11 @@ public static class Noise
                 double sampleLon = lon * lonSampleFreq + window.LonLeft;
                 double sampleLat = lat * latSampleFreq + window.LatTop;
 
-                double x = terrain.WorldRadius * Mathf.Cos(sampleLat) * Mathf.Cos(sampleLon);
-                double y = terrain.WorldRadius * Mathf.Cos(sampleLat) * Mathf.Sin(sampleLon);
-                double z = terrain.WorldRadius * Mathf.Sin(sampleLat);
+                sampleLat = (sampleLat > ViewData.MaxLat) ? sampleLat - ViewData.MaxLat : sampleLat;
+
+                double y = terrain.WorldRadius * Mathf.Cos((float)sampleLat) * Mathf.Cos((float)sampleLon);
+                double x = terrain.WorldRadius * Mathf.Cos((float)sampleLat) * Mathf.Sin((float)sampleLon);
+                double z = terrain.WorldRadius * Mathf.Sin((float)sampleLat);
 
                 float noiseVal = sampler.Sample(x, y, z);
 

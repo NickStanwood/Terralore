@@ -101,20 +101,15 @@ public class MeshData
         Vertices = new Vector3[width * height];
         UVs = new Vector2[width * height];
         int triangleCount = (width * (height - 1) - 1) * 6;
-        Debug.Log($"triangleCount:{triangleCount}");
         Triangles = new int[triangleCount];
     }
 
     public void AddTriangle(int a, int b, int c)
     {
-        if (a > 128 || b > 128 || c > 128)
-            Debug.Log($"a:{a}, b:{b}, c:{c}");
-
         Triangles[triangleIndex] = a;
         Triangles[triangleIndex + 1] = b;
         Triangles[triangleIndex + 2] = c;
         triangleIndex += 3;
-        Debug.Log($"triangleIndex:{triangleIndex}");
     }
 
     public Mesh CreateMesh()

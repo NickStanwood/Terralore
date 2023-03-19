@@ -11,7 +11,7 @@ public static class MeshGenerator
 
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
-        float heightMultiplier = (ViewData.MaxLon * terrain.HeightScale) / window.LonAngle;
+        float heightMultiplier = (Coordinates.MaxLon * terrain.HeightScale) / window.LonAngle;
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
 
@@ -59,27 +59,30 @@ public static class MeshGenerator
         {
             for (int lon = 0; lon < width; lon++)
             {
-                float sampleLon = lon * lonSampleFreq - ViewData.MinLon;
-                float sampleLat = lat * latSampleFreq - ViewData.MinLat;
+                float sampleLon = lon * lonSampleFreq + Coordinates.MinLon;
+                float sampleLat = lat * latSampleFreq + Coordinates.MinLat;
 
-                float x = radius * Mathf.Cos(sampleLat) * Mathf.Cos(sampleLon);
-                float y = radius * Mathf.Cos(sampleLat) * Mathf.Sin(sampleLon);
-                float z = radius * Mathf.Sin(sampleLat);
+                Vector3 cartesian = Coordinates.CoordToCartesian(sampleLon, sampleLat, radius);
 
-                meshData.Vertices[vertexIndex] = new Vector3(x, y, z);
+                meshData.Vertices[vertexIndex] = new Vector3(cartesian.x, cartesian.y, cartesian.z);
                 meshData.UVs[vertexIndex] = new Vector2((float)lon / width, (float)lat / height);
 
                 if (lat < height - 1 && lon < width - 1)
                 {
-                    meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + width + 1);
-                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex + 1, vertexIndex);
+                    //meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + width + 1);
+                    //meshData.AddTriangle(vertexIndex + width + 1, vertexIndex + 1, vertexIndex);
+
+                    meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
+                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
                 }
                 else if (lon == width - 1 && lat < height - 1 && lat > 0)
                 {
-                    meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + 1);
-                    meshData.AddTriangle(vertexIndex + 1, vertexIndex - width, vertexIndex);
-                }
+                    //meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + 1);
+                    //meshData.AddTriangle(vertexIndex + 1, vertexIndex - width + 1, vertexIndex);
 
+                    meshData.AddTriangle(vertexIndex, vertexIndex + 1, vertexIndex + width);
+                    meshData.AddTriangle(vertexIndex + 1, vertexIndex, vertexIndex - width + 1);
+                }
                 vertexIndex++;
             }
         }

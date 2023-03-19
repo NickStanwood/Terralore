@@ -5,15 +5,6 @@ using UnityEngine;
 [CreateAssetMenu()]
 public class ViewData : UpdatableData
 {
-    #region static properties
-    public static float MaxLon = Mathf.PI;
-    public static float MaxLat = Mathf.PI/2;
-
-
-    public static float MinLon = -Mathf.PI;
-    public static float MinLat = -Mathf.PI/2;
-    #endregion
-
     //Top left corner
     [Range(-3.14159f, 3.14159f)]
     public float LonLeft;
@@ -58,12 +49,12 @@ public class ViewData : UpdatableData
     {
         if(_OldLonAngle != LonAngle)
         {
-            LonAngle = Mathf.Min(LonAngle, MaxLon - MinLon);
+            LonAngle = Mathf.Min(LonAngle, Coordinates.MaxLon - Coordinates.MinLon);
             LatAngle = LonAngle / 2f;
         }
         else if(_OldLatAngle != LatAngle)
         {
-            LatAngle = Mathf.Min(LatAngle, MaxLat-MinLat);
+            LatAngle = Mathf.Min(LatAngle, Coordinates.MaxLat - Coordinates.MinLat);
             LonAngle = LatAngle*2f;
         }
             

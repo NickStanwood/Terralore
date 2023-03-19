@@ -24,28 +24,22 @@ public static class Noise
 
         PerlinSampler sampler = new PerlinSampler(noise);
 
-        for (int lat = 0; lat < window.LatResolution; lat++)
+        for (int y = 0; y < window.LatResolution; y++)
         {
-            for (int lon = 0; lon < window.LonResolution; lon++)
+            for (int x = 0; x < window.LonResolution; x++)
             {
-                double sampleLon = lon * lonSampleFreq + window.LonLeft;
-                double sampleLat = lat * latSampleFreq + window.LatTop;
+                Vector3 c = Coordinates.MercatorToCartesian(x, y, window, (float)terrain.WorldRadius);
 
-                sampleLat = (sampleLat > ViewData.MaxLat) ? sampleLat - ViewData.MaxLat : sampleLat;
+                //Debug.Log($"(x, y, z)-sphere ({xSphere}, {ySphere}, {zSphere})");
+                float noiseVal = sampler.Sample(c.x, c.y, c.z);
 
-                double y = terrain.WorldRadius * Mathf.Cos((float)sampleLat) * Mathf.Cos((float)sampleLon);
-                double x = terrain.WorldRadius * Mathf.Cos((float)sampleLat) * Mathf.Sin((float)sampleLon);
-                double z = terrain.WorldRadius * Mathf.Sin((float)sampleLat);
-
-                float noiseVal = sampler.Sample(x, y, z);
-
-                if(noiseVal < localMinNoise)
+                if (noiseVal < localMinNoise)
                     localMinNoise = noiseVal;
 
-                if(noiseVal > localMaxNoise)
+                if (noiseVal > localMaxNoise)
                     localMaxNoise = noiseVal;
 
-                noiseMap[lon, lat] = noiseVal;
+                noiseMap[x, y] = noiseVal;
             }
         }
         Debug.Log($"max noise: {absoluteMaxNoise}");

@@ -30,8 +30,8 @@ public class ViewWindowController : MonoBehaviour
         float deltaLon = Window.LonAngle * Time.deltaTime;
         float deltaLat = Window.LatAngle * Time.deltaTime;
 
-        TryIncrementDistance(LeftPressed, RightPressed, deltaLon, ref Window.LonLeft);
-        TryIncrementDistance(DownPressed, UpPressed, deltaLat, ref Window.LatTop);
+        TryIncrementDistance(LeftPressed, RightPressed, deltaLon, ref Window.LonOffset);
+        TryIncrementDistance(DownPressed, UpPressed, deltaLat, ref Window.LatOffset);
 
         //Move view based on mouse
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -49,8 +49,8 @@ public class ViewWindowController : MonoBehaviour
             Vector3 delta = Input.mousePosition - MousePosition;
             MousePosition = Input.mousePosition;
 
-            Window.LonLeft -= delta.x * (Window.LonAngle  / Screen.width);
-            Window.LatTop += delta.y * (Window.LatAngle / Screen.height);
+            Window.LonOffset -= delta.x * (Window.LonAngle  / Screen.width);
+            Window.LatOffset += delta.y * (Window.LatAngle / Screen.height);
             Window.NotifyOfUpdatedValues();
         }
 
@@ -59,10 +59,10 @@ public class ViewWindowController : MonoBehaviour
             float zoom =  1.0f - Input.mouseScrollDelta.y * .1f;
 
             float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
-            float yPos = Window.LatTop - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
+            float yPos = Window.LatOffset - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
 
-            Zoom(ref Window.LonAngle , ref Window.LonLeft, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
-            Zoom(ref Window.LatAngle, ref Window.LatTop, zoom, Window.MinAngle/2f, Coordinates.MaxLat, yPos);
+            Zoom(ref Window.LonAngle , ref Window.LonOffset, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
+            Zoom(ref Window.LatAngle, ref Window.LatOffset, zoom, Window.MinAngle/2f, Coordinates.MaxLat, yPos);
             Window.NotifyOfUpdatedValues();
         }
     }

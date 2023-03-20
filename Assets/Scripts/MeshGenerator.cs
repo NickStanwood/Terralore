@@ -59,12 +59,9 @@ public static class MeshGenerator
         {
             for (int lon = 0; lon < width; lon++)
             {
-                float sampleLon = lon * lonSampleFreq + Coordinates.MinLon;
-                float sampleLat = lat * latSampleFreq + Coordinates.MinLat;
+                Vector3 c = Coordinates.MercatorToCartesian(lon, lat, window, radius);
 
-                Vector3 cartesian = Coordinates.CoordToCartesian(sampleLon, sampleLat, radius);
-
-                meshData.Vertices[vertexIndex] = new Vector3(cartesian.x, cartesian.y, cartesian.z);
+                meshData.Vertices[vertexIndex] = new Vector3(c.x, c.y, c.z);
                 meshData.UVs[vertexIndex] = new Vector2((float)lon / width, (float)lat / height);
 
                 if (lat < height - 1 && lon < width - 1)
@@ -74,14 +71,6 @@ public static class MeshGenerator
 
                     meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
                     meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
-                }
-                else if (lon == width - 1 && lat < height - 1 && lat > 0)
-                {
-                    //meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + 1);
-                    //meshData.AddTriangle(vertexIndex + 1, vertexIndex - width + 1, vertexIndex);
-
-                    meshData.AddTriangle(vertexIndex, vertexIndex + 1, vertexIndex + width);
-                    meshData.AddTriangle(vertexIndex + 1, vertexIndex, vertexIndex - width + 1);
                 }
                 vertexIndex++;
             }
@@ -103,7 +92,7 @@ public class MeshData
     {
         Vertices = new Vector3[width * height];
         UVs = new Vector2[width * height];
-        int triangleCount = (width * (height - 1) - 1) * 6;
+        int triangleCount = (width - 1) * (height - 1) * 6;
         Triangles = new int[triangleCount];
     }
 

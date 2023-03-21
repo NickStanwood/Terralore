@@ -34,8 +34,11 @@ public static class Coordinates
         float xPercent = (float)xIndex / window.LonResolution;
         float yPercent = (float)yIndex / window.LatResolution;
 
-        float lon = xPercent * window.LonAngle + window.LonWest();
-        float lat = yPercent * window.LatAngle + window.LatSouth();
+        xPercent = (xPercent - 0.5f);
+        yPercent = (yPercent - 0.5f);
+
+        float lon = xPercent * window.LonAngle;
+        float lat = yPercent * window.LatAngle;
 
         Vector3 cart = CoordToCartesian(lon, lat, radius);
 
@@ -45,14 +48,20 @@ public static class Coordinates
         float zSphere = cart.z * Mathf.Cos(window.LatOffset) - cart.y * Mathf.Sin(window.LatOffset);
 
 
-        //cart = new Vector3(xSphere, ySphere, zSphere);
+        cart = new Vector3(xSphere, ySphere, zSphere);
 
         //adjust for longitutde rotation
-        //xSphere = cart.x * Mathf.Cos(window.LonOffset) - cart.z * Mathf.Sin(window.LonOffset);
-        //ySphere = cart.y;
-        //zSphere = cart.z * Mathf.Cos(window.LonOffset) + cart.x * Mathf.Sin(window.LonOffset);
+        xSphere = cart.x * Mathf.Cos(window.LonOffset) - cart.z * Mathf.Sin(window.LonOffset);
+        ySphere = cart.y;
+        zSphere = cart.z * Mathf.Cos(window.LonOffset) + cart.x * Mathf.Sin(window.LonOffset);
 
         return new Vector3(xSphere, ySphere, zSphere);
         //return new Vector3(cart.x, cart.y, cart.z);
+    }
+
+    public static Vector2 MercatorToCoord(int xIndex, int yIndex, ViewData window)
+    {
+        Vector3 cartesian = MercatorToCartesian(xIndex, yIndex, window, 1.0f);
+        return CartesianToCoord(cartesian.x, cartesian.y, cartesian.z, 1.0f);
     }
 }

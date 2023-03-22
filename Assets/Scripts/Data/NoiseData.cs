@@ -8,8 +8,6 @@ public class NoiseData : UpdatableData
 {
     public int Seed;
 
-    NoiseSamplingType Type;
-
     [Range(0.0001f, 0.01f)]
     public float Frequency;     //the larger the value the faster the noise changes
 
@@ -33,10 +31,4 @@ public class NoiseData : UpdatableData
         }
         base.OnValidate();
     }
-}
-
-public enum NoiseSamplingType
-{
-    Perlin,
-    Cellular,
 }

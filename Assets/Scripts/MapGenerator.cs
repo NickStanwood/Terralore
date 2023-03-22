@@ -6,8 +6,11 @@ using UnityEngine.Events;
 public class MapGenerator : MonoBehaviour
 {
 
-    public MeshFilter meshFilter;
-    public MeshRenderer meshRenderer;
+    public MeshFilter meshFilterFlat;
+    public MeshRenderer meshRendererFlat;
+
+    public MeshFilter meshFilterSphere;
+    public MeshRenderer meshRendererSphere;
 
     public NoiseData noiseData;
     public TerrainData terrainData;
@@ -33,13 +36,18 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         float maxHeight, minHeight;
-        float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, out minHeight, out maxHeight);
+        float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, terrainData, out minHeight, out maxHeight);
         MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
 
         Texture2D texture = TextureGenerator.GenerateTexture(map, displayData, terrainData.OceanLevel);
 
-        meshFilter.sharedMesh = meshData.CreateMesh();
-        meshRenderer.sharedMaterial.mainTexture = texture;
+        meshFilterFlat.sharedMesh = meshData.CreateMesh();
+        meshRendererFlat.sharedMaterial.mainTexture = texture;
+
+
+        MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(viewData);
+        meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();
+        meshRendererSphere.sharedMaterial.mainTexture = texture;
     }
 
     public void OnValuesUpdated()

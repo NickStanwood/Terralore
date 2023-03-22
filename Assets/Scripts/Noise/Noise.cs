@@ -4,18 +4,18 @@ using UnityEngine;
 
 public static class Noise
 {
-    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, TerrainData terrain)
     {
         float max, min;
-        return GenerateNoiseMap(noise, window, out min, out max);
+        return GenerateNoiseMap(noise, window, terrain, out min, out max);
     }
 
-    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, out float localMinNoise, out float localMaxNoise)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, TerrainData terrain, out float localMinNoise, out float localMaxNoise)
     {
-        float[,] noiseMap = new float[window.ResolutionX, window.ResolutionY];
+        float[,] noiseMap = new float[window.LonResolution, window.LatResolution];
 
-        double windowSampleFreqX = window.Width / window.ResolutionX;
-        double windowSampleFreqY = window.Height / window.ResolutionY;
+        double lonSampleFreq = window.LonAngle / window.LonResolution;
+        double latSampleFreq = window.LatAngle / window.LatResolution;
 
         float absoluteMaxNoise = GetMaxNoise(noise);
 
@@ -24,18 +24,21 @@ public static class Noise
 
         PerlinSampler sampler = new PerlinSampler(noise);
 
-        for (int y = 0; y < window.ResolutionY; y++)
+        for (int y = 0; y < window.LatResolution; y++)
         {
-            for (int x = 0; x < window.ResolutionX; x++)
+            for (int x = 0; x < window.LonResolution; x++)
             {
-                double sampleX = x * windowSampleFreqX + window.X;
-                double sampleY = y * windowSampleFreqY + window.Y;
-                float noiseVal = sampler.Sample(sampleX, sampleY);
+                float xPercent = (float)x / window.LonResolution;
+                float yPercent = (float)y / window.LatResolution;
+                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, (float)terrain.WorldRadius);
 
-                if(noiseVal < localMinNoise)
+                //Debug.Log($"(x, y, z)-sphere ({xSphere}, {ySphere}, {zSphere})");
+                float noiseVal = sampler.Sample(c.x, c.y, c.z);
+
+                if (noiseVal < localMinNoise)
                     localMinNoise = noiseVal;
 
-                if(noiseVal > localMaxNoise)
+                if (noiseVal > localMaxNoise)
                     localMaxNoise = noiseVal;
 
                 noiseMap[x, y] = noiseVal;

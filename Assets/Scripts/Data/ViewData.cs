@@ -4,91 +4,94 @@ using UnityEngine;
 
 [CreateAssetMenu()]
 public class ViewData : UpdatableData
-{    
-    public bool MaintainAspectRatio = true;
+{
 
-    //Top left corner
-    public float X;     
-    public float Y;
+    [Range(-3.14159f, 3.14159f)]
+    public float XRotation;
 
-    //distance of the window
-    public float Width    = 2000;
-    public float Height   = 1000;
+    [Range(-3.14159f, 3.14159f)]
+    public float YRotation;
 
-    public float MinWidth = 0.02f;
-    public float MinHeight = 0.01f;
+    [Range(-3.14159f, 3.14159f)]
+    public float ZRotation;
 
-    public float MaxWidth = 2000;
-    public float MaxHeight= 1000;
+    //[Range(-3.14159f, 3.14159f)]
+    //public float LonOffset;
 
-    //how many pixels/points per edge
-    public int ResolutionX = 256;
-    public int ResolutionY = 128;
+    //[Range(-3.14159f / 2f, 3.14159f / 2f)]
+    //public float LatOffset;
+
+    //total angle that the window spans window
+    [Range(0f, 2 * 3.14159f)]
+    public float LonAngle;
+
+    [Range(0f, 3.14159f)]
+    public float LatAngle;
+
+    public float MinAngle = 0.002f;
+
+
+    //how many mesh nodes per edge
+    public int Resolution = 256;
+    public int LonResolution { get { return Resolution; } }
+    public int LatResolution { get { return Resolution/2; } }
 
     [HideInInspector]
-    private float _OldWidth;
+    private float _OldLonAngle;
     [HideInInspector]
-    private float _OldHeight;
+    private float _OldLatAngle;
 
     [HideInInspector]
-    private float _OldResolutionX;
-    [HideInInspector]
-    private float _OldResolutionY;
+    private float _OldResolution;
 
-    public float MaxX()
-    {
-        return X + Width;
-    }
+    //public float LonWest()
+    //{
+    //    return LonOffset - LonAngle / 2f;
+    //}
 
-    public float MaxY()
-    {
-        return Y + Height;
-    }
+    //public float LonEast()
+    //{
+    //    return LonOffset + LonAngle / 2f;
+    //}
+
+    //public float LatNorth()
+    //{
+    //    return LatOffset + LatAngle / 2f;
+    //}
+
+    //public float LatSouth()
+    //{
+    //    return LatOffset - LatAngle / 2f;
+    //}
+
 
     protected override void OnValidate()
     {
-        if(MaintainAspectRatio)
+        if(_OldLonAngle != LonAngle)
         {
-            if(_OldWidth != Width )
-            {
-                Width = Mathf.Min(Width, MaxWidth);
-
-                //width is the value that was changed
-                float aspectRatio = _OldWidth / Height;
-                Height = Width / aspectRatio;
-            }
-            else if(_OldHeight != Height )
-            {
-                Height = Mathf.Min(Height, MaxHeight);
-
-                //height is the value that was changed
-                float aspectRatio = Width / _OldHeight;
-                Width = aspectRatio * Height;
-            }
+            LonAngle = Mathf.Min(LonAngle, Coordinates.MaxLon - Coordinates.MinLon);
+            LatAngle = LonAngle / 2f;
+        }
+        else if(_OldLatAngle != LatAngle)
+        {
+            LatAngle = Mathf.Min(LatAngle, Coordinates.MaxLat - Coordinates.MinLat);
+            LonAngle = LatAngle*2f;
+        }
             
-        }
 
-        if(float.IsNaN(Width)      || float.IsNaN(Height)      ||
-           float.IsInfinity(Width) || float.IsInfinity(Height) ||
-           Width < MinWidth        || Height < MinHeight)
+        if(float.IsNaN(LonAngle)      || float.IsNaN(LatAngle)      ||
+           float.IsInfinity(LonAngle) || float.IsInfinity(LatAngle) ||
+           LonAngle < MinAngle || LatAngle < MinAngle / 2f)
         {
-            Width = MinWidth;
-            Height = MinHeight;
+            LonAngle = MinAngle;
+            LatAngle = MinAngle/2f;
         }
 
-        if(Width > MaxWidth || Height > MaxHeight)
-        {
-            Width = MaxWidth;
-            Height = MaxHeight;
-        }
+        Resolution = (Resolution < 16) ? 16 : Resolution;
 
-        ResolutionX = (ResolutionX < 16) ? 16 : ResolutionX;
-        ResolutionY = (ResolutionY < 16) ? 16 : ResolutionY;
-
-        _OldWidth = Width;
-        _OldHeight = Height;
-        _OldResolutionX = ResolutionX;
-        _OldResolutionY = ResolutionY;        
+        _OldLonAngle = LonAngle;
+        _OldLatAngle = LatAngle;
+        _OldResolution = Resolution;       
 
         base.OnValidate();
     }

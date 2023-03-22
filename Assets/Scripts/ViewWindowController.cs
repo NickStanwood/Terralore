@@ -22,16 +22,16 @@ public class ViewWindowController : MonoBehaviour
     void Update()
     {
         //Move view based on arrow keys
-        UpdateKeyState(KeyCode.RightArrow, ref RightPressed);
-        UpdateKeyState(KeyCode.LeftArrow, ref LeftPressed);
-        UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
-        UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
+        //UpdateKeyState(KeyCode.RightArrow, ref RightPressed);
+        //UpdateKeyState(KeyCode.LeftArrow, ref LeftPressed);
+        //UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
+        //UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
 
-        float deltaLon = Window.LonAngle * Time.deltaTime;
-        float deltaLat = Window.LatAngle * Time.deltaTime;
+        //float deltaLon = Window.LonAngle * Time.deltaTime;
+        //float deltaLat = Window.LatAngle * Time.deltaTime;
 
-        TryIncrementDistance(LeftPressed, RightPressed, deltaLon, ref Window.LonOffset);
-        TryIncrementDistance(DownPressed, UpPressed, deltaLat, ref Window.LatOffset);
+        //TryIncrementDistance(LeftPressed, RightPressed, deltaLon, ref Window.LonOffset);
+        //TryIncrementDistance(DownPressed, UpPressed, deltaLat, ref Window.LatOffset);
 
         //Move view based on mouse
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -49,20 +49,27 @@ public class ViewWindowController : MonoBehaviour
             Vector3 delta = Input.mousePosition - MousePosition;
             MousePosition = Input.mousePosition;
 
-            Window.LonOffset -= delta.x * (Window.LonAngle  / Screen.width);
+            int xIndex = delta.x * (Window.LonAngle / Screen.width);
+            int yIndex = delta.y * (Window.LatAngle / Screen.height);
+
+
+
+
+
+            Window.LonOffset -= delta.x * (Window.LonAngle / Screen.width);
             Window.LatOffset += delta.y * (Window.LatAngle / Screen.height);
             Window.NotifyOfUpdatedValues();
         }
 
-        if(Input.mouseScrollDelta.y != 0)
+        if (Input.mouseScrollDelta.y != 0)
         {
-            float zoom =  1.0f - Input.mouseScrollDelta.y * .1f;
+            float zoom = 1.0f - Input.mouseScrollDelta.y * .1f;
 
             float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
             float yPos = Window.LatOffset - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
 
-            Zoom(ref Window.LonAngle , ref Window.LonOffset, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
-            Zoom(ref Window.LatAngle, ref Window.LatOffset, zoom, Window.MinAngle/2f, Coordinates.MaxLat, yPos);
+            Zoom(ref Window.LonAngle, ref Window.LonOffset, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
+            Zoom(ref Window.LatAngle, ref Window.LatOffset, zoom, Window.MinAngle / 2f, Coordinates.MaxLat, yPos);
             Window.NotifyOfUpdatedValues();
         }
     }

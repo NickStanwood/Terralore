@@ -28,7 +28,9 @@ public static class Noise
         {
             for (int x = 0; x < window.LonResolution; x++)
             {
-                Vector3 c = Coordinates.MercatorToCartesian(x, y, window, (float)terrain.WorldRadius);
+                float xPercent = (float)x / window.LonResolution;
+                float yPercent = (float)y / window.LatResolution;
+                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, (float)terrain.WorldRadius);
 
                 //Debug.Log($"(x, y, z)-sphere ({xSphere}, {ySphere}, {zSphere})");
                 float noiseVal = sampler.Sample(c.x, c.y, c.z);

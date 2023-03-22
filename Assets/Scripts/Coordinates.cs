@@ -29,33 +29,17 @@ public static class Coordinates
         return new Vector3(lon, lat);
     }
 
-    public static Vector3 MercatorToCartesian(int xIndex, int yIndex, ViewData window, float radius)
+    public static Vector3 MercatorToCartesian(float xPercent, float yPercent, ViewData window, float radius)
     {
-        float xPercent = (float)xIndex / window.LonResolution;
-        float yPercent = (float)yIndex / window.LatResolution;
-
-        xPercent = (xPercent - 0.5f);
-        yPercent = (yPercent - 0.5f);
-
-        float lon = xPercent * window.LonAngle;
-        float lat = yPercent * window.LatAngle;
+        float lon = (xPercent - 0.5f) * window.LonAngle;
+        float lat = (yPercent - 0.5f) * window.LatAngle;
 
         Vector3 cart = CoordToCartesian(lon, lat, radius);
+        cart = RotateAboutX(cart, window.XRotation);
+        cart = RotateAboutY(cart, window.YRotation);
+        cart = RotateAboutZ(cart, window.ZRotation);
 
-        //adjust for latitude rotation
-        float xSphere = cart.x;
-        float ySphere = cart.y * Mathf.Cos(window.LatOffset) + cart.z * Mathf.Sin(window.LatOffset);
-        float zSphere = cart.z * Mathf.Cos(window.LatOffset) - cart.y * Mathf.Sin(window.LatOffset);
-
-
-        cart = new Vector3(xSphere, ySphere, zSphere);
-
-        //adjust for longitutde rotation
-        xSphere = cart.x * Mathf.Cos(window.LonOffset) - cart.z * Mathf.Sin(window.LonOffset);
-        ySphere = cart.y;
-        zSphere = cart.z * Mathf.Cos(window.LonOffset) + cart.x * Mathf.Sin(window.LonOffset);
-
-        return new Vector3(xSphere, ySphere, zSphere);
+        return cart;
         //return new Vector3(cart.x, cart.y, cart.z);
     }
 
@@ -63,5 +47,38 @@ public static class Coordinates
     {
         Vector3 cartesian = MercatorToCartesian(xIndex, yIndex, window, 1.0f);
         return CartesianToCoord(cartesian.x, cartesian.y, cartesian.z, 1.0f);
+    }
+
+    public static Vector3 RotateAboutX(Vector3 cartesian, float rotation)
+    {
+        float y = cartesian.y;
+        float z = cartesian.z;
+
+        cartesian.y = y * Mathf.Cos(rotation) + z * Mathf.Sin(rotation);
+        cartesian.z = z * Mathf.Cos(rotation) - y * Mathf.Sin(rotation);
+        
+        return cartesian;
+    }
+
+    public static Vector3 RotateAboutY(Vector3 cartesian, float rotation)
+    {
+        float x = cartesian.x;
+        float z = cartesian.z;
+
+        cartesian.x = x * Mathf.Cos(rotation) - z * Mathf.Sin(rotation);
+        cartesian.z = z * Mathf.Cos(rotation) + x * Mathf.Sin(rotation);
+
+        return cartesian;
+    }
+
+    public static Vector3 RotateAboutZ(Vector3 cartesian, float rotation)
+    {
+        float x = cartesian.x;
+        float y = cartesian.y;
+
+        cartesian.x = x * Mathf.Cos(rotation) + y * Mathf.Sin(rotation);
+        cartesian.y = y * Mathf.Cos(rotation) - x * Mathf.Sin(rotation);
+
+        return cartesian;
     }
 }

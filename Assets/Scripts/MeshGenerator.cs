@@ -55,16 +55,18 @@ public static class MeshGenerator
         float lonSampleFreq = window.LonAngle / window.LonResolution;
         float latSampleFreq = window.LatAngle / window.LatResolution;
 
-        for (int lat = 0; lat < height; lat++)
+        for (int y = 0; y < height; y++)
         {
-            for (int lon = 0; lon < width; lon++)
+            for (int x = 0; x < width; x++)
             {
-                Vector3 c = Coordinates.MercatorToCartesian(lon, lat, window, radius);
+                float xPercent = (float)x / window.LonResolution;
+                float yPercent = (float)y / window.LatResolution;
+                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, radius);
 
                 meshData.Vertices[vertexIndex] = new Vector3(c.x, c.y, c.z);
-                meshData.UVs[vertexIndex] = new Vector2((float)lon / width, (float)lat / height);
+                meshData.UVs[vertexIndex] = new Vector2((float)x / width, (float)y / height);
 
-                if (lat < height - 1 && lon < width - 1)
+                if (y < height - 1 && x < width - 1)
                 {
                     //meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + width + 1);
                     //meshData.AddTriangle(vertexIndex + width + 1, vertexIndex + 1, vertexIndex);

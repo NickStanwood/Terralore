@@ -5,12 +5,21 @@ using UnityEngine;
 [CreateAssetMenu()]
 public class ViewData : UpdatableData
 {
-    //Top left corner
-    [Range(-3.14159f, 3.14159f)]
-    public float LonOffset;
 
-    [Range(-3.14159f/2f, 3.14159f/2f)]
-    public float LatOffset;
+    [Range(-3.14159f, 3.14159f)]
+    public float XRotation;
+
+    [Range(-3.14159f, 3.14159f)]
+    public float YRotation;
+
+    [Range(-3.14159f, 3.14159f)]
+    public float ZRotation;
+
+    //[Range(-3.14159f, 3.14159f)]
+    //public float LonOffset;
+
+    //[Range(-3.14159f / 2f, 3.14159f / 2f)]
+    //public float LatOffset;
 
     //total angle that the window spans window
     [Range(0f, 2 * 3.14159f)]
@@ -35,25 +44,25 @@ public class ViewData : UpdatableData
     [HideInInspector]
     private float _OldResolution;
 
-    public float LonWest()
-    {
-        return LonOffset - LonAngle / 2f;
-    }
+    //public float LonWest()
+    //{
+    //    return LonOffset - LonAngle / 2f;
+    //}
 
-    public float LonEast()
-    {
-        return LonOffset + LonAngle / 2f;
-    }
+    //public float LonEast()
+    //{
+    //    return LonOffset + LonAngle / 2f;
+    //}
 
-    public float LatNorth()
-    {
-        return LatOffset + LatAngle / 2f;
-    }
+    //public float LatNorth()
+    //{
+    //    return LatOffset + LatAngle / 2f;
+    //}
 
-    public float LatSouth()
-    {
-        return LatOffset - LatAngle / 2f;
-    }
+    //public float LatSouth()
+    //{
+    //    return LatOffset - LatAngle / 2f;
+    //}
 
 
     protected override void OnValidate()

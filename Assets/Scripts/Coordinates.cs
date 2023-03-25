@@ -18,7 +18,7 @@ public static class Coordinates
     {
         float x = radius * Mathf.Cos(lat) * Mathf.Cos(lon);
         float z = radius * Mathf.Cos(lat) * Mathf.Sin(lon);
-        float y = -radius * Mathf.Sin(lat);
+        float y = radius * Mathf.Sin(lat);
         return new Vector3(x, y, z);
     }
 
@@ -43,9 +43,9 @@ public static class Coordinates
         //return new Vector3(cart.x, cart.y, cart.z);
     }
 
-    public static Vector2 MercatorToCoord(int xIndex, int yIndex, ViewData window)
+    public static Vector2 MercatorToCoord(float xPercent, float yPercent, ViewData window)
     {
-        Vector3 cartesian = MercatorToCartesian(xIndex, yIndex, window, 1.0f);
+        Vector3 cartesian = MercatorToCartesian(xPercent, yPercent, window, 1.0f);
         return CartesianToCoord(cartesian.x, cartesian.y, cartesian.z, 1.0f);
     }
 

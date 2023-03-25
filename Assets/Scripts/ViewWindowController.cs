@@ -13,7 +13,7 @@ public class ViewWindowController : MonoBehaviour
     private bool DownPressed = false;
 
     private bool TrackMouse = false;
-    private Vector3 MousePosition;
+    private Vector2 OldMouseCoord;
 
     void Start()
     {
@@ -22,22 +22,24 @@ public class ViewWindowController : MonoBehaviour
     void Update()
     {
         //Move view based on arrow keys
-        //UpdateKeyState(KeyCode.RightArrow, ref RightPressed);
-        //UpdateKeyState(KeyCode.LeftArrow, ref LeftPressed);
-        //UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
-        //UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
+        UpdateKeyState(KeyCode.RightArrow, ref RightPressed);
+        UpdateKeyState(KeyCode.LeftArrow, ref LeftPressed);
+        UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
+        UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
 
-        //float deltaLon = Window.LonAngle * Time.deltaTime;
-        //float deltaLat = Window.LatAngle * Time.deltaTime;
+        float deltaLon = Window.LonAngle * Time.deltaTime;
+        float deltaLat = Window.LatAngle * Time.deltaTime;
 
-        //TryIncrementDistance(LeftPressed, RightPressed, deltaLon, ref Window.LonOffset);
-        //TryIncrementDistance(DownPressed, UpPressed, deltaLat, ref Window.LatOffset);
+        TryIncrementRotation(LeftPressed, RightPressed, deltaLon, ref Window.YRotation);
+        TryIncrementRotation(DownPressed, UpPressed, deltaLat, ref Window.ZRotation);
 
         //Move view based on mouse
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             TrackMouse = true;
-            MousePosition = Input.mousePosition;
+            float xPercent = Input.mousePosition.x / Screen.width;
+            float yPercent = Input.mousePosition.y / Screen.height;
+            OldMouseCoord = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
         }
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
@@ -46,32 +48,39 @@ public class ViewWindowController : MonoBehaviour
 
         if (TrackMouse)
         {
-            Vector3 delta = Input.mousePosition - MousePosition;
-            MousePosition = Input.mousePosition;
+            float newXPercent = Input.mousePosition.x / Screen.width;
+            float newYPercent = Input.mousePosition.y / Screen.height;
+            Vector2 newCoord = Coordinates.MercatorToCoord(newXPercent, newYPercent, Window);
 
-            int xIndex = delta.x * (Window.LonAngle / Screen.width);
-            int yIndex = delta.y * (Window.LatAngle / Screen.height);
+            Window.PointsOfInterest = new List<Vector2>();
+            Window.PointsOfInterest.Add(OldMouseCoord);
+            Window.PointsOfInterest.Add(newCoord);
 
+            deltaLon = newCoord.x - OldMouseCoord.x;
+            deltaLat = newCoord.y - OldMouseCoord.y;
 
+            Window.YRotation += deltaLon;
+            Window.ZRotation += deltaLat;
 
+            //Window.XRotation += GetAxisRotation(OldMousePos.y, OldMousePos.z, newPos.y, newPos.z);
+            //Window.YRotation += GetAxisRotation(OldMousePos.x, OldMousePos.z, newPos.x, newPos.z);
+            //Window.ZRotation -= GetAxisRotation(OldMousePos.x, OldMousePos.y, newPos.x, newPos.y);
 
-
-            Window.LonOffset -= delta.x * (Window.LonAngle / Screen.width);
-            Window.LatOffset += delta.y * (Window.LatAngle / Screen.height);
+            OldMouseCoord = newCoord;
             Window.NotifyOfUpdatedValues();
         }
 
-        if (Input.mouseScrollDelta.y != 0)
-        {
-            float zoom = 1.0f - Input.mouseScrollDelta.y * .1f;
+        //if (Input.mouseScrollDelta.y != 0)
+        //{
+        //    float zoom = 1.0f - Input.mouseScrollDelta.y * .1f;
 
-            float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
-            float yPos = Window.LatOffset - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
+        //    float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
+        //    float yPos = Window.LatOffset - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
 
-            Zoom(ref Window.LonAngle, ref Window.LonOffset, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
-            Zoom(ref Window.LatAngle, ref Window.LatOffset, zoom, Window.MinAngle / 2f, Coordinates.MaxLat, yPos);
-            Window.NotifyOfUpdatedValues();
-        }
+        //    Zoom(ref Window.LonAngle, ref Window.LonOffset, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
+        //    Zoom(ref Window.LatAngle, ref Window.LatOffset, zoom, Window.MinAngle / 2f, Coordinates.MaxLat, yPos);
+        //    Window.NotifyOfUpdatedValues();
+        //}
     }
 
     private void UpdateKeyState(KeyCode key, ref bool state)
@@ -83,11 +92,15 @@ public class ViewWindowController : MonoBehaviour
             state = false;
     }
 
-    private bool TryIncrementDistance(bool positive, bool negative, float delta, ref float distance)
+    private bool TryIncrementRotation(bool positive, bool negative, float delta, ref float distance)
     {
         if (positive && !negative)
         {
             distance += delta;
+            while (distance < 0)
+                distance += Mathf.PI * 2;
+            while (distance > Mathf.PI * 2)
+                distance -= Mathf.PI * 2;
             Window.NotifyOfUpdatedValues();
             return true;
 
@@ -96,6 +109,10 @@ public class ViewWindowController : MonoBehaviour
         if (negative && !positive)
         {
             distance -= delta;
+            while (distance < 0)
+                distance += Mathf.PI * 2;
+            while (distance > Mathf.PI * 2)
+                distance -= Mathf.PI * 2;
             Window.NotifyOfUpdatedValues();
             return true;
 
@@ -115,5 +132,34 @@ public class ViewWindowController : MonoBehaviour
         else
             pos += zoomPoint * (1.0f - zoom);
         
+    }
+
+    private float GetAxisRotation(float u1, float v1, float u2, float v2)
+    {
+        float uMag = (u1 - u2) * (u1 - u2);
+        float vMag = (v1 - v2) * (v1 - v2);
+        float d = Mathf.Sqrt(uMag + vMag);
+        float angle = Mathf.Asin(d / 2.0f);
+
+        if(u1 > 0 && u2 > 0)
+        {
+            float vDelta = v2 - v1;
+            if (vDelta < 0)
+                angle *= -1;
+        }
+        else if(u1 < 0 && u2 < 0)
+        {
+            float vDelta = v2 - v1;
+            if (vDelta > 0)
+                angle *= -1;
+        }
+        else
+        {
+            float uDelta = u2 - u1;
+            if(uDelta > 0)
+                angle *= -1;
+        }
+        Debug.Log(angle);
+        return angle;
     }
 }

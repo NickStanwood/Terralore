@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class TextureGenerator
 {
-    public static Texture2D GenerateTexture(float[,] noiseMap, DisplayData display, float waterLevel)
+    public static Texture2D GenerateTexture(float[,] noiseMap, DisplayData display, float waterLevel, ViewData window)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
@@ -47,6 +47,16 @@ public static class TextureGenerator
                             colorMap[y * width + x] = Color.black;
                         break;
                 }
+
+                Vector2 coord = Coordinates.MercatorToCoord((float)x / width, (float)y / height, window);
+                foreach(Vector2 poi in window.PointsOfInterest)
+                {
+                    if (InRange(coord.x, poi.x) && InRange(coord.y, poi.y))
+                    {
+                        colorMap[y * width + x] = Color.red;
+                    }
+
+                }
             }
         }
 
@@ -54,5 +64,12 @@ public static class TextureGenerator
         texture.Apply();
 
         return texture;
+    }
+
+    private static bool InRange(float a, float b)
+    {
+        if (a + 0.01 > b && a - 0.01 < b)
+            return true;
+        return false;
     }
 }

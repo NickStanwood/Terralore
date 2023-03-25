@@ -44,7 +44,6 @@ public static class Noise
                 noiseMap[x, y] = noiseVal;
             }
         }
-        Debug.Log($"max noise: {absoluteMaxNoise}");
 
         //normalize max and min vlaues as well as noisemap
         localMaxNoise = localMaxNoise / absoluteMaxNoise;

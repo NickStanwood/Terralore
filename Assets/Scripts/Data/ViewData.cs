@@ -44,26 +44,8 @@ public class ViewData : UpdatableData
     [HideInInspector]
     private float _OldResolution;
 
-    //public float LonWest()
-    //{
-    //    return LonOffset - LonAngle / 2f;
-    //}
-
-    //public float LonEast()
-    //{
-    //    return LonOffset + LonAngle / 2f;
-    //}
-
-    //public float LatNorth()
-    //{
-    //    return LatOffset + LatAngle / 2f;
-    //}
-
-    //public float LatSouth()
-    //{
-    //    return LatOffset - LatAngle / 2f;
-    //}
-
+    //TODO remove
+    public List<Vector2> PointsOfInterest;
 
     protected override void OnValidate()
     {

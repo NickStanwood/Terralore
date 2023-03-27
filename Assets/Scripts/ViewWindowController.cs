@@ -27,48 +27,72 @@ public class ViewWindowController : MonoBehaviour
         UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
         UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
 
-        float deltaLon = Window.LonAngle * Time.deltaTime;
-        float deltaLat = Window.LatAngle * Time.deltaTime;
-
-        TryIncrementRotation(LeftPressed, RightPressed, deltaLon, ref Window.YRotation);
-        TryIncrementRotation(DownPressed, UpPressed, deltaLat, ref Window.ZRotation);
-
-        //Move view based on mouse
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if(RightPressed || LeftPressed || UpPressed || DownPressed)
         {
-            TrackMouse = true;
-            float xPercent = Input.mousePosition.x / Screen.width;
-            float yPercent = Input.mousePosition.y / Screen.height;
-            OldMouseCoord = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
-        }
-        if (Input.GetKeyUp(KeyCode.Mouse0))
-        {
-            TrackMouse = false;
-        }
+            float xPercent = 0.5f;
+            if(RightPressed)
+                xPercent += Window.LonAngle * Time.deltaTime/100.0f;
+            if(LeftPressed)
+                xPercent -= Window.LonAngle * Time.deltaTime/100.0f;
 
-        if (TrackMouse)
-        {
-            float newXPercent = Input.mousePosition.x / Screen.width;
-            float newYPercent = Input.mousePosition.y / Screen.height;
-            Vector2 newCoord = Coordinates.MercatorToCoord(newXPercent, newYPercent, Window);
+            float yPercent = 0.5f; 
+            if(UpPressed)
+                yPercent += Window.LatAngle * Time.deltaTime/100.0f;
+            if (DownPressed)
+                yPercent -= Window.LatAngle * Time.deltaTime/100.0f;
 
-            Window.PointsOfInterest = new List<Vector2>();
-            Window.PointsOfInterest.Add(OldMouseCoord);
-            Window.PointsOfInterest.Add(newCoord);
-
-            deltaLon = newCoord.x - OldMouseCoord.x;
-            deltaLat = newCoord.y - OldMouseCoord.y;
-
-            Window.YRotation += deltaLon;
-            Window.ZRotation += deltaLat;
-
-            //Window.XRotation += GetAxisRotation(OldMousePos.y, OldMousePos.z, newPos.y, newPos.z);
-            //Window.YRotation += GetAxisRotation(OldMousePos.x, OldMousePos.z, newPos.x, newPos.z);
-            //Window.ZRotation -= GetAxisRotation(OldMousePos.x, OldMousePos.y, newPos.x, newPos.y);
-
-            OldMouseCoord = newCoord;
+            Vector3 origin = Coordinates.MercatorToCartesian(0.5f, 0.5f, Window, 1.0f);
+            Vector3 newO = Coordinates.MercatorToCartesian(xPercent, yPercent, Window, 1.0f);
+            //Debug.Log($"({origin.x},{origin.y},{origin.z}) -> ({newO.x},{newO.y},{newO.z})");
+            Window.XRotation += GetAxisRotation(origin.y, origin.z, newO.y, newO.z);
+            Window.YRotation += GetAxisRotation(origin.x, origin.z, newO.x, newO.z);
+            Window.ZRotation += GetAxisRotation(origin.x, origin.y, newO.x, newO.y);
             Window.NotifyOfUpdatedValues();
         }
+        
+
+        //TryIncrementRotation(DownPressed, UpPressed, deltaLat * Mathf.Cos(yRotation), ref Window.ZRotation);
+        //TryIncrementRotation(DownPressed, UpPressed, deltaLat * Mathf.Sin(yRotation), ref Window.XRotation);
+
+        //TryIncrementRotation(LeftPressed, RightPressed, deltaLon * Mathf.Cos(zRotation), ref Window.YRotation);
+        //TryIncrementRotation(LeftPressed, RightPressed, deltaLon * Mathf.Sin(zRotation), ref Window.XRotation);
+
+        //Move view based on mouse
+        //if (Input.GetKeyDown(KeyCode.Mouse0))
+        //{
+        //    TrackMouse = true;
+        //    float xPercent = Input.mousePosition.x / Screen.width;
+        //    float yPercent = Input.mousePosition.y / Screen.height;
+        //    OldMouseCoord = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
+        //}
+        //if (Input.GetKeyUp(KeyCode.Mouse0))
+        //{
+        //    TrackMouse = false;
+        //}
+
+        //if (TrackMouse)
+        //{
+        //    float newXPercent = Input.mousePosition.x / Screen.width;
+        //    float newYPercent = Input.mousePosition.y / Screen.height;
+        //    Vector2 newCoord = Coordinates.MercatorToCoord(newXPercent, newYPercent, Window);
+
+        //    Window.PointsOfInterest = new List<Vector2>();
+        //    Window.PointsOfInterest.Add(OldMouseCoord);
+        //    Window.PointsOfInterest.Add(newCoord);
+
+        //    deltaLon = newCoord.x - OldMouseCoord.x;
+        //    deltaLat = newCoord.y - OldMouseCoord.y;
+
+        //    //Window.YRotation += deltaLon;
+        //    //Window.ZRotation += deltaLat;
+
+        //    //Window.XRotation += GetAxisRotation(OldMousePos.y, OldMousePos.z, newPos.y, newPos.z);
+        //    //Window.YRotation += GetAxisRotation(OldMousePos.x, OldMousePos.z, newPos.x, newPos.z);
+        //    //Window.ZRotation -= GetAxisRotation(OldMousePos.x, OldMousePos.y, newPos.x, newPos.y);
+
+        //    OldMouseCoord = newCoord;
+        //    Window.NotifyOfUpdatedValues();
+        //}
 
         //if (Input.mouseScrollDelta.y != 0)
         //{
@@ -159,7 +183,7 @@ public class ViewWindowController : MonoBehaviour
             if(uDelta > 0)
                 angle *= -1;
         }
-        Debug.Log(angle);
+        //Debug.Log(angle);
         return angle;
     }
 }

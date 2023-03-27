@@ -24,8 +24,8 @@ public static class Coordinates
 
     public static Vector2 CartesianToCoord(float x, float y, float z, float radius)
     {
-        float lon = Mathf.Atan2(y, x);
-        float lat = Mathf.Asin(z / radius);
+        float lon = Mathf.Atan2(z, x);
+        float lat = Mathf.Asin(y / radius);
         return new Vector3(lon, lat);
     }
 

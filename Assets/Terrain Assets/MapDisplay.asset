@@ -16,18 +16,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  Style: 1
+  Style: 0
   WaterColor: {r: 0.13203098, g: 0.38910288, b: 0.6509434, a: 0}
   HeightMapColors:
   - Name: Plains
-    MaxValue: 0.3
+    MaxValue: 0.202
     Color: {r: 0.13011748, g: 0.6415094, b: 0.14432275, a: 0}
   - Name: Forest
-    MaxValue: 0.305
+    MaxValue: 0.311
     Color: {r: 0.09531861, g: 0.3962264, b: 0.10375525, a: 0}
   - Name: Mountain
-    MaxValue: 0.307
+    MaxValue: 0.432
     Color: {r: 0.35323957, g: 0.3962264, b: 0.3727316, a: 0}
   - Name: Snow
-    MaxValue: 0.32
-    Color: {r: 0.8027768, g: 0.8301887, b: 0.81523675, a: 0}
+    MaxValue: 1
+    Color: {r: 0, g: 0, b: 0, a: 0}

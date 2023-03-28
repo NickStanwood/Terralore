@@ -30,23 +30,28 @@ public class ViewWindowController : MonoBehaviour
         if(RightPressed || LeftPressed || UpPressed || DownPressed)
         {
             float xPercent = 0.5f;
+            float delta = 0.01f;
             if(RightPressed)
-                xPercent += Window.LonAngle * Time.deltaTime/100.0f;
+                xPercent += delta;
             if(LeftPressed)
-                xPercent -= Window.LonAngle * Time.deltaTime/100.0f;
+                xPercent -= delta;
 
             float yPercent = 0.5f; 
             if(UpPressed)
-                yPercent += Window.LatAngle * Time.deltaTime/100.0f;
+                yPercent += delta;
             if (DownPressed)
-                yPercent -= Window.LatAngle * Time.deltaTime/100.0f;
+                yPercent -= delta;
 
             Vector3 origin = Coordinates.MercatorToCartesian(0.5f, 0.5f, Window, 1.0f);
             Vector3 newO = Coordinates.MercatorToCartesian(xPercent, yPercent, Window, 1.0f);
-            //Debug.Log($"({origin.x},{origin.y},{origin.z}) -> ({newO.x},{newO.y},{newO.z})");
-            Window.XRotation += GetAxisRotation(origin.y, origin.z, newO.y, newO.z);
-            Window.YRotation += GetAxisRotation(origin.x, origin.z, newO.x, newO.z);
-            Window.ZRotation += GetAxisRotation(origin.x, origin.y, newO.x, newO.y);
+            Vector3 rotation = new Vector3();
+            //rotation.x = GetAxisRotation(origin.y, origin.z, newO.y, newO.z);
+            //rotation.y = GetAxisRotation(origin.x, origin.z, newO.x, newO.z);
+            rotation.z = GetAxisRotation(origin.x, origin.y, newO.x, newO.y);
+            Debug.Log($"({origin.x.ToString("N3")},{origin.y.ToString("N3")},{origin.z.ToString("N3")}) X ({rotation.x.ToString("N3")},{rotation.y.ToString("N3")},{rotation.z.ToString("N3")})-> ({newO.x.ToString("N3")},{newO.y.ToString("N3")},{newO.z.ToString("N3")})");
+            Window.XRotation += rotation.x;
+            Window.YRotation += rotation.y;
+            Window.ZRotation += rotation.z; 
             Window.NotifyOfUpdatedValues();
         }
         
@@ -160,30 +165,25 @@ public class ViewWindowController : MonoBehaviour
 
     private float GetAxisRotation(float u1, float v1, float u2, float v2)
     {
-        float uMag = (u1 - u2) * (u1 - u2);
-        float vMag = (v1 - v2) * (v1 - v2);
-        float d = Mathf.Sqrt(uMag + vMag);
-        float angle = Mathf.Asin(d / 2.0f);
+        float a1 = CalculatePolarAngle(u1, v1);
+        float a2 = CalculatePolarAngle(u2, v2);
 
-        if(u1 > 0 && u2 > 0)
+        return a2 - a1;
+    }
+
+    private float CalculatePolarAngle(float u1, float v1)
+    {
+        float angle;
+        if (v1 == 0.0f)
         {
-            float vDelta = v2 - v1;
-            if (vDelta < 0)
-                angle *= -1;
+            if (u1 > 0.0f)
+                return Mathf.PI / 2;
+            if (u1 < 0.0f)
+                return -Mathf.PI / 2;            
+            
+            return 0.0f;
         }
-        else if(u1 < 0 && u2 < 0)
-        {
-            float vDelta = v2 - v1;
-            if (vDelta > 0)
-                angle *= -1;
-        }
-        else
-        {
-            float uDelta = u2 - u1;
-            if(uDelta > 0)
-                angle *= -1;
-        }
-        //Debug.Log(angle);
-        return angle;
+
+        return Mathf.Atan(u1 / v1);
     }
 }

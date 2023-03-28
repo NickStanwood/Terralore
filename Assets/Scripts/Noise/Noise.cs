@@ -46,8 +46,6 @@ public static class Noise
             }
         }
 
-        Debug.Log($"min, max: {localMinNoise}, {localMaxNoise}");
-
         //normalize max and min vlaues as well as noisemap
         localMaxNoise = localMaxNoise / absoluteMaxNoise;
         localMinNoise = localMinNoise / absoluteMaxNoise;

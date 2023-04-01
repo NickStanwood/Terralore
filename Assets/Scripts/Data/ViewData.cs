@@ -44,9 +44,6 @@ public class ViewData : UpdatableData
     [HideInInspector]
     private float _OldResolution;
 
-    //TODO remove
-    public List<Vector2> PointsOfInterest;
-
     protected override void OnValidate()
     {
         if(_OldLonAngle != LonAngle)

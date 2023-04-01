@@ -13,7 +13,7 @@ public class ViewWindowController : MonoBehaviour
     private bool DownPressed = false;
 
     private bool TrackMouse = false;
-    private Vector2 OldMouseCoord;
+    private Vector3 MousePosition;
 
     void Start()
     {
@@ -27,89 +27,43 @@ public class ViewWindowController : MonoBehaviour
         UpdateKeyState(KeyCode.DownArrow, ref DownPressed);
         UpdateKeyState(KeyCode.UpArrow, ref UpPressed);
 
-        if(RightPressed || LeftPressed || UpPressed || DownPressed)
-        {
-            float xPercent = 0.5f;
-            float delta = 0.01f;
-            if(RightPressed)
-                xPercent += delta;
-            if(LeftPressed)
-                xPercent -= delta;
-
-            float yPercent = 0.5f; 
-            if(UpPressed)
-                yPercent += delta;
-            if (DownPressed)
-                yPercent -= delta;
-
-            Vector3 origin = Coordinates.MercatorToCartesian(0.5f, 0.5f, Window, 1.0f);
-            Vector3 newO = Coordinates.MercatorToCartesian(xPercent, yPercent, Window, 1.0f);
-            Vector3 rotation = new Vector3();
-            //rotation.x = GetAxisRotation(origin.y, origin.z, newO.y, newO.z);
-            //rotation.y = GetAxisRotation(origin.x, origin.z, newO.x, newO.z);
-            rotation.z = GetAxisRotation(origin.x, origin.y, newO.x, newO.y);
-            Debug.Log($"({origin.x.ToString("N3")},{origin.y.ToString("N3")},{origin.z.ToString("N3")}) X ({rotation.x.ToString("N3")},{rotation.y.ToString("N3")},{rotation.z.ToString("N3")})-> ({newO.x.ToString("N3")},{newO.y.ToString("N3")},{newO.z.ToString("N3")})");
-            Window.XRotation += rotation.x;
-            Window.YRotation += rotation.y;
-            Window.ZRotation += rotation.z; 
-            Window.NotifyOfUpdatedValues();
-        }
-        
-
-        //TryIncrementRotation(DownPressed, UpPressed, deltaLat * Mathf.Cos(yRotation), ref Window.ZRotation);
-        //TryIncrementRotation(DownPressed, UpPressed, deltaLat * Mathf.Sin(yRotation), ref Window.XRotation);
-
-        //TryIncrementRotation(LeftPressed, RightPressed, deltaLon * Mathf.Cos(zRotation), ref Window.YRotation);
-        //TryIncrementRotation(LeftPressed, RightPressed, deltaLon * Mathf.Sin(zRotation), ref Window.XRotation);
+        float deltaLat = Window.LatAngle * Time.deltaTime/5;
+        float deltaLon = Window.LonAngle * Time.deltaTime/5;
+        TryIncrementRotation(DownPressed, UpPressed, deltaLat, ref Window.ZRotation);
+        TryIncrementRotation(LeftPressed, RightPressed, deltaLon, ref Window.YRotation);
 
         //Move view based on mouse
-        //if (Input.GetKeyDown(KeyCode.Mouse0))
-        //{
-        //    TrackMouse = true;
-        //    float xPercent = Input.mousePosition.x / Screen.width;
-        //    float yPercent = Input.mousePosition.y / Screen.height;
-        //    OldMouseCoord = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
-        //}
-        //if (Input.GetKeyUp(KeyCode.Mouse0))
-        //{
-        //    TrackMouse = false;
-        //}
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            TrackMouse = true;
+            MousePosition = Input.mousePosition;
+        }
+        if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            TrackMouse = false;
+        }
 
-        //if (TrackMouse)
-        //{
-        //    float newXPercent = Input.mousePosition.x / Screen.width;
-        //    float newYPercent = Input.mousePosition.y / Screen.height;
-        //    Vector2 newCoord = Coordinates.MercatorToCoord(newXPercent, newYPercent, Window);
+        if (TrackMouse)
+        {
+            Vector3 delta = Input.mousePosition - MousePosition;
+            MousePosition = Input.mousePosition;
 
-        //    Window.PointsOfInterest = new List<Vector2>();
-        //    Window.PointsOfInterest.Add(OldMouseCoord);
-        //    Window.PointsOfInterest.Add(newCoord);
+            Window.YRotation -= delta.x * (Window.LonAngle / Screen.width);
+            Window.ZRotation -= delta.y * (Window.LatAngle / Screen.height);
+            Window.NotifyOfUpdatedValues();
+        }
 
-        //    deltaLon = newCoord.x - OldMouseCoord.x;
-        //    deltaLat = newCoord.y - OldMouseCoord.y;
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            float zoom = 1.0f - Input.mouseScrollDelta.y * .1f;
 
-        //    //Window.YRotation += deltaLon;
-        //    //Window.ZRotation += deltaLat;
+            float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
+            float yPos = Window.LatAngle - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
 
-        //    //Window.XRotation += GetAxisRotation(OldMousePos.y, OldMousePos.z, newPos.y, newPos.z);
-        //    //Window.YRotation += GetAxisRotation(OldMousePos.x, OldMousePos.z, newPos.x, newPos.z);
-        //    //Window.ZRotation -= GetAxisRotation(OldMousePos.x, OldMousePos.y, newPos.x, newPos.y);
-
-        //    OldMouseCoord = newCoord;
-        //    Window.NotifyOfUpdatedValues();
-        //}
-
-        //if (Input.mouseScrollDelta.y != 0)
-        //{
-        //    float zoom = 1.0f - Input.mouseScrollDelta.y * .1f;
-
-        //    float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
-        //    float yPos = Window.LatOffset - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
-
-        //    Zoom(ref Window.LonAngle, ref Window.LonOffset, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
-        //    Zoom(ref Window.LatAngle, ref Window.LatOffset, zoom, Window.MinAngle / 2f, Coordinates.MaxLat, yPos);
-        //    Window.NotifyOfUpdatedValues();
-        //}
+            Zoom(ref Window.LonAngle, ref Window.YRotation, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
+            Zoom(ref Window.LatAngle, ref Window.ZRotation, zoom, Window.MinAngle / 2f, Coordinates.MaxLat, yPos);
+            Window.NotifyOfUpdatedValues();
+        }
     }
 
     private void UpdateKeyState(KeyCode key, ref bool state)

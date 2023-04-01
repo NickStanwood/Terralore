@@ -22,7 +22,8 @@ public static class Noise
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
 
-        PerlinSampler sampler = new PerlinSampler(noise);
+        //PerlinSampler sampler = new PerlinSampler(noise);
+        GridSampler sampler = new GridSampler(noise, terrain);
 
         for (int y = 0; y < window.LatResolution; y++)
         {
@@ -44,7 +45,6 @@ public static class Noise
                 noiseMap[x, y] = noiseVal;
             }
         }
-        Debug.Log($"max noise: {absoluteMaxNoise}");
 
         //normalize max and min vlaues as well as noisemap
         localMaxNoise = localMaxNoise / absoluteMaxNoise;

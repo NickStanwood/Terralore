@@ -39,7 +39,7 @@ public class MapGenerator : MonoBehaviour
         float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, terrainData, out minHeight, out maxHeight);
         MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
 
-        Texture2D texture = TextureGenerator.GenerateTexture(map, displayData, terrainData.OceanLevel);
+        Texture2D texture = TextureGenerator.GenerateTexture(map, displayData, terrainData.OceanLevel, viewData);
 
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
         meshRendererFlat.sharedMaterial.mainTexture = texture;

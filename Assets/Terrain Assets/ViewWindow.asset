@@ -16,14 +16,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  MaintainAspectRatio: 1
-  X: 4751.8013
-  Y: 3942.7185
-  Width: 2000
-  Height: 1000
-  MinWidth: 0.02
-  MinHeight: 0.01
-  MaxWidth: 2000
-  MaxHeight: 1000
-  ResolutionX: 256
-  ResolutionY: 128
+  XRotation: 0
+  YRotation: 0
+  ZRotation: 0
+  LonAngle: 6.28
+  LatAngle: 3.14
+  MinAngle: 0.002
+  Resolution: 360
+  PointsOfInterest:
+  - {x: -0.7455136, y: 0.8072857}
+  - {x: -0.7455136, y: 0.8072857}

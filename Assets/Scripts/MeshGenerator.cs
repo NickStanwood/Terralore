@@ -68,11 +68,11 @@ public static class MeshGenerator
 
                 if (y < height - 1 && x < width - 1)
                 {
-                    //meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + width + 1);
-                    //meshData.AddTriangle(vertexIndex + width + 1, vertexIndex + 1, vertexIndex);
+                    meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + width + 1);
+                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex + 1, vertexIndex);
 
-                    meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
-                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
+                    //meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
+                    //meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
                 }
                 vertexIndex++;
             }

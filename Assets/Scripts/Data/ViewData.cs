@@ -15,12 +15,6 @@ public class ViewData : UpdatableData
     [Range(-3.14159f, 3.14159f)]
     public float ZRotation;
 
-    //[Range(-3.14159f, 3.14159f)]
-    //public float LonOffset;
-
-    //[Range(-3.14159f / 2f, 3.14159f / 2f)]
-    //public float LatOffset;
-
     //total angle that the window spans window
     [Range(0f, 2 * 3.14159f)]
     public float LonAngle;

@@ -12,7 +12,8 @@ public class MapGenerator : MonoBehaviour
     public MeshFilter meshFilterSphere;
     public MeshRenderer meshRendererSphere;
 
-    public NoiseData noiseData;
+    public NoiseData heightData;
+    public NoiseData heatData;
     public TerrainData terrainData;
     public ViewData viewData;
     public DisplayData displayData;
@@ -36,10 +37,11 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         float maxHeight, minHeight;
-        float[,] map = Noise.GenerateNoiseMap(noiseData, viewData, terrainData, out minHeight, out maxHeight);
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(map, viewData, terrainData, minHeight);
+        float[,] heightMap = Noise.GenerateNoiseMap(heightData, viewData, terrainData, out minHeight, out maxHeight);
+        float[,] heatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, minHeight);
 
-        Texture2D texture = TextureGenerator.GenerateTexture(map, displayData, terrainData.OceanLevel, viewData);
+        Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
 
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
         meshRendererFlat.sharedMaterial.mainTexture = texture;
@@ -66,10 +68,10 @@ public class MapGenerator : MonoBehaviour
             terrainData.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
-        if(noiseData != null)
+        if(heightData != null)
         {
-            noiseData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
-            noiseData.OnValuesUpdated.AddListener(OnValuesUpdated);
+            heightData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            heightData.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
         if(viewData != null)

@@ -47,16 +47,6 @@ public static class TextureGenerator
                             colorMap[y * width + x] = Color.black;
                         break;
                 }
-
-                Vector2 coord = Coordinates.MercatorToCoord((float)x / width, (float)y / height, window);
-                foreach(Vector2 poi in window.PointsOfInterest)
-                {
-                    if (InRange(coord.x, poi.x) && InRange(coord.y, poi.y))
-                    {
-                        colorMap[y * width + x] = Color.red;
-                    }
-
-                }
             }
         }
 

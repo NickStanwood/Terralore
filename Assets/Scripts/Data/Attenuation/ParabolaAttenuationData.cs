@@ -5,26 +5,18 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Noise Attenuation/Parabola")]
 public class ParabolaAttenuationData : NoiseAttenuationData
 {
-    public ActiveAxis ActiveAxis;
+    [Range(0.0f, 1.0f)]
+    public float EquatorAttenuation;
+    [Range(0.0f, 1.0f)]
+    public float PoleAttenuation;
 
-    public float A = 1.0f;
-    public float B = 1.0f;
-    public float C = 1.0f;
-
-    public override float Evaluate(float xCoord, float yCoord)
+    public override float Evaluate(float x, float y, float z)
     {
-        float axisVal = 0.0f;
-        if(ActiveAxis == ActiveAxis.X)
-            axisVal = xCoord;
-        else if (ActiveAxis == ActiveAxis.Y)
-            axisVal = yCoord;
-
-
-        float val = (A*axisVal*axisVal) + (B*axisVal) + C;
+        float r2 = x*x + y*y + z*z;
+        float lat2 = y * y;
+        float val = (PoleAttenuation - EquatorAttenuation)*lat2/r2 + EquatorAttenuation;
         if (val < 0.0f) val = 0.0f;
         if (val > 1.0f) val = 1.0f;
         return val;
     }
 }
-
-public enum ActiveAxis { X,Y,Z}

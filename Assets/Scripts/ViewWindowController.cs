@@ -57,11 +57,11 @@ public class ViewWindowController : MonoBehaviour
         {
             float zoom = 1.0f - Input.mouseScrollDelta.y * .1f;
 
-            float xPos = Input.mousePosition.x * (Window.LonAngle / Screen.width);
-            float yPos = Window.LatAngle - (Input.mousePosition.y * (Window.LatAngle / Screen.height));
+            float xPos = Window.LonAngle * ((Input.mousePosition.x / Screen.width) - 0.5f);
+            float yPos = Window.LatAngle * ((Input.mousePosition.y / Screen.height) - 0.5f);
 
-            Zoom(ref Window.LonAngle, ref Window.YRotation, zoom, Window.MinAngle, Coordinates.MaxLon, xPos);
-            Zoom(ref Window.LatAngle, ref Window.ZRotation, zoom, Window.MinAngle / 2f, Coordinates.MaxLat, yPos);
+            Zoom(ref Window.LonAngle, ref Window.YRotation, zoom, Window.MinAngle, Coordinates.MaxLon - Coordinates.MinLon, xPos);
+            Zoom(ref Window.LatAngle, ref Window.ZRotation, zoom, Window.MinAngle / 2f, Coordinates.MaxLat - Coordinates.MinLat, yPos);
             Window.NotifyOfUpdatedValues();
         }
     }

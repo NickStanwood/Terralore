@@ -6,8 +6,14 @@ using UnityEngine;
 public class DisplayData : UpdatableData
 {
     public ColorStyle Style = ColorStyle.HeightMap;
+    #region Height Map
     public Color WaterColor;
     public List<DisplayRange> HeightMapColors;
+    #endregion
+    #region Heat Map
+    public Color LandColor;
+    public List<DisplayRange> HeatMapColors;
+    #endregion
 }
 
 [System.Serializable]

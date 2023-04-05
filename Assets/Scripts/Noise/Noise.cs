@@ -22,8 +22,8 @@ public static class Noise
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
 
-        //PerlinSampler sampler = new PerlinSampler(noise);
-        GridSampler sampler = new GridSampler(noise, terrain);
+        PerlinSampler sampler = new PerlinSampler(noise);
+        //GridSampler sampler = new GridSampler(noise, terrain);
 
         for (int y = 0; y < window.LatResolution; y++)
         {
@@ -33,7 +33,6 @@ public static class Noise
                 float yPercent = (float)y / window.LatResolution;
                 Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, (float)terrain.WorldRadius);
 
-                //Debug.Log($"(x, y, z)-sphere ({xSphere}, {ySphere}, {zSphere})");
                 float noiseVal = sampler.Sample(c.x, c.y, c.z);
 
                 if (noiseVal < localMinNoise)

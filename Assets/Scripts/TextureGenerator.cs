@@ -4,10 +4,10 @@ using UnityEngine;
 
 public static class TextureGenerator
 {
-    public static Texture2D GenerateTexture(float[,] noiseMap, DisplayData display, float waterLevel, ViewData window)
+    public static Texture2D GenerateTexture(float[,] heightMap, float[,] heatMap, DisplayData display, float waterLevel, ViewData window)
     {
-        int width = noiseMap.GetLength(0);
-        int height = noiseMap.GetLength(1);
+        int width = heightMap.GetLength(0);
+        int height = heightMap.GetLength(1);
 
         Texture2D texture = new Texture2D(width, height);
         texture.filterMode = FilterMode.Point;
@@ -22,10 +22,10 @@ public static class TextureGenerator
                 switch (display.Style)
                 {
                     case ColorStyle.GreyScale:
-                        colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
+                        colorMap[y * width + x] = Color.Lerp(Color.black, Color.white, heightMap[x, y]);
                         break;
                     case ColorStyle.HeightMap:
-                        if (noiseMap[x, y] < waterLevel)
+                        if (heightMap[x, y] < waterLevel)
                         {
                             colorMap[y * width + x] = display.WaterColor;
                             continue;
@@ -33,7 +33,19 @@ public static class TextureGenerator
 
                         foreach (var range in display.HeightMapColors)
                         {
-                            if (noiseMap[x, y] < range.MaxValue)
+                            if (heightMap[x, y] < range.MaxValue)
+                            {
+                                colorMap[y * width + x] = range.Color;
+                                break;
+                            }
+                        }
+                        break;
+                    case ColorStyle.HeatMap:
+                        if (heightMap[x, y] > waterLevel)
+                            colorMap[y * width + x] = display.LandColor;
+                        foreach (var range in display.HeatMapColors)
+                        {
+                            if (heatMap[x, y] < range.MaxValue)
                             {
                                 colorMap[y * width + x] = range.Color;
                                 break;
@@ -41,7 +53,7 @@ public static class TextureGenerator
                         }
                         break;
                     default:
-                        if (noiseMap[x, y] > waterLevel)
+                        if (heightMap[x, y] > waterLevel)
                             colorMap[y * width + x] = Color.white;
                         else
                             colorMap[y * width + x] = Color.black;

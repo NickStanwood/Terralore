@@ -9,4 +9,9 @@ public class NoiseAttenuationData : UpdatableData
     {
         return 1.0f;
     }
+
+    public virtual float Evaluate(float x, float y, float z)
+    {
+        return 1.0f;
+    }
 }

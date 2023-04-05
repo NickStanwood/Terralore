@@ -62,11 +62,6 @@ public class MapGenerator : MonoBehaviour
 
     private void OnValidate()
     {
-        if(terrainData != null)
-        {
-            terrainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
-            terrainData.OnValuesUpdated.AddListener(OnValuesUpdated);
-        }
 
         if(heightData != null)
         {
@@ -74,7 +69,19 @@ public class MapGenerator : MonoBehaviour
             heightData.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
-        if(viewData != null)
+        if (heatData != null)
+        {
+            heatData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            heatData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if (terrainData != null)
+        {
+            terrainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            terrainData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if (viewData != null)
         {
             viewData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             viewData.OnValuesUpdated.AddListener(OnValuesUpdated);

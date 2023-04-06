@@ -6,6 +6,7 @@ using UnityEngine.Events;
 [CreateAssetMenu()]
 public class NoiseData : UpdatableData
 {
+    public NoiseType Type = NoiseType.Perlin;
     public int Seed;
 
     [Range(0.0001f, 1.0f)]
@@ -32,3 +33,5 @@ public class NoiseData : UpdatableData
         base.OnValidate();
     }
 }
+
+public enum NoiseType { Perlin, Ridged, Grid}

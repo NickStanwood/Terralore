@@ -22,8 +22,13 @@ public static class Noise
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
 
-        PerlinSampler sampler = new PerlinSampler(noise);
-        //GridSampler sampler = new GridSampler(noise, terrain);
+        NoiseSampler sampler = null;
+        if(noise.Type == NoiseType.Ridged)
+            sampler = new RidgedSampler(noise);
+        else if(noise.Type == NoiseType.Grid)
+            sampler = new GridSampler(noise, terrain);
+        else
+            sampler = new PerlinSampler(noise);
 
         for (int y = 0; y < window.LatResolution; y++)
         {

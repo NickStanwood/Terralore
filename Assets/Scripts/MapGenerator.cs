@@ -13,6 +13,7 @@ public class MapGenerator : MonoBehaviour
     public MeshRenderer meshRendererSphere;
 
     public NoiseData heightData;
+    public NoiseData mountainData;
     public NoiseData heatData;
     public TerrainData terrainData;
     public ViewData viewData;
@@ -38,8 +39,9 @@ public class MapGenerator : MonoBehaviour
     {
         float maxHeight, minHeight;
         float[,] heightMap = Noise.GenerateNoiseMap(heightData, viewData, terrainData, out minHeight, out maxHeight);
+        float[,] mountainMap = Noise.GenerateNoiseMap(mountainData, viewData, terrainData);
         float[,] heatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, minHeight);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, mountainMap, viewData, terrainData, minHeight);
 
         Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
 
@@ -73,6 +75,12 @@ public class MapGenerator : MonoBehaviour
         {
             heatData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             heatData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if (mountainData != null)
+        {
+            mountainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            mountainData.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
         if (terrainData != null)

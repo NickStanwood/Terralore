@@ -16,9 +16,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  Seed: 43838
-  Frequency: 1
-  Octaves: 1
-  Persistence: 0.547
-  Lacunarity: 3.62
+  Type: 0
+  Seed: 2866
+  Frequency: 0.0001
+  Octaves: 7
+  Persistence: 0.599
+  Lacunarity: 2.5
   AttenuationCurve: {fileID: 0}

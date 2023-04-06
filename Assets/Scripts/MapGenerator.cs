@@ -38,10 +38,10 @@ public class MapGenerator : MonoBehaviour
     public void GenerateMap()
     {
         float maxHeight, minHeight;
-        float[,] heightMap = Noise.GenerateNoiseMap(heightData, viewData, terrainData, out minHeight, out maxHeight);
-        float[,] mountainMap = Noise.GenerateNoiseMap(mountainData, viewData, terrainData);
+        float[,] heightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
         float[,] heatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, mountainMap, viewData, terrainData, minHeight);
+
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, minHeight);
 
         Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
 

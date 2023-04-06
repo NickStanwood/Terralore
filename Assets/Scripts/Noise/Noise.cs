@@ -53,13 +53,30 @@ public static class Noise
         //normalize max and min vlaues as well as noisemap
         localMaxNoise = localMaxNoise / absoluteMaxNoise;
         localMinNoise = localMinNoise / absoluteMaxNoise;
-        return Normalize(noiseMap, absoluteMaxNoise, 0.0f);
+        return Normalize(noiseMap, noise.Amplitude, absoluteMaxNoise, 0.0f);
     }
 
-    public static float[,] Combine(List<float[,]> noiseLayers, int width, int height)
+
+    public static float[,] GenerateNoiseMap(List<NoiseData> noiseLayers, ViewData window, TerrainData terrain, out float localMinNoise, out float localMaxNoise)
     {
-        float max = 0.0f;
-        float min = float.MaxValue;
+        List<float[,]> noiseMaps = new List<float[,]>();
+        float absoluteMaxNoise = 0.0f;
+        foreach(NoiseData noise in noiseLayers)
+        {
+            noiseMaps.Add(GenerateNoiseMap(noise, window, terrain));
+            absoluteMaxNoise += noise.Amplitude;
+        }
+
+        return Combine(noiseMaps, out localMinNoise, out localMaxNoise);
+    }
+
+    public static float[,] Combine(List<float[,]> noiseLayers, out float localMinNoise, out float localMaxNoise)
+    {
+        int width = noiseLayers[0].GetLength(0);
+        int height = noiseLayers[0].GetLength(1);
+
+        localMinNoise = float.MaxValue;
+        localMaxNoise = float.MinValue;
 
         float[,] noiseMap = new float[width, height];
         for (int x = 0; x < width; x++)
@@ -72,11 +89,11 @@ public static class Noise
                     noiseVal += layer[x, y];
                 }
 
-                if (noiseVal > max)
-                    max = noiseVal;
+                if (noiseVal < localMinNoise)
+                    localMinNoise = noiseVal;
 
-                if (noiseVal < min)
-                    min = noiseVal;
+                if (noiseVal > localMaxNoise)
+                    localMaxNoise = noiseVal;
 
                 noiseMap[x, y] = noiseVal;
             }
@@ -85,7 +102,7 @@ public static class Noise
         return noiseMap;
     }
 
-    public static float[,] Normalize(float[,] noiseMap, float max, float min)
+    public static float[,] Normalize(float[,] noiseMap, float amp, float max, float min)
     {
         if (max == min)
             return noiseMap;
@@ -94,7 +111,7 @@ public static class Noise
         {
             for (int y = 0; y < noiseMap.GetLength(1); y++)
             {
-                noiseMap[x, y] = (noiseMap[x, y] - min) / (max - min);
+                noiseMap[x, y] = ((noiseMap[x, y] - min) / (max - min))*amp;
             }
         }
 

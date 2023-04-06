@@ -16,7 +16,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  Style: 0
+  Style: 1
   WaterColor: {r: 0.13203098, g: 0.38910288, b: 0.6509434, a: 0}
   HeightMapColors:
   - Name: Plains
@@ -31,3 +31,20 @@ MonoBehaviour:
   - Name: Snow
     MaxValue: 1
     Color: {r: 0, g: 0, b: 0, a: 0}
+  LandColor: {r: 0.5660378, g: 0.5259879, b: 0.5259879, a: 0}
+  HeatMapColors:
+  - Name: Frigid
+    MaxValue: 0.115
+    Color: {r: 0.23843002, g: 0.8550698, b: 0.8867924, a: 0}
+  - Name: Temperate
+    MaxValue: 0.249
+    Color: {r: 0.057493784, g: 0.2609669, b: 0.7169812, a: 0}
+  - Name: Warm
+    MaxValue: 0.354
+    Color: {r: 0.5086664, g: 0.8666667, b: 0.35686278, a: 0}
+  - Name: Hot
+    MaxValue: 0.5
+    Color: {r: 0.9339623, g: 0.6162345, b: 0.2951673, a: 0}
+  - Name: Equator
+    MaxValue: 1
+    Color: {r: 0.93333334, g: 0.34166273, b: 0.2941176, a: 0}

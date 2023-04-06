@@ -23,6 +23,3 @@ MonoBehaviour:
   LatAngle: 3.14
   MinAngle: 0.002
   Resolution: 360
-  PointsOfInterest:
-  - {x: -0.7455136, y: 0.8072857}
-  - {x: -0.7455136, y: 0.8072857}

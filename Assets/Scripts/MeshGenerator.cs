@@ -4,31 +4,26 @@ using UnityEngine;
 
 public static class MeshGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] HeightMap, ViewData window, TerrainData terrain, float localMin)
+    public static MeshData GenerateTerrainMesh(float[,] HeightMap, ViewData window, TerrainData terrain, float worldMin, float worldMax, float localMin)
     {
         int width = HeightMap.GetLength(0);
         int height = HeightMap.GetLength(1);
 
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
-        float heightMultiplier = (Coordinates.MaxLon * terrain.HeightScale) / window.LonAngle;
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
 
         //check if part of the mesh is going to be ocean
-        if (terrain.OceanLevel > localMin)
-            localMin = terrain.OceanLevel;
 
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
                 float absHeight = HeightMap[x, y];
-                float heightY = Mathf.Max(absHeight - localMin, 0.0f);
+                float meshHeight = ConvertNoiseValueToMeshHeight(HeightMap[x, y], terrain, worldMin, worldMax, localMin);
 
-                heightY *= heightMultiplier;
-
-                meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, heightY, topLeftZ - y);
+                meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, meshHeight, topLeftZ - y);
                 meshData.UVs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (x < width - 1 && y < height - 1)
@@ -80,6 +75,24 @@ public static class MeshGenerator
         }
 
         return meshData;
+    }
+
+    public static float ConvertNoiseValueToMeshHeight(float value, TerrainData terrain, float worldNoiseMin, float worldNoiseMax, float localNoiseMin)
+    {
+        if (terrain.OceanLevel > worldNoiseMin)
+            worldNoiseMin = terrain.OceanLevel;
+
+        if (terrain.OceanLevel > localNoiseMin)
+            localNoiseMin = terrain.OceanLevel;
+
+        //get value between 0 - 1. 0 being world min height. 1 being worldmax height
+        float noiseHeight = (value - worldNoiseMin) / (worldNoiseMax - worldNoiseMin);
+        noiseHeight = Mathf.Max(noiseHeight, 0.0f);
+        float minNoiseHeight = (localNoiseMin - worldNoiseMin) / (worldNoiseMax - worldNoiseMin);
+
+        float meshHeight = (noiseHeight - minNoiseHeight) * terrain.HeightScale;
+
+        return meshHeight;
     }
 }
 

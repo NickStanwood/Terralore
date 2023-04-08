@@ -11,6 +11,7 @@ public class TerrainData : UpdatableData
     [Range(0.0f, 1.0f)]
     public float OceanLevel;
 
-    [Range(0.0f, 1000.0f)]
+    [Range(0.001f, 10.0f)]
     public float HeightScale;
+
 }

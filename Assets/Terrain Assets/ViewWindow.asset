@@ -22,4 +22,4 @@ MonoBehaviour:
   LonAngle: 6.28
   LatAngle: 3.14
   MinAngle: 0.002
-  Resolution: 360
+  Resolution: 256

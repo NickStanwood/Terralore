@@ -17,7 +17,6 @@ public class MapGenerator : MonoBehaviour
     public NoiseData heatData;
     public TerrainData terrainData;
     public ViewData viewData;
-    public DisplayData displayData;
 
     public TextureData textureData;
     public Material terrainMaterial;
@@ -83,15 +82,15 @@ public class MapGenerator : MonoBehaviour
         MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
 
 
-        Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
+        //Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
 
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
-        meshRendererFlat.sharedMaterial.mainTexture = texture;
+        //meshRendererFlat.sharedMaterial.mainTexture = texture;
 
 
         MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(viewData);
         meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();
-        meshRendererSphere.sharedMaterial.mainTexture = texture;
+        //meshRendererSphere.sharedMaterial.mainTexture = texture;
     }
 
     private void OnTextureValuesUpdated()
@@ -147,13 +146,6 @@ public class MapGenerator : MonoBehaviour
         {
             terrainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             terrainData.OnValuesUpdated.AddListener(OnValuesUpdated);
-        }
-
-
-        if (displayData != null)
-        {
-            displayData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
-            displayData.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
         if (viewData != null)

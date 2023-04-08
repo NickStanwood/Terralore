@@ -79,16 +79,12 @@ public static class MeshGenerator
 
     public static float ConvertNoiseValueToMeshHeight(float value, TerrainData terrain, float worldNoiseMin, float worldNoiseMax, float localNoiseMin)
     {
-        if (terrain.OceanLevel > worldNoiseMin)
-            worldNoiseMin = terrain.OceanLevel;
-
-        if (terrain.OceanLevel > localNoiseMin)
-            localNoiseMin = terrain.OceanLevel;
-
         //get value between 0 - 1. 0 being world min height. 1 being worldmax height
         float noiseHeight = (value - worldNoiseMin) / (worldNoiseMax - worldNoiseMin);
-        noiseHeight = Mathf.Max(noiseHeight, 0.0f);
+        noiseHeight = Mathf.Max(noiseHeight, terrain.OceanLevel);
+
         float minNoiseHeight = (localNoiseMin - worldNoiseMin) / (worldNoiseMax - worldNoiseMin);
+        minNoiseHeight = Mathf.Max(minNoiseHeight, terrain.OceanLevel);
 
         float meshHeight = (noiseHeight - minNoiseHeight) * terrain.HeightScale;
 

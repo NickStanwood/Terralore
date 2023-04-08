@@ -61,7 +61,7 @@ public class MapGenerator : MonoBehaviour
 
         float maxHeight, minHeight;
         Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, fullWindow, terrainData, out minHeight, out maxHeight);
-        WorldMinHeight = minHeight < terrainData.OceanLevel ? terrainData.OceanLevel : minHeight;
+        WorldMinHeight = minHeight;
         WorldMaxHeight = maxHeight;
 
         //create wind currents here

@@ -20,6 +20,7 @@ Shader "Custom/TerrainShader"
         int baseColourCount;
         float3 baseColours[MAX_COLOURS];
         float baseStartHeights[MAX_COLOURS];
+        float baseBlendStrength[MAX_COLOURS];
 
         float minHeight;
         float maxHeight;

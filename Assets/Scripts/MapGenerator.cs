@@ -81,16 +81,13 @@ public class MapGenerator : MonoBehaviour
 
         MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
 
-
-        //Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
+        Texture2D texture = TextureGenerator.GenerateHeatMapTexture(heatMap, textureData, viewData);
 
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
-        //meshRendererFlat.sharedMaterial.mainTexture = texture;
-
+        meshRendererFlat.sharedMaterial.mainTexture = texture;
 
         MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(viewData);
         meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();
-        //meshRendererSphere.sharedMaterial.mainTexture = texture;
     }
 
     private void OnTextureValuesUpdated()

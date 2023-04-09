@@ -17,10 +17,10 @@ MonoBehaviour:
       m_Calls: []
   AutoUpdate: 1
   Type: 0
-  Seed: 47349
+  Seed: 68782
   Amplitude: 1
   Frequency: 0.0001
-  Octaves: 7
+  Octaves: 15
   Persistence: 0.599
   Lacunarity: 2.5
   AttenuationCurve: {fileID: 0}

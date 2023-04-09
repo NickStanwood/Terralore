@@ -17,5 +17,5 @@ MonoBehaviour:
       m_Calls: []
   AutoUpdate: 1
   WorldRadius: 3571
-  OceanLevel: 0.238
+  OceanLevel: 0.613
   HeightScale: 1.98

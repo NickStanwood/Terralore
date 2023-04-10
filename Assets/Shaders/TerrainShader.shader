@@ -42,8 +42,17 @@ Shader "Custom/TerrainShader"
             float heightPercent = inverseLerp(IN.worldPos.y, minHeight, maxHeight);
             for (int i = 0; i < baseColourCount; i++)
             {
-                float drawStrength = inverseLerp(heightPercent - baseStartHeights[i] , -baseBlendStrength[i] / 2 - EPSILON, baseBlendStrength[i] / 2);
-                o.Albedo = o.Albedo * (1-drawStrength) + baseColours[i] * drawStrength;
+                if (baseStartHeights[i] == 0.0f && heightPercent == 0.0f)
+                {
+                    o.Albedo = baseColours[i];
+                    break;
+                }
+                else
+                {
+                    float drawStrength = inverseLerp(heightPercent - baseStartHeights[i], -baseBlendStrength[i] / 2 - EPSILON, baseBlendStrength[i] / 2);
+                    o.Albedo = o.Albedo * (1 - drawStrength) + baseColours[i] * drawStrength;
+                }
+                
             }
         }
         ENDCG

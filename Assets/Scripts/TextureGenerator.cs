@@ -10,7 +10,7 @@ public static class TextureGenerator
         int height = heatMap.GetLength(1);
 
         Texture2D texture = new Texture2D(width, height);
-        texture.filterMode = FilterMode.Point;
+        //texture.filterMode = FilterMode.Point;
 
         Color[] colorMap = new Color[width * height];
 

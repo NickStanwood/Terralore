@@ -16,21 +16,38 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
+  TextureType: 0
   HeightLayers:
   - Name: 
     StartHeight: 0
     Colour: {r: 0.2007832, g: 0.29833388, b: 0.9056604, a: 0}
     BlendStrength: 0
   - Name: 
-    StartHeight: 0.016
+    StartHeight: 0.001
     Colour: {r: 0.19280851, g: 0.7264151, b: 0.16789784, a: 0}
     BlendStrength: 0
+  - Name: 
+    StartHeight: 0.105
+    Colour: {r: 0.13992749, g: 0.4056604, b: 0.12820399, a: 0}
+    BlendStrength: 0.292
   HeatLayers:
   - Name: 
     StartHeight: 0
     Colour: {r: 0.22022964, g: 0.8595876, b: 0.9528302, a: 0}
     BlendStrength: 0
   - Name: 
-    StartHeight: 0.026
-    Colour: {r: 0.7735849, g: 0.11495836, b: 0.062032763, a: 0}
-    BlendStrength: 0
+    StartHeight: 0.141
+    Colour: {r: 0.18823528, g: 0.93333334, b: 0.4990851, a: 0}
+    BlendStrength: 0.2
+  - Name: 
+    StartHeight: 0.237
+    Colour: {r: 0.93333334, g: 0.90237135, b: 0.18823528, a: 0}
+    BlendStrength: 0.2
+  - Name: 
+    StartHeight: 0.345
+    Colour: {r: 0.93333334, g: 0.56236213, b: 0.18823528, a: 0}
+    BlendStrength: 0.2
+  - Name: 
+    StartHeight: 0.578
+    Colour: {r: 0.93333334, g: 0.20968208, b: 0.18823528, a: 0}
+    BlendStrength: 0.2

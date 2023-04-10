@@ -20,11 +20,8 @@ public static class TextureGenerator
             {
                 foreach (var range in data.HeatLayers)
                 {
-                    if (heatMap[x, y] >= range.StartHeight)
-                    {
-                        colorMap[y * width + x] = range.Colour;
-                        break;
-                    }
+                    float drawStrength = Mathf.InverseLerp(-range.BlendStrength / 2-0.0001f, range.BlendStrength / 2, heatMap[x, y] - range.StartHeight);
+                    colorMap[y * width + x] = colorMap[y * width + x] * (1 - drawStrength) + range.Colour * drawStrength;
                 }
             }
         }

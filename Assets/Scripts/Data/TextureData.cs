@@ -6,6 +6,7 @@ using System.Linq;
 [CreateAssetMenu()]
 public class TextureData : UpdatableData
 {
+    public TextureType TextureType;
     public TextureLayer[] HeightLayers;
     public TextureLayer[] HeatLayers;
 
@@ -22,6 +23,12 @@ public class TextureData : UpdatableData
         material.SetFloat("minHeight", minHeight);
         material.SetFloat("maxHeight", maxHeight);
     }
+}
+
+public enum TextureType
+{
+    HeightMap,
+    HeatMap,
 }
 
 [System.Serializable]

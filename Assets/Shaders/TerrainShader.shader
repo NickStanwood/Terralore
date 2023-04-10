@@ -16,6 +16,7 @@ Shader "Custom/TerrainShader"
         #pragma target 3.0
 
         const static int MAX_COLOURS = 8;
+        const static float EPSILON = 1E-4;
 
         int baseColourCount;
         float3 baseColours[MAX_COLOURS];
@@ -41,8 +42,17 @@ Shader "Custom/TerrainShader"
             float heightPercent = inverseLerp(IN.worldPos.y, minHeight, maxHeight);
             for (int i = 0; i < baseColourCount; i++)
             {
-                float drawStrength = heightPercent >= baseStartHeights[i] ? 1.0 : 0.0;
-                o.Albedo = o.Albedo * (1-drawStrength) + baseColours[i] * drawStrength;
+                if (baseStartHeights[i] == 0.0f && heightPercent == 0.0f)
+                {
+                    o.Albedo = baseColours[i];
+                    break;
+                }
+                else
+                {
+                    float drawStrength = inverseLerp(heightPercent - baseStartHeights[i], -baseBlendStrength[i] / 2 - EPSILON, baseBlendStrength[i] / 2);
+                    o.Albedo = o.Albedo * (1 - drawStrength) + baseColours[i] * drawStrength;
+                }
+                
             }
         }
         ENDCG

@@ -16,28 +16,50 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  Layers:
-  - Name: Ocean
+  TextureType: 0
+  HeightLayers:
+  - Name: Water
     StartHeight: 0
-    Colour: {r: 0.1822268, g: 0.5832444, b: 0.8584906, a: 0}
-    BlendStrength: 0
-  - Name: Beach
-    StartHeight: 0.001
-    Colour: {r: 0.9716981, g: 0.85750645, b: 0.45376468, a: 0}
+    Colour: {r: 0.2007832, g: 0.29833388, b: 0.9056604, a: 0}
     BlendStrength: 0
   - Name: Plains
-    StartHeight: 0.016
-    Colour: {r: 0.46009117, g: 0.6886792, b: 0.40606087, a: 0}
+    StartHeight: 0.001
+    Colour: {r: 0.19280851, g: 0.7264151, b: 0.16789784, a: 0}
     BlendStrength: 0
   - Name: Forest
-    StartHeight: 0.183
-    Colour: {r: 0.14768438, g: 0.3679245, b: 0.14057493, a: 0}
-    BlendStrength: 0
+    StartHeight: 0.105
+    Colour: {r: 0.13992749, g: 0.4056604, b: 0.12820399, a: 0}
+    BlendStrength: 0.292
   - Name: Mountain
-    StartHeight: 0.49
-    Colour: {r: 0.26415092, g: 0.22745004, b: 0.17568529, a: 0}
-    BlendStrength: 0
+    StartHeight: 0.386
+    Colour: {r: 0.31132078, g: 0.27911967, b: 0.24817553, a: 0}
+    BlendStrength: 0.2
   - Name: Snow
-    StartHeight: 0.844
-    Colour: {r: 0.745283, g: 0.7323396, b: 0.7136436, a: 0}
+    StartHeight: 0.554
+    Colour: {r: 0.8679245, g: 0.8495016, b: 0.83107865, a: 0}
+    BlendStrength: 0.2
+  - Name: Snow
+    StartHeight: 0.554
+    Colour: {r: 0.8679245, g: 0.8495016, b: 0.83107865, a: 0}
+    BlendStrength: 0.2
+  HeatLayers:
+  - Name: Cold
+    StartHeight: 0
+    Colour: {r: 0.22022964, g: 0.8595876, b: 0.9528302, a: 0}
     BlendStrength: 0
+  - Name: Temperate
+    StartHeight: 0.141
+    Colour: {r: 0.18823528, g: 0.93333334, b: 0.4990851, a: 0}
+    BlendStrength: 0.2
+  - Name: Warm
+    StartHeight: 0.237
+    Colour: {r: 0.93333334, g: 0.90237135, b: 0.18823528, a: 0}
+    BlendStrength: 0.2
+  - Name: Hot
+    StartHeight: 0.345
+    Colour: {r: 0.93333334, g: 0.56236213, b: 0.18823528, a: 0}
+    BlendStrength: 0.2
+  - Name: Equator
+    StartHeight: 0.578
+    Colour: {r: 0.93333334, g: 0.20968208, b: 0.18823528, a: 0}
+    BlendStrength: 0.2

@@ -6,14 +6,16 @@ using System.Linq;
 [CreateAssetMenu()]
 public class TextureData : UpdatableData
 {
-    public TextureLayer[] Layers;
+    public TextureType TextureType;
+    public TextureLayer[] HeightLayers;
+    public TextureLayer[] HeatLayers;
 
     public void ApplyToMaterial(Material material)
     {
-        material.SetInt("baseColourCount", Layers.Length);
-        material.SetColorArray("baseColours", Layers.Select(l => l.Colour).ToArray());
-        material.SetFloatArray("baseStartHeights", Layers.Select(l => l.StartHeight).ToArray());
-        material.SetFloatArray("baseBlendStrength", Layers.Select(l => l.BlendStrength).ToArray());
+        material.SetInt("baseColourCount", HeightLayers.Length);
+        material.SetColorArray("baseColours", HeightLayers.Select(l => l.Colour).ToArray());
+        material.SetFloatArray("baseStartHeights", HeightLayers.Select(l => l.StartHeight).ToArray());
+        material.SetFloatArray("baseBlendStrength", HeightLayers.Select(l => l.BlendStrength).ToArray());
     }
 
     public void UpdateMeshHeights(Material material, float minHeight, float maxHeight)
@@ -21,6 +23,12 @@ public class TextureData : UpdatableData
         material.SetFloat("minHeight", minHeight);
         material.SetFloat("maxHeight", maxHeight);
     }
+}
+
+public enum TextureType
+{
+    HeightMap,
+    HeatMap,
 }
 
 [System.Serializable]

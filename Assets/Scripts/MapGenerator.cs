@@ -5,21 +5,26 @@ using UnityEngine.Events;
 
 public class MapGenerator : MonoBehaviour
 {
-
+    [Header ("Mesh Settings")]
     public MeshFilter meshFilterFlat;
     public MeshRenderer meshRendererFlat;
 
     public MeshFilter meshFilterSphere;
     public MeshRenderer meshRendererSphere;
 
+    [Header("Display Settings")]
+    public TextureData textureData;
+    public Material terrainMaterial;
+    public Material defaultMaterial;
+
+    [Header("Noise Data")]
     public NoiseData heightData;
     public NoiseData mountainData;
     public NoiseData heatData;
+
+    [Header("World Data")]
     public TerrainData terrainData;
     public ViewData viewData;
-
-    public TextureData textureData;
-    public Material terrainMaterial;
 
     [HideInInspector]
     private bool MapInvalidated;
@@ -71,26 +76,35 @@ public class MapGenerator : MonoBehaviour
         if (WorldMaxHeight == 0.0f && WorldMinHeight == 0.0f)
             InitializeMap();
 
+        //create map data points from noise 
         float maxHeight, minHeight;
         float[,] heightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
         float[,] heatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
 
+        //find max and min values of the mesh that is about to be created
         float maxMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMaxHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
         float minMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMinHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
         textureData.UpdateMeshHeights(terrainMaterial, minMeshHeight, maxMeshHeight);
 
+        //create mesh for the 2D mercator map
         MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
-
-
-        //Texture2D texture = TextureGenerator.GenerateTexture(heightMap, heatMap, displayData, terrainData.OceanLevel, viewData);
-
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
-        //meshRendererFlat.sharedMaterial.mainTexture = texture;
 
+        if(textureData.TextureType == TextureType.HeatMap)
+        {
+            //apply heat map texture to 2D mercator map
+            Texture2D texture = TextureGenerator.GenerateHeatMapTexture(heatMap, textureData, viewData);
+            defaultMaterial.SetTexture("_MainTex", texture);
+            meshRendererFlat.sharedMaterial = defaultMaterial;
+        }
+        else if(textureData.TextureType == TextureType.HeightMap)
+        {
+            meshRendererFlat.sharedMaterial = terrainMaterial;
+        }
 
+        //create spherical map 
         MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(viewData);
         meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();
-        //meshRendererSphere.sharedMaterial.mainTexture = texture;
     }
 
     private void OnTextureValuesUpdated()

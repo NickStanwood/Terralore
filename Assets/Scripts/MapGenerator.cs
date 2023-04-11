@@ -15,7 +15,7 @@ public class MapGenerator : MonoBehaviour
     [Header("Display Settings")]
     public TextureData textureData;
     public Material terrainMaterial;
-    public Material defaultMaterial;
+    public Material heatMaterial;
 
     [Header("Noise Data")]
     public NoiseData heightData;
@@ -94,8 +94,8 @@ public class MapGenerator : MonoBehaviour
         {
             //apply heat map texture to 2D mercator map
             Texture2D texture = TextureGenerator.GenerateHeatMapTexture(heatMap, textureData, viewData);
-            defaultMaterial.SetTexture("_MainTex", texture);
-            meshRendererFlat.sharedMaterial = defaultMaterial;
+            heatMaterial.SetTexture("_MainTex", texture);
+            meshRendererFlat.sharedMaterial = heatMaterial;
         }
         else if(textureData.TextureType == TextureType.HeightMap)
         {

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 142ec8f9462f5c74cb94fe257e79ebba, type: 3}
+  m_Name: WindDisplay
+  m_EditorClassIdentifier: 
+  OnValuesUpdated:
+    m_PersistentCalls:
+      m_Calls: []
+  AutoUpdate: 1
+  ShowWindCurrents: 1
+  LineColour: {r: 0, g: 1, b: 0.012152195, a: 1}
+  MovementSpeed: 0

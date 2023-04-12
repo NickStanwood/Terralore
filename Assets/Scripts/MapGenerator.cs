@@ -23,6 +23,7 @@ public class MapGenerator : MonoBehaviour
     public NoiseData heatData;
 
     [Header("World Data")]
+    public WorldSampler worldSampler;
     public TerrainData terrainData;
     public ViewData viewData;
 
@@ -78,8 +79,8 @@ public class MapGenerator : MonoBehaviour
 
         //create map data points from noise 
         float maxHeight, minHeight;
-        float[,] heightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
-        float[,] heatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
+        worldSampler.HeightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
+        worldSampler.HeatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
 
         //find max and min values of the mesh that is about to be created
         float maxMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMaxHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
@@ -87,13 +88,13 @@ public class MapGenerator : MonoBehaviour
         textureData.UpdateMeshHeights(terrainMaterial, minMeshHeight, maxMeshHeight);
 
         //create mesh for the 2D mercator map
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(worldSampler.HeightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
 
         if(textureData.TextureType == TextureType.HeatMap)
         {
             //apply heat map texture to 2D mercator map
-            Texture2D texture = TextureGenerator.GenerateHeatMapTexture(heatMap, textureData, viewData);
+            Texture2D texture = TextureGenerator.GenerateHeatMapTexture(worldSampler.HeatMap, textureData, viewData);
             heatMaterial.SetTexture("_MainTex", texture);
             meshRendererFlat.sharedMaterial = heatMaterial;
         }

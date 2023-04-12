@@ -25,11 +25,12 @@ public class WindController : MonoBehaviour
         if (windCurrents.Count > 3)
             return;
 
-        Vector3[] positions = new Vector3[4];
+        Vector3[] positions = new Vector3[5];
         positions[0] = new Vector3(-100, 1, windCurrents.Count * 10);
         positions[1] = new Vector3( 100, 1, windCurrents.Count * 10);
         positions[2] = new Vector3( 100, 1, windCurrents.Count * 10 + 50);
         positions[3] = new Vector3(-100, 1, windCurrents.Count * 10 + 50);
+        positions[4] = new Vector3(-100, 1, windCurrents.Count * 10 + 1);
 
         LineRenderer line = CreateWindCurrent(positions);
     }
@@ -43,7 +44,6 @@ public class WindController : MonoBehaviour
         line.SetWidth(3, 0.1f);
         line.numCapVertices = 3;
         line.numCornerVertices = 3;
-        line.loop = true;
         line.positionCount = positions.Length;
         line.SetPositions(positions);
         windCurrents.Add(line);

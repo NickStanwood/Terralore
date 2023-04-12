@@ -26,7 +26,7 @@ public static class Coordinates
     {
         float lon = Mathf.Atan2(z, x);
         float lat = Mathf.Asin(y / radius);
-        return new Vector3(lon, lat);
+        return new Vector2(lon, lat);
     }
 
     public static Vector3 MercatorToCartesian(float xPercent, float yPercent, ViewData window, float radius)
@@ -40,13 +40,24 @@ public static class Coordinates
         cart = RotateAboutZ(cart, window.ZRotation);
 
         return cart;
-        //return new Vector3(cart.x, cart.y, cart.z);
     }
 
     public static Vector2 MercatorToCoord(float xPercent, float yPercent, ViewData window)
     {
         Vector3 cartesian = MercatorToCartesian(xPercent, yPercent, window, 1.0f);
         return CartesianToCoord(cartesian.x, cartesian.y, cartesian.z, 1.0f);
+    }
+
+    public static Vector2 CoordToMercator(float lon, float lat, ViewData window)
+    {
+        //TODO
+        //coord to cartesian
+
+        //cartesian to mercator
+
+        float xPercent = (lon / window.LonAngle) + 0.5f;
+        float yPercent = (lat / window.LatAngle) + 0.5f;
+        return new Vector2(xPercent, yPercent);
     }
 
     public static Vector3 RotateAboutX(Vector3 cartesian, float rotation)

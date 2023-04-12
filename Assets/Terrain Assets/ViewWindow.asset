@@ -17,9 +17,9 @@ MonoBehaviour:
       m_Calls: []
   AutoUpdate: 1
   XRotation: 0
-  YRotation: -0.993073
-  ZRotation: 0.25319424
-  LonAngle: 6.2831855
-  LatAngle: 3.1415927
+  YRotation: 0
+  ZRotation: 0
+  LonAngle: 6.28
+  LatAngle: 3.14
   MinAngle: 0.002
   Resolution: 256

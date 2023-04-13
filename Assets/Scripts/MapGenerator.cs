@@ -33,9 +33,9 @@ public class MapGenerator : MonoBehaviour
     private bool WindowUpdated;
 
     [HideInInspector]
-    private float WorldMinHeight = 0.0f;
-    [HideInInspector]
-    private float WorldMaxHeight = 0.0f;
+    //private float WorldMinHeight = 0.0f;
+    //[HideInInspector]
+    //private float WorldMaxHeight = 0.0f;
 
     public void start()
     {
@@ -66,29 +66,25 @@ public class MapGenerator : MonoBehaviour
 
         float maxHeight, minHeight;
         Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, fullWindow, terrainData, out minHeight, out maxHeight);
-        WorldMinHeight = minHeight;
-        WorldMaxHeight = maxHeight;
-
-        //create wind currents here
+        worldSampler.SetWorldHeights(minHeight, maxHeight);
     }
 
     public void GenerateMap()
     {
-        if (WorldMaxHeight == 0.0f && WorldMinHeight == 0.0f)
+        if (!worldSampler.WorldHeightsSet())
             InitializeMap();
 
         //create map data points from noise 
         float maxHeight, minHeight;
         worldSampler.HeightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
+        worldSampler.SetLocalHeights(minHeight, maxHeight);
         worldSampler.HeatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
 
         //find max and min values of the mesh that is about to be created
-        float maxMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMaxHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
-        float minMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMinHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
-        textureData.UpdateMeshHeights(terrainMaterial, minMeshHeight, maxMeshHeight);
+        textureData.UpdateMeshHeights(terrainMaterial, worldSampler.MinMeshHeight(), worldSampler.MaxMeshHeight());
 
         //create mesh for the 2D mercator map
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(worldSampler.HeightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(worldSampler);
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
 
         if(textureData.TextureType == TextureType.HeatMap)
@@ -155,6 +151,12 @@ public class MapGenerator : MonoBehaviour
         {
             mountainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             mountainData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if (worldSampler != null)
+        {
+            worldSampler.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            worldSampler.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
         if (terrainData != null)

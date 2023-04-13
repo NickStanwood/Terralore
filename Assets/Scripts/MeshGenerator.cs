@@ -4,32 +4,26 @@ using UnityEngine;
 
 public static class MeshGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] HeightMap, ViewData window, TerrainData terrain, float worldMin, float worldMax, float localMin)
+    public static MeshData GenerateTerrainMesh(WorldSampler worldSampler)
     {
-        int width = HeightMap.GetLength(0);
-        int height = HeightMap.GetLength(1);
+        int width = worldSampler.HeightMap.GetLength(0);
+        int height = worldSampler.HeightMap.GetLength(1);
 
-        float topLeftX = (width - 1) / -2f;
-        float topLeftZ = (height - 1) / 2f;
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
-
-        //check if part of the mesh is going to be ocean
 
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                float absHeight = HeightMap[x, y];
-                float meshHeight = ConvertNoiseValueToMeshHeight(HeightMap[x, y], terrain, worldMin, worldMax, localMin);
-
-                meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x, meshHeight, topLeftZ - y);
+                Vector3 pos = worldSampler.SampleFromIndex(x, y).WorldPos;
+                meshData.Vertices[vertexIndex] = pos;
                 meshData.UVs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (x < width - 1 && y < height - 1)
                 {
-                    meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
-                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
+                    meshData.AddTriangle(vertexIndex, vertexIndex + width, vertexIndex + width + 1);
+                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex + 1, vertexIndex);
                 }
 
                 vertexIndex++;

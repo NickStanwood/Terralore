@@ -21,7 +21,7 @@ public class WorldSampler : UpdatableData
     [HideInInspector]
     public float[,] HeatMap { get; set; }
     [HideInInspector]
-    public float[,] WindMap { get; set; }
+    public float[,] WindVelocityMap { get; set; }
 
     private float _WorldHeightMax;
     private float _WorldHeightMin;
@@ -31,8 +31,20 @@ public class WorldSampler : UpdatableData
     public WorldSample SampleFromCoord(float lon, float lat)
     {
         Vector2 percent = Coordinates.CoordToMercator(lon, lat, window);
-        int x = (int)(percent.x * HeightMap.GetLength(0));
-        int y = (int)(percent.y * HeightMap.GetLength(1));
+        while(percent.x >= 1.0f)
+            percent.x -= 1.0f;
+
+        while (percent.x < 0.0f)
+            percent.x += 1.0f;
+
+        while (percent.y >= 1.0f)
+            percent.y -= 1.0f;
+
+        while (percent.y < 0.0f)
+            percent.y += 1.0f;
+
+        int x = (int)(percent.x * MapIndexWidth());
+        int y = (int)(percent.y * MapIndexHeight());
         
         return new WorldSample
         {
@@ -50,8 +62,8 @@ public class WorldSampler : UpdatableData
     public WorldSample SampleFromIndex(int xIndex, int yIndex)
     {
         //get Lon & Lat
-        float xPercent = (float)xIndex / (float)HeightMap.GetLength(0);
-        float yPercent = (float)yIndex / (float)HeightMap.GetLength(1);
+        float xPercent = (float)xIndex / (float)MapIndexWidth();
+        float yPercent = (float)yIndex / (float)MapIndexHeight();
         Vector2 coords = Coordinates.MercatorToCoord(xPercent, yPercent, window);
 
         return new WorldSample
@@ -94,6 +106,16 @@ public class WorldSampler : UpdatableData
         return NoiseValueToWorldHeight(_WorldHeightMax);
     }
 
+    public int MapIndexWidth()
+    {
+        return HeightMap.GetLength(0);
+    }
+
+    public int MapIndexHeight()
+    {
+        return HeightMap.GetLength(1);
+    }
+
     private Vector3 ConvertMapIndexToWorldPos(int xIndex, int yIndex)
     {
         //get value between 0 - 1. 0 being world min height. 1 being worldmax height
@@ -103,9 +125,17 @@ public class WorldSampler : UpdatableData
         float minNoiseHeight = (_LocalHeightMin - _WorldHeightMin) / (_WorldHeightMax - _WorldHeightMin);
         minNoiseHeight = Mathf.Max(minNoiseHeight, OceanLevel);
 
+        //calculate mesh height so the lowest point in the local window is at 0
         float meshY = (noiseHeight - minNoiseHeight) * HeightScale;
-        float meshX = xIndex * MapScale;
-        float meshZ = yIndex * MapScale;
+
+        //calculate x mesh location so the center of the map is at 0
+        float topLeftX = (MapIndexWidth() - 1) / -2f;
+        float meshX = (xIndex + topLeftX) * MapScale;
+
+        //calculate z mesh location so the center of the map is at 0
+        float topLeftZ = (MapIndexHeight() - 1) / 2f;
+        float meshZ = (topLeftZ - yIndex) * MapScale;
+
         return new Vector3(meshX, meshY, meshZ);
     }
 

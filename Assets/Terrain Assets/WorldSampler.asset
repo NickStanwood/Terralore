@@ -17,3 +17,6 @@ MonoBehaviour:
       m_Calls: []
   AutoUpdate: 1
   window: {fileID: 11400000, guid: a7a6546ce700482408034654d2ab4264, type: 2}
+  HeightScale: 2.79
+  MapScale: 1.35
+  OceanLevel: 0.641

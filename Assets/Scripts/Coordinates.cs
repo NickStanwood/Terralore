@@ -42,6 +42,21 @@ public static class Coordinates
         return cart;
     }
 
+    public static Vector2 CartesianToMercator(float x, float y, float z, ViewData window, float radius)
+    {
+        Vector3 cart = new Vector3(x, y, z);
+        cart = RotateAboutZ(cart, -window.ZRotation);
+        cart = RotateAboutY(cart, -window.YRotation);
+        cart = RotateAboutX(cart, -window.XRotation);
+
+        Vector2 coord = CartesianToCoord(cart.x, cart.y, cart.z, radius);
+        float lon = coord.x;
+        float lat = coord.y;
+        float xPercent = (lon / window.LonAngle) + 0.5f;
+        float yPercent = (lat / window.LatAngle) + 0.5f;
+        return new Vector2(xPercent, yPercent);
+    }
+
     public static Vector2 MercatorToCoord(float xPercent, float yPercent, ViewData window)
     {
         Vector3 cartesian = MercatorToCartesian(xPercent, yPercent, window, 1.0f);
@@ -50,14 +65,8 @@ public static class Coordinates
 
     public static Vector2 CoordToMercator(float lon, float lat, ViewData window)
     {
-        //TODO
-        //coord to cartesian
-
-        //cartesian to mercator
-
-        float xPercent = (lon / window.LonAngle) + 0.5f;
-        float yPercent = (lat / window.LatAngle) + 0.5f;
-        return new Vector2(xPercent, yPercent);
+        Vector3 cart = CoordToCartesian(lon, lat, 1.0f);
+        return CartesianToMercator(cart.x, cart.y, cart.z, window, 1.0f);
     }
 
     public static Vector3 RotateAboutX(Vector3 cartesian, float rotation)

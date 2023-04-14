@@ -19,7 +19,7 @@ MonoBehaviour:
   XRotation: 0
   YRotation: 0
   ZRotation: 0
-  LonAngle: 6.28
-  LatAngle: 3.14
+  LonAngle: 6.2831855
+  LatAngle: 3.1415927
   MinAngle: 0.002
   Resolution: 256

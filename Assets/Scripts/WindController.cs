@@ -9,7 +9,7 @@ public class WindController : MonoBehaviour
     public WorldSampler Sampler;
 
     List<GameObject> windCurrents;
-    
+    bool WindInvalidated = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,31 +17,40 @@ public class WindController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
+        if (!WindInvalidated)
+            return;
+
         DestroyWindCurrents();
 
         if (!windData.ShowWindCurrents)
             return;
 
-        Vector3[] positions = new Vector3[5];
-        for(int i = 0; i < positions.Length; i++)
+        List<Vector3> positions = new List<Vector3>();
+        int sampleCount = 30;
+        float epsilon = Mathf.PI / 32;
+        WorldSample lastSample = new WorldSample{xIndex = -1};
+        for(int i = 0; i < sampleCount; i++)
         {
-            float lat = (i * Mathf.PI / positions.Length) - (Mathf.PI / 2);
-            positions[i] = Sampler.SampleFromCoord(0.0f, lat).WorldPos;
-            positions[i].y += 1;
+            float lat = (i * (Mathf.PI - epsilon) / sampleCount) - ((Mathf.PI - epsilon) / 2);
+            WorldSample s = Sampler.SampleFromCoord(Mathf.PI/2, lat);
+            if(lastSample.xIndex == -1)
+                lastSample = s;
+            else if (Mathf.Abs(s.xIndex - lastSample.xIndex) > Sampler.MapIndexWidth() / 4)
+                break;
+            else if (Mathf.Abs(s.yIndex - lastSample.yIndex) > Sampler.MapIndexWidth() / 2)
+                break;
+
+            s.WorldPos.y += 1;
+            positions.Add(s.WorldPos);
         }
 
-        //positions[0] = new Vector3(-100, 1, windCurrents.Count * 10);
-        //positions[1] = new Vector3( 100, 1, windCurrents.Count * 10);
-        //positions[2] = new Vector3( 100, 1, windCurrents.Count * 10 + 50);
-        //positions[3] = new Vector3(-100, 1, windCurrents.Count * 10 + 50);
-        //positions[4] = new Vector3(-100, 1, windCurrents.Count * 10 + 1);
-
         LineRenderer line = CreateWindCurrent(positions);
+        WindInvalidated = false;
     }
 
-    private LineRenderer CreateWindCurrent( Vector3[] positions )
+    private LineRenderer CreateWindCurrent(List<Vector3> positions )
     {
         GameObject gObject = new GameObject($"wind{windCurrents.Count}");
         windCurrents.Add(gObject);
@@ -49,11 +58,11 @@ public class WindController : MonoBehaviour
         LineRenderer line = gObject.AddComponent<LineRenderer>();
         line.material = new Material(Shader.Find("Sprites/Default"));
         line.SetColors(windData.LineColour, windData.LineColour);
-        line.SetWidth(3, 0.1f);
+        line.SetWidth(1, 1);
         line.numCapVertices = 3;
         line.numCornerVertices = 3;
-        line.positionCount = positions.Length;
-        line.SetPositions(positions);
+        line.positionCount = positions.Count;
+        line.SetPositions(positions.ToArray());
 
         return line;
     }
@@ -65,5 +74,24 @@ public class WindController : MonoBehaviour
             Destroy(o);
         }
         windCurrents.Clear();
+    }
+
+    private void OnValuesUpdated()
+    {
+        WindInvalidated = true;
+        if (!Application.isPlaying)
+        {
+            Start();
+            LateUpdate();
+        }
+    }
+
+    private void OnValidate()
+    {
+        if (Sampler != null && Sampler.window != null)
+        {
+            Sampler.window.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            Sampler.window.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
     }
 }

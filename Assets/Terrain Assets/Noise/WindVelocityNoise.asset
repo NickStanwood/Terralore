@@ -15,13 +15,13 @@ MonoBehaviour:
   OnValuesUpdated:
     m_PersistentCalls:
       m_Calls: []
-  AutoUpdate: 0
+  AutoUpdate: 1
   Type: 0
   Seed: 0
-  Amplitude: 0
-  Frequency: 0
-  Octaves: 0
-  Persistence: 0
-  Lacunarity: 0
-  AttenuationCurve: {fileID: 0}
+  Amplitude: 1
+  Frequency: 0.00027
+  Octaves: 2
+  Persistence: 0.5
+  Lacunarity: 2
+  AttenuationCurve: {fileID: 11400000, guid: 968a7eb0277697643933625803b707fc, type: 2}
   RidgeSteepness: 0

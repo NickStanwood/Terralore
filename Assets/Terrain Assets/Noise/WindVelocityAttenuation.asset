@@ -9,19 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57df8f76f53adc94b8a3f6bb1eb174e1, type: 3}
-  m_Name: HeatNoise
+  m_Script: {fileID: 11500000, guid: 4c4578e8dac1a354c8942083d5cb7576, type: 3}
+  m_Name: WindVelocityAttenuation
   m_EditorClassIdentifier: 
   OnValuesUpdated:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  Type: 0
-  Seed: 59478
   Amplitude: 1
-  Frequency: 0.0004
-  Octaves: 1
-  Persistence: 0.322
-  Lacunarity: 2
-  AttenuationCurve: {fileID: 11400000, guid: 6b9b614bbc6f93a428183942150b81ba, type: 2}
-  RidgeSteepness: 0
+  Frequency: 3
+  Offset: 1.5

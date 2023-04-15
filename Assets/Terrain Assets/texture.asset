@@ -16,7 +16,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  TextureType: 0
+  TextureType: 1
   HeightLayers:
   - Name: Water
     StartHeight: 0

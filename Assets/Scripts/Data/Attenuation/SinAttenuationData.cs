@@ -8,14 +8,16 @@ public class SinAttenuationData : NoiseAttenuationData
     [Range(0.0f, 1.0f)]
     public float Amplitude;
 
-    [Range(0.0f, 3.1415f)]
+    [Range(0.0f, 10.0f)]
     public float Frequency;
 
-    [Range(0.0f, 3.1415f)]
+    [Range(0.0f, 3.1415f * 2)]
     public float Offset;
 
     public override float Evaluate(float x, float y, float z)
     {
-        //TODO
+        float r = Mathf.Sqrt(x * x + y * y + z * z);
+        float lat = (y*Mathf.PI) / r;
+        return (Mathf.Sin(lat * Frequency + Offset) + 1) * Amplitude/2;
     }
 }

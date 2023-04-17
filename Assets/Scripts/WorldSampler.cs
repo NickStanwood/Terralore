@@ -22,6 +22,8 @@ public class WorldSampler : UpdatableData
     public float[,] HeatMap { get; set; }
     [HideInInspector]
     public float[,] WindVelocityMap { get; set; }
+    [HideInInspector]
+    public float[,] WindRotationMap { get; set; }
 
     private float _WorldHeightMax;
     private float _WorldHeightMin;
@@ -55,7 +57,8 @@ public class WorldSampler : UpdatableData
             WorldPos = ConvertMapIndexToWorldPos(x, y),
             Height = HeightMap[x,y],
             Heat = HeatMap[x,y],
-            //Wind = WindMap[x,y]
+            WindRotation = WindRotationMap[x, y] * Mathf.PI * 2,
+            WindVelocity = WindVelocityMap[x, y]
         };
     }
 
@@ -75,7 +78,8 @@ public class WorldSampler : UpdatableData
             WorldPos = ConvertMapIndexToWorldPos(xIndex, yIndex),
             Height = HeightMap[xIndex, yIndex],
             Heat = HeatMap[xIndex, yIndex],
-            //Wind = WindMap[xIndex, yIndex]
+            WindRotation = WindRotationMap[xIndex, yIndex]*Mathf.PI*2,
+            WindVelocity = WindVelocityMap[xIndex, yIndex]
         };
     }
 
@@ -166,5 +170,6 @@ public struct WorldSample
 
     public float Height;
     public float Heat;
-    public float Wind;
+    public float WindRotation;
+    public float WindVelocity;
 }

@@ -22,7 +22,7 @@ public class MapGenerator : MonoBehaviour
     public NoiseData mountainData;
     public NoiseData heatData;
     public NoiseData windVelocityData;
-    //public NoiseData windRotationData;
+    public NoiseData windRotationData;
 
     [Header("World Data")]
     public WorldSampler worldSampler;
@@ -82,6 +82,7 @@ public class MapGenerator : MonoBehaviour
         worldSampler.SetLocalHeights(minHeight, maxHeight);
         worldSampler.HeatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
         worldSampler.WindVelocityMap = Noise.GenerateNoiseMap(windVelocityData, viewData, terrainData);
+        worldSampler.WindRotationMap = Noise.GenerateNoiseMap(windRotationData, viewData, terrainData);
         //find max and min values of the mesh that is about to be created
         textureData.UpdateMeshHeights(terrainMaterial, worldSampler.MinMeshHeight(), worldSampler.MaxMeshHeight());
 

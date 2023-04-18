@@ -7,9 +7,11 @@ public class WindController : MonoBehaviour
 
     public WindData windData;
     public WorldSampler Sampler;
+    public int WindCurrentColumns = 10;
+    public int WindCurrentRows = 4;
 
     List<GameObject> windCurrents;
-    bool WindInvalidated = true;
+    bool WindInvalidated = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,27 +29,44 @@ public class WindController : MonoBehaviour
         if (!windData.ShowWindCurrents)
             return;
 
-        List<Vector3> positions = new List<Vector3>();
-        int sampleCount = 30;
-        float epsilon = Mathf.PI / 32;
+        List<Vector3> knots = new List<Vector3>();
+        int sampleCount = 5;
         WorldSample lastSample = new WorldSample{xIndex = -1};
-        for(int i = 0; i < sampleCount; i++)
-        {
-            float lat = (i * (Mathf.PI - epsilon) / sampleCount) - ((Mathf.PI - epsilon) / 2);
-            WorldSample s = Sampler.SampleFromCoord(Mathf.PI/2, lat);
-            if(lastSample.xIndex == -1)
-                lastSample = s;
-            else if (Mathf.Abs(s.xIndex - lastSample.xIndex) > Sampler.MapIndexWidth() / 4)
-                break;
-            else if (Mathf.Abs(s.yIndex - lastSample.yIndex) > Sampler.MapIndexWidth() / 2)
-                break;
 
-            s.WorldPos.y += 1;
-            positions.Add(s.WorldPos);
+        int xSampleFreq = Mathf.Max(Sampler.MapIndexWidth() / WindCurrentColumns, 1);
+        int ySampleFreq = Mathf.Max(Sampler.MapIndexHeight() / WindCurrentRows, 1);
+        for (int x = 0; x < WindCurrentColumns; x++)
+        {
+            for(int y = 0; y < WindCurrentRows; y++)
+            {
+                WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq, y * ySampleFreq);
+                knots.Add(s.WorldPos);
+                for (int i = 0; i < sampleCount; i++)
+                {
+                    //add wind velocity and rotation to s world space
+                    //sample from new world space
+                    knots.Add(s.WorldPos);
+                }
+            }
         }
 
-        LineRenderer line = CreateWindCurrent(positions);
-        WindInvalidated = false;
+        //for(int i = 0; i < sampleCount; i++)
+        //{
+        //    float lat = (i * (Mathf.PI - epsilon) / sampleCount) - ((Mathf.PI - epsilon) / 2);
+        //    WorldSample s = Sampler.SampleFromCoord(Mathf.PI/2, lat);
+        //    if(lastSample.xIndex == -1)
+        //        lastSample = s;
+        //    else if (Mathf.Abs(s.xIndex - lastSample.xIndex) > Sampler.MapIndexWidth() / 4)
+        //        break;
+        //    else if (Mathf.Abs(s.yIndex - lastSample.yIndex) > Sampler.MapIndexWidth() / 2)
+        //        break;
+
+        //    s.WorldPos.y += 1;
+        //    positions.Add(s.WorldPos);
+        //}
+
+        //LineRenderer line = CreateWindCurrent(positions);
+        //WindInvalidated = false;
     }
 
     private LineRenderer CreateWindCurrent(List<Vector3> positions )

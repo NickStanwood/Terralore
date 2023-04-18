@@ -22,6 +22,8 @@ public class WorldSampler : UpdatableData
     public float[,] HeatMap { get; set; }
     [HideInInspector]
     public float[,] WindVelocityMap { get; set; }
+
+    //Wind rotation is a value between 0-1. 1 pointing due west, and 0 pointing due east
     [HideInInspector]
     public float[,] WindRotationMap { get; set; }
 

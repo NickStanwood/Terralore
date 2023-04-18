@@ -18,4 +18,4 @@ MonoBehaviour:
   AutoUpdate: 1
   Amplitude: 1
   Frequency: 3
-  Offset: 1.5
+  Offset: 0.25

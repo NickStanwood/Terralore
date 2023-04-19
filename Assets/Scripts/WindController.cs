@@ -21,7 +21,7 @@ public class WindController : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (!WindInvalidated)
+        if (!WindInvalidated || !Application.isPlaying)
             return;
 
         DestroyWindCurrents();
@@ -30,9 +30,6 @@ public class WindController : MonoBehaviour
             return;
 
         List<Vector3> knots = new List<Vector3>();
-        int sampleCount = 5;
-        WorldSample lastSample = new WorldSample{xIndex = -1};
-
         int xSampleFreq = Mathf.Max(Sampler.MapIndexWidth() / WindCurrentColumns, 1);
         int ySampleFreq = Mathf.Max(Sampler.MapIndexHeight() / WindCurrentRows, 1);
         for (int x = 0; x < WindCurrentColumns; x++)
@@ -40,43 +37,81 @@ public class WindController : MonoBehaviour
             for(int y = 0; y < WindCurrentRows; y++)
             {
                 WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq, y * ySampleFreq);
-                knots.Add(s.WorldPos);
-                for (int i = 0; i < sampleCount; i++)
-                {
-                    //add wind velocity and rotation to s world space
-                    //sample from new world space
-                    knots.Add(s.WorldPos);
-                }
+                knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
+                CreateWindCurrent(knots);
             }
         }
-
-        //for(int i = 0; i < sampleCount; i++)
-        //{
-        //    float lat = (i * (Mathf.PI - epsilon) / sampleCount) - ((Mathf.PI - epsilon) / 2);
-        //    WorldSample s = Sampler.SampleFromCoord(Mathf.PI/2, lat);
-        //    if(lastSample.xIndex == -1)
-        //        lastSample = s;
-        //    else if (Mathf.Abs(s.xIndex - lastSample.xIndex) > Sampler.MapIndexWidth() / 4)
-        //        break;
-        //    else if (Mathf.Abs(s.yIndex - lastSample.yIndex) > Sampler.MapIndexWidth() / 2)
-        //        break;
-
-        //    s.WorldPos.y += 1;
-        //    positions.Add(s.WorldPos);
-        //}
-
-        //LineRenderer line = CreateWindCurrent(positions);
-        //WindInvalidated = false;
+        WindInvalidated = false;
     }
 
-    private LineRenderer CreateWindCurrent(List<Vector3> positions )
+    void OnDestroy()
+    {
+        DestroyWindCurrents();
+    }
+
+    private List<Vector3> CalculateWindCurrentKnots(float lon, float lat)
+    {
+        List<Vector3> knots = new List<Vector3>();
+        int knotCount = 10;
+        for (int i = 0; i < knotCount; i++)
+        {
+            WorldSample s = Sampler.SampleFromCoord(lon, lat);
+            s.WorldPos.y += 3;knots.Add(s.WorldPos);
+            Vector2 coord = GetNextWindCurrentKnot(lon, lat);
+            lon = coord.x;
+            lat = coord.y;
+        }
+        Debug.Log(debugStr);
+        return knots;
+    }
+
+    private Vector2 GetNextWindCurrentKnot(float lon, float lat)
+    {
+        Vector2 coord = new Vector2(lon, lat);
+        float scale = Mathf.PI/60;
+        const float outerBand = Mathf.PI / 3;
+        const float innerBand = Mathf.PI / 6;
+        if (lat > outerBand)
+        {
+            coord.x -= Mathf.Sin(lat - outerBand) * scale;
+            coord.y -= Mathf.Cos(lat - outerBand) * scale;
+        }
+        else if (lat > innerBand)
+        {
+            coord.x += Mathf.Sin(lat - innerBand) * scale;
+            coord.y += Mathf.Cos(lat - innerBand) * scale;
+        }
+        else if (lat >= 0)
+        {
+            coord.x -= Mathf.Sin(lat) * scale;
+            coord.y -= Mathf.Cos(lat) * scale;
+        }
+        else if (lat > -innerBand)
+        {
+            coord.x -= Mathf.Sin(lat + innerBand) * scale;
+            coord.y += Mathf.Cos(lat + innerBand) * scale;
+        }
+        else if (lat > -outerBand)
+        {
+            coord.x += Mathf.Sin(lat + outerBand) * scale;
+            coord.y -= Mathf.Cos(lat + outerBand) * scale;
+        }
+        else
+        {
+            coord.x -= Mathf.Sin(lat + Mathf.PI / 2) * scale;
+            coord.y += Mathf.Cos(lat + Mathf.PI / 2) * scale;
+        }
+        return coord;
+    }
+
+    private LineRenderer CreateWindCurrent(List<Vector3> positions)
     {
         GameObject gObject = new GameObject($"wind{windCurrents.Count}");
         windCurrents.Add(gObject);
 
         LineRenderer line = gObject.AddComponent<LineRenderer>();
         line.material = new Material(Shader.Find("Sprites/Default"));
-        line.SetColors(windData.LineColour, windData.LineColour);
+        line.SetColors(windData.StartColour, windData.EndColour);
         line.SetWidth(1, 1);
         line.numCapVertices = 3;
         line.numCornerVertices = 3;

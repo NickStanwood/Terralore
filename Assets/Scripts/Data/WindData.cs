@@ -7,7 +7,8 @@ public class WindData : UpdatableData
 {
     public bool ShowWindCurrents;
 
-    public Color LineColour;
+    public Color StartColour;
+    public Color EndColour;
 
     [Range(0.0f,1.0f)]
     public float MovementSpeed;

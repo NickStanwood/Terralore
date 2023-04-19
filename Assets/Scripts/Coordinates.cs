@@ -13,6 +13,18 @@ public static class Coordinates
     public static float MinLat = -Mathf.PI / 2;
     #endregion
 
+    //   screen canvas
+    // ==============================
+    // | X                          |
+    // |                            |
+    // |                            |
+    // |                            |
+    // |                           Y|
+    // ==============================
+    // X:                                       Y:
+    //     index: 0,0  (x,y)                        index: 128,64  (x,y)
+    //     coord: -180, 90 (lon, lat)               coord: 180, -90 (lon, lat)
+    //  worldPos: -100.0, 0.0, 50.0 (x,y,z)      worldPos: 100.0, 0.0, -50.0 (x,y,z)
 
     public static Vector3 CoordToCartesian(float lon, float lat, float radius)
     {
@@ -32,7 +44,7 @@ public static class Coordinates
     public static Vector3 MercatorToCartesian(float xPercent, float yPercent, ViewData window, float radius)
     {
         float lon = (xPercent - 0.5f) * window.LonAngle;
-        float lat = (yPercent - 0.5f) * window.LatAngle;
+        float lat = -(yPercent - 0.5f) * window.LatAngle;
 
         Vector3 cart = CoordToCartesian(lon, lat, radius);
         cart = RotateAboutX(cart, window.XRotation);

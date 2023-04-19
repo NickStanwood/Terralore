@@ -23,5 +23,5 @@ MonoBehaviour:
   Octaves: 1
   Persistence: 0.322
   Lacunarity: 2
-  AttenuationCurve: {fileID: 11400000, guid: 6b9b614bbc6f93a428183942150b81ba, type: 2}
+  AttenuationCurve: {fileID: 11400000, guid: f4f308cf85910a74f8e90fa772a6d147, type: 2}
   RidgeSteepness: 0

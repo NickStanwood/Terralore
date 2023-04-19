@@ -15,8 +15,8 @@ MonoBehaviour:
   OnValuesUpdated:
     m_PersistentCalls:
       m_Calls: []
-  AutoUpdate: 0
-  Amplitude: 0
-  Frequency: 0
-  Offset: 0
-  AsymptoteCutoff: 0
+  AutoUpdate: 1
+  Amplitude: 1
+  Frequency: 1.5
+  Offset: 0.25
+  AsymptoteCutoff: 0.1

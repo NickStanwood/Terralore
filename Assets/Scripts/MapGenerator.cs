@@ -16,6 +16,7 @@ public class MapGenerator : MonoBehaviour
     public TextureData textureData;
     public Material terrainMaterial;
     public Material heatMaterial;
+    public Material blankMaterial;
 
     [Header("Noise Data")]
     public NoiseData heightData;
@@ -101,7 +102,10 @@ public class MapGenerator : MonoBehaviour
         {
             meshRendererFlat.sharedMaterial = terrainMaterial;
         }
-
+        else if (textureData.TextureType == TextureType.Blank)
+        {
+            meshRendererFlat.sharedMaterial = blankMaterial;
+        }
         //create spherical map 
         MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(viewData);
         meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();

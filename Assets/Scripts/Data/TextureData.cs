@@ -29,6 +29,7 @@ public enum TextureType
 {
     HeightMap,
     HeatMap,
+    Blank,
 }
 
 [System.Serializable]

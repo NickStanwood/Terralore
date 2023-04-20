@@ -32,15 +32,24 @@ public class WindController : MonoBehaviour
         List<Vector3> knots = new List<Vector3>();
         int xSampleFreq = Mathf.Max(Sampler.MapIndexWidth() / WindCurrentColumns, 1);
         int ySampleFreq = Mathf.Max(Sampler.MapIndexHeight() / WindCurrentRows, 1);
-        for (int x = 0; x < WindCurrentColumns; x++)
-        {
-            for(int y = 0; y < WindCurrentRows; y++)
-            {
-                WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq, y * ySampleFreq);
-                knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
-                CreateWindCurrent(knots);
-            }
-        }
+        //for (int x = 0; x < WindCurrentColumns; x++)
+        //{
+        //    for(int y = 0; y < WindCurrentRows; y++)
+        //    {
+        //        WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq + xSampleFreq/2, y * ySampleFreq + ySampleFreq/2);
+        //        knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
+        //        CreateWindCurrent(knots);
+        //    }
+        //}
+
+        //=== DEBUGGING
+        //int x = 0;
+        //int y = 0;
+        //WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq + xSampleFreq / 2, y * ySampleFreq + ySampleFreq / 2);
+        knots = CalculateWindCurrentKnots(-Mathf.PI + 0.001f, Mathf.PI/2 - 0.001f);
+        CreateWindCurrent(knots);
+        // ===
+
         WindInvalidated = false;
     }
 
@@ -52,11 +61,16 @@ public class WindController : MonoBehaviour
     private List<Vector3> CalculateWindCurrentKnots(float lon, float lat)
     {
         List<Vector3> knots = new List<Vector3>();
-        int knotCount = 10;
+        int knotCount = 2;
+        string debugStr = "";
         for (int i = 0; i < knotCount; i++)
         {
             WorldSample s = Sampler.SampleFromCoord(lon, lat);
-            s.WorldPos.y += 3;knots.Add(s.WorldPos);
+            s.WorldPos.y += 3;
+            knots.Add(s.WorldPos);
+            int lonDeg = (int)(lon * 180 / Mathf.PI);
+            int latDeg = (int)(lat * 180 / Mathf.PI);
+            debugStr += $"({lonDeg},{latDeg}) -> ";
             Vector2 coord = GetNextWindCurrentKnot(lon, lat);
             lon = coord.x;
             lat = coord.y;
@@ -112,7 +126,7 @@ public class WindController : MonoBehaviour
         LineRenderer line = gObject.AddComponent<LineRenderer>();
         line.material = new Material(Shader.Find("Sprites/Default"));
         line.SetColors(windData.StartColour, windData.EndColour);
-        line.SetWidth(1, 1);
+        line.SetWidth(5, 5);
         line.numCapVertices = 3;
         line.numCornerVertices = 3;
         line.positionCount = positions.Count;

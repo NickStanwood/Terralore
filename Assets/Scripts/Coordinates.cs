@@ -15,14 +15,14 @@ public static class Coordinates
 
     //   screen canvas
     // ==============================
-    // | X                          |
+    // | A                          |
     // |                            |
     // |                            |
     // |                            |
-    // |                           Y|
+    // |                           B|
     // ==============================
-    // X:                                       Y:
-    //     index: 0,64  (x,y)                        index: 128,0  (x,y)
+    // A:                                       B:
+    //     index: 0,0  (x,y)                        index: 128,64  (x,y)
     //     coord: -180, 90 (lon, lat)               coord: 180, -90 (lon, lat)
     //  worldPos: -100.0, 0.0, 50.0 (x,y,z)      worldPos: 100.0, 0.0, -50.0 (x,y,z)
 

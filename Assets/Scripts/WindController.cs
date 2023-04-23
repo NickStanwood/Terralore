@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class WindController : MonoBehaviour
 {
-
     public WindData windData;
     public WorldSampler Sampler;
     public int WindCurrentColumns = 10;
@@ -32,23 +31,15 @@ public class WindController : MonoBehaviour
         List<Vector3> knots = new List<Vector3>();
         int xSampleFreq = Mathf.Max(Sampler.MapIndexWidth() / WindCurrentColumns, 1);
         int ySampleFreq = Mathf.Max(Sampler.MapIndexHeight() / WindCurrentRows, 1);
-        //for (int x = 0; x < WindCurrentColumns; x++)
-        //{
-        //    for(int y = 0; y < WindCurrentRows; y++)
-        //    {
-        //        WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq + xSampleFreq/2, y * ySampleFreq + ySampleFreq/2);
-        //        knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
-        //        CreateWindCurrent(knots);
-        //    }
-        //}
-
-        //=== DEBUGGING
-        //int x = 0;
-        //int y = 0;
-        //WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq + xSampleFreq / 2, y * ySampleFreq + ySampleFreq / 2);
-        knots = CalculateWindCurrentKnots(-Mathf.PI + 0.001f, Mathf.PI/2 - 0.001f);
-        CreateWindCurrent(knots);
-        // ===
+        for (int x = 0; x < WindCurrentColumns; x++)
+        {
+            for (int y = 0; y < WindCurrentRows; y++)
+            {
+                WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq + xSampleFreq / 2, y * ySampleFreq + ySampleFreq / 2);
+                knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
+                CreateWindCurrent(knots);
+            }
+        }
 
         WindInvalidated = false;
     }

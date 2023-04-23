@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -160,6 +161,7 @@ public class WorldSampler : UpdatableData
     }
 }
 
+[Serializable]
 public struct WorldSample
 {
     public int xIndex;

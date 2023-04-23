@@ -8,6 +8,7 @@ public class WindController : MonoBehaviour
     public WorldSampler Sampler;
     public int WindCurrentColumns = 10;
     public int WindCurrentRows = 4;
+    public int KnotCount = 10;
 
     List<GameObject> windCurrents;
     bool WindInvalidated = false;
@@ -35,7 +36,11 @@ public class WindController : MonoBehaviour
         {
             for (int y = 0; y < WindCurrentRows; y++)
             {
-                WorldSample s = Sampler.SampleFromIndex(x * xSampleFreq + xSampleFreq / 2, y * ySampleFreq + ySampleFreq / 2);
+                int xIndex = x * xSampleFreq + xSampleFreq / 2;
+                int yIndex = (y % 2 == 0)
+                                ?  y      * ySampleFreq + 4
+                                : (y + 1) * ySampleFreq - 4 ;
+                WorldSample s = Sampler.SampleFromIndex(xIndex, yIndex);
                 knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
                 CreateWindCurrent(knots);
             }
@@ -52,21 +57,23 @@ public class WindController : MonoBehaviour
     private List<Vector3> CalculateWindCurrentKnots(float lon, float lat)
     {
         List<Vector3> knots = new List<Vector3>();
-        int knotCount = 2;
-        string debugStr = "";
-        for (int i = 0; i < knotCount; i++)
+        WorldSample lastSample = WorldSample.Empty;
+        for (int i = 0; i < KnotCount; i++)
         {
             WorldSample s = Sampler.SampleFromCoord(lon, lat);
-            s.WorldPos.y += 3;
+            s.WorldPos.y += 1;
+
+            if (lastSample.IsEmpty())
+                lastSample = s;
+            else if (Mathf.Abs(s.xIndex - lastSample.xIndex) > (Sampler.MapIndexWidth() - 1)/ 2)
+                break;
+
             knots.Add(s.WorldPos);
-            int lonDeg = (int)(lon * 180 / Mathf.PI);
-            int latDeg = (int)(lat * 180 / Mathf.PI);
-            debugStr += $"({lonDeg},{latDeg}) -> ";
+
             Vector2 coord = GetNextWindCurrentKnot(lon, lat);
             lon = coord.x;
             lat = coord.y;
         }
-        Debug.Log(debugStr);
         return knots;
     }
 
@@ -76,35 +83,43 @@ public class WindController : MonoBehaviour
         float scale = Mathf.PI/60;
         const float outerBand = Mathf.PI / 3;
         const float innerBand = Mathf.PI / 6;
+        const float bandSize = Mathf.PI / 6;
+        const float bandAngleScale = Mathf.PI / (2 * bandSize);
         if (lat > outerBand)
         {
-            coord.x -= Mathf.Sin(lat - outerBand) * scale;
-            coord.y -= Mathf.Cos(lat - outerBand) * scale;
+            float angle = (lat - outerBand) * bandAngleScale;
+            coord.x -= Mathf.Cos(angle) * scale;
+            coord.y -= Mathf.Sin(angle) * scale;
         }
         else if (lat > innerBand)
         {
-            coord.x += Mathf.Sin(lat - innerBand) * scale;
-            coord.y += Mathf.Cos(lat - innerBand) * scale;
+            float angle = (lat - innerBand) * bandAngleScale;
+            coord.x += Mathf.Sin(angle) * scale;
+            coord.y += Mathf.Cos(angle) * scale;
         }
         else if (lat >= 0)
         {
-            coord.x -= Mathf.Sin(lat) * scale;
-            coord.y -= Mathf.Cos(lat) * scale;
+            float angle = (lat) * bandAngleScale;
+            coord.x -= Mathf.Cos(angle) * scale;
+            coord.y -= Mathf.Sin(angle) * scale;
         }
         else if (lat > -innerBand)
         {
-            coord.x -= Mathf.Sin(lat + innerBand) * scale;
-            coord.y += Mathf.Cos(lat + innerBand) * scale;
+            float angle = (lat + innerBand) * bandAngleScale;
+            coord.x -= Mathf.Sin(angle) * scale;
+            coord.y += Mathf.Cos(angle) * scale;
         }
         else if (lat > -outerBand)
         {
-            coord.x += Mathf.Sin(lat + outerBand) * scale;
-            coord.y -= Mathf.Cos(lat + outerBand) * scale;
+            float angle = (lat + outerBand) * bandAngleScale;
+            coord.x += Mathf.Cos(angle) * scale;
+            coord.y -= Mathf.Sin(angle) * scale;
         }
         else
         {
-            coord.x -= Mathf.Sin(lat + Mathf.PI / 2) * scale;
-            coord.y += Mathf.Cos(lat + Mathf.PI / 2) * scale;
+            float angle = (lat + Mathf.PI / 2) * bandAngleScale;
+            coord.x -= Mathf.Sin(angle) * scale;
+            coord.y += Mathf.Cos(angle) * scale;
         }
         return coord;
     }
@@ -117,7 +132,7 @@ public class WindController : MonoBehaviour
         LineRenderer line = gObject.AddComponent<LineRenderer>();
         line.material = new Material(Shader.Find("Sprites/Default"));
         line.SetColors(windData.StartColour, windData.EndColour);
-        line.SetWidth(5, 5);
+        line.SetWidth(2, 2);
         line.numCapVertices = 3;
         line.numCornerVertices = 3;
         line.positionCount = positions.Count;
@@ -152,5 +167,6 @@ public class WindController : MonoBehaviour
             Sampler.window.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             Sampler.window.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
+        WindInvalidated = true;
     }
 }

@@ -65,7 +65,7 @@ public static class Coordinates
         float lon = coord.x;
         float lat = coord.y;
         float xPercent = (lon / window.LonAngle) + 0.5f;
-        float yPercent = (lat / window.LatAngle) + 0.5f;
+        float yPercent = (-lat / window.LatAngle) + 0.5f;
         return new Vector2(xPercent, yPercent);
     }
 
@@ -78,7 +78,27 @@ public static class Coordinates
     public static Vector2 CoordToMercator(float lon, float lat, ViewData window)
     {
         Vector3 cart = CoordToCartesian(lon, lat, 1.0f);
-        return CartesianToMercator(cart.x, cart.y, cart.z, window, 1.0f);
+        Vector2 percent = CartesianToMercator(cart.x, cart.y, cart.z, window, 1.0f);
+        
+        if (percent.y >= 1.0f)
+        {
+            percent.y = 2.0f - percent.y;
+            percent.x += 0.5f;
+        }
+
+        if (percent.y < 0.0f)
+        {
+            percent.y *= -1.0f;
+            percent.x += 0.5f;
+        }
+
+        while (percent.x >= 1.0f)
+            percent.x -= 1.0f;
+
+        while (percent.x < 0.0f)
+            percent.x += 1.0f;
+
+        return percent;
     }
 
     public static Vector3 RotateAboutX(Vector3 cartesian, float rotation)

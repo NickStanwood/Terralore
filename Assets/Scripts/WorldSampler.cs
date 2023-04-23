@@ -36,17 +36,6 @@ public class WorldSampler : UpdatableData
     public WorldSample SampleFromCoord(float lon, float lat)
     {
         Vector2 percent = Coordinates.CoordToMercator(lon, lat, window);
-        while(percent.x >= 1.0f)
-            percent.x -= 1.0f;
-
-        while (percent.x < 0.0f)
-            percent.x += 1.0f;
-
-        while (percent.y >= 1.0f)
-            percent.y -= 1.0f;
-
-        while (percent.y < 0.0f)
-            percent.y += 1.0f;
 
         int x = (int)(percent.x * MapIndexWidth());
         int y = (int)(percent.y * MapIndexHeight());
@@ -176,4 +165,15 @@ public struct WorldSample
     public float Heat;
     public float WindRotation;
     public float WindVelocity;
+
+    public static WorldSample Empty = new WorldSample
+    {
+        xIndex = -1,
+        yIndex = -1
+    };
+
+    public bool IsEmpty()
+    {
+        return xIndex == -1 && yIndex == -1;
+    }
 }

@@ -13,6 +13,18 @@ public static class Coordinates
     public static float MinLat = -Mathf.PI / 2;
     #endregion
 
+    //   screen canvas
+    // ==============================
+    // | A                          |
+    // |                            |
+    // |                            |
+    // |                            |
+    // |                           B|
+    // ==============================
+    // A:                                       B:
+    //     index: 0,0  (x,y)                        index: 128,64  (x,y)
+    //     coord: -180, 90 (lon, lat)               coord: 180, -90 (lon, lat)
+    //  worldPos: -100.0, 0.0, 50.0 (x,y,z)      worldPos: 100.0, 0.0, -50.0 (x,y,z)
 
     public static Vector3 CoordToCartesian(float lon, float lat, float radius)
     {
@@ -26,13 +38,13 @@ public static class Coordinates
     {
         float lon = Mathf.Atan2(z, x);
         float lat = Mathf.Asin(y / radius);
-        return new Vector3(lon, lat);
+        return new Vector2(lon, lat);
     }
 
     public static Vector3 MercatorToCartesian(float xPercent, float yPercent, ViewData window, float radius)
     {
         float lon = (xPercent - 0.5f) * window.LonAngle;
-        float lat = (yPercent - 0.5f) * window.LatAngle;
+        float lat = -(yPercent - 0.5f) * window.LatAngle;
 
         Vector3 cart = CoordToCartesian(lon, lat, radius);
         cart = RotateAboutX(cart, window.XRotation);
@@ -40,13 +52,53 @@ public static class Coordinates
         cart = RotateAboutZ(cart, window.ZRotation);
 
         return cart;
-        //return new Vector3(cart.x, cart.y, cart.z);
+    }
+
+    public static Vector2 CartesianToMercator(float x, float y, float z, ViewData window, float radius)
+    {
+        Vector3 cart = new Vector3(x, y, z);
+        cart = RotateAboutZ(cart, -window.ZRotation);
+        cart = RotateAboutY(cart, -window.YRotation);
+        cart = RotateAboutX(cart, -window.XRotation);
+
+        Vector2 coord = CartesianToCoord(cart.x, cart.y, cart.z, radius);
+        float lon = coord.x;
+        float lat = coord.y;
+        float xPercent = (lon / window.LonAngle) + 0.5f;
+        float yPercent = (-lat / window.LatAngle) + 0.5f;
+        return new Vector2(xPercent, yPercent);
     }
 
     public static Vector2 MercatorToCoord(float xPercent, float yPercent, ViewData window)
     {
         Vector3 cartesian = MercatorToCartesian(xPercent, yPercent, window, 1.0f);
         return CartesianToCoord(cartesian.x, cartesian.y, cartesian.z, 1.0f);
+    }
+
+    public static Vector2 CoordToMercator(float lon, float lat, ViewData window)
+    {
+        Vector3 cart = CoordToCartesian(lon, lat, 1.0f);
+        Vector2 percent = CartesianToMercator(cart.x, cart.y, cart.z, window, 1.0f);
+        
+        if (percent.y >= 1.0f)
+        {
+            percent.y = 2.0f - percent.y;
+            percent.x += 0.5f;
+        }
+
+        if (percent.y < 0.0f)
+        {
+            percent.y *= -1.0f;
+            percent.x += 0.5f;
+        }
+
+        while (percent.x >= 1.0f)
+            percent.x -= 1.0f;
+
+        while (percent.x < 0.0f)
+            percent.x += 1.0f;
+
+        return percent;
     }
 
     public static Vector3 RotateAboutX(Vector3 cartesian, float rotation)

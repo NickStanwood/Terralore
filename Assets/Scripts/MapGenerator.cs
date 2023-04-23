@@ -15,14 +15,18 @@ public class MapGenerator : MonoBehaviour
     [Header("Display Settings")]
     public TextureData textureData;
     public Material terrainMaterial;
-    public Material defaultMaterial;
+    public Material heatMaterial;
+    public Material blankMaterial;
 
     [Header("Noise Data")]
     public NoiseData heightData;
     public NoiseData mountainData;
     public NoiseData heatData;
+    public NoiseData windVelocityData;
+    public NoiseData windRotationData;
 
     [Header("World Data")]
+    public WorldSampler worldSampler;
     public TerrainData terrainData;
     public ViewData viewData;
 
@@ -32,9 +36,9 @@ public class MapGenerator : MonoBehaviour
     private bool WindowUpdated;
 
     [HideInInspector]
-    private float WorldMinHeight = 0.0f;
-    [HideInInspector]
-    private float WorldMaxHeight = 0.0f;
+    //private float WorldMinHeight = 0.0f;
+    //[HideInInspector]
+    //private float WorldMaxHeight = 0.0f;
 
     public void start()
     {
@@ -65,43 +69,43 @@ public class MapGenerator : MonoBehaviour
 
         float maxHeight, minHeight;
         Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, fullWindow, terrainData, out minHeight, out maxHeight);
-        WorldMinHeight = minHeight;
-        WorldMaxHeight = maxHeight;
-
-        //create wind currents here
+        worldSampler.SetWorldHeights(minHeight, maxHeight);
     }
 
     public void GenerateMap()
     {
-        if (WorldMaxHeight == 0.0f && WorldMinHeight == 0.0f)
+        if (!worldSampler.WorldHeightsSet())
             InitializeMap();
 
         //create map data points from noise 
         float maxHeight, minHeight;
-        float[,] heightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
-        float[,] heatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
-
+        worldSampler.HeightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
+        worldSampler.SetLocalHeights(minHeight, maxHeight);
+        worldSampler.HeatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
+        worldSampler.WindVelocityMap = Noise.GenerateNoiseMap(windVelocityData, viewData, terrainData);
+        worldSampler.WindRotationMap = Noise.GenerateNoiseMap(windRotationData, viewData, terrainData);
         //find max and min values of the mesh that is about to be created
-        float maxMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMaxHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
-        float minMeshHeight = MeshGenerator.ConvertNoiseValueToMeshHeight(WorldMinHeight, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
-        textureData.UpdateMeshHeights(terrainMaterial, minMeshHeight, maxMeshHeight);
+        textureData.UpdateMeshHeights(terrainMaterial, worldSampler.MinMeshHeight(), worldSampler.MaxMeshHeight());
 
         //create mesh for the 2D mercator map
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(heightMap, viewData, terrainData, WorldMinHeight, WorldMaxHeight, minHeight);
+        MeshData meshData = MeshGenerator.GenerateTerrainMesh(worldSampler);
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
 
         if(textureData.TextureType == TextureType.HeatMap)
         {
             //apply heat map texture to 2D mercator map
-            Texture2D texture = TextureGenerator.GenerateHeatMapTexture(heatMap, textureData, viewData);
-            defaultMaterial.SetTexture("_MainTex", texture);
-            meshRendererFlat.sharedMaterial = defaultMaterial;
+            Texture2D texture = TextureGenerator.GenerateHeatMapTexture(worldSampler.HeatMap, textureData, viewData);
+            heatMaterial.SetTexture("_MainTex", texture);
+            meshRendererFlat.sharedMaterial = heatMaterial;
         }
         else if(textureData.TextureType == TextureType.HeightMap)
         {
             meshRendererFlat.sharedMaterial = terrainMaterial;
         }
-
+        else if (textureData.TextureType == TextureType.Blank)
+        {
+            meshRendererFlat.sharedMaterial = blankMaterial;
+        }
         //create spherical map 
         MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(viewData);
         meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();
@@ -154,6 +158,12 @@ public class MapGenerator : MonoBehaviour
         {
             mountainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             mountainData.OnValuesUpdated.AddListener(OnValuesUpdated);
+        }
+
+        if (worldSampler != null)
+        {
+            worldSampler.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            worldSampler.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
         if (terrainData != null)

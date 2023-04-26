@@ -27,7 +27,6 @@ public class MapGenerator : MonoBehaviour
 
     [Header("World Data")]
     public WorldSampler worldSampler;
-    public TerrainData terrainData;
     public ViewData viewData;
 
     [HideInInspector]
@@ -62,14 +61,7 @@ public class MapGenerator : MonoBehaviour
 
     public void InitializeMap()
     {
-        ViewData fullWindow = new ViewData();
-        fullWindow.LonAngle = Mathf.PI * 2;
-        fullWindow.LatAngle = Mathf.PI;
-        fullWindow.Resolution = 128;
-
-        float maxHeight, minHeight;
-        Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, fullWindow, terrainData, out minHeight, out maxHeight);
-        worldSampler.SetWorldHeights(minHeight, maxHeight);
+        worldSampler.InitializeMaxHeights(new List<NoiseData> { heightData, mountainData });
     }
 
     public void GenerateMap()
@@ -78,12 +70,8 @@ public class MapGenerator : MonoBehaviour
             InitializeMap();
 
         //create map data points from noise 
-        float maxHeight, minHeight;
-        worldSampler.HeightMap = Noise.GenerateNoiseMap(new List<NoiseData> { heightData, mountainData }, viewData, terrainData, out minHeight, out maxHeight);
-        worldSampler.SetLocalHeights(minHeight, maxHeight);
-        worldSampler.HeatMap = Noise.GenerateNoiseMap(heatData, viewData, terrainData);
-        worldSampler.WindVelocityMap = Noise.GenerateNoiseMap(windVelocityData, viewData, terrainData);
-        worldSampler.WindRotationMap = Noise.GenerateNoiseMap(windRotationData, viewData, terrainData);
+        worldSampler.UpdateMaps(heightData, heatData, windVelocityData, windRotationData, mountainData);
+
         //find max and min values of the mesh that is about to be created
         textureData.UpdateMeshHeights(terrainMaterial, worldSampler.MinMeshHeight(), worldSampler.MaxMeshHeight());
 
@@ -164,12 +152,6 @@ public class MapGenerator : MonoBehaviour
         {
             worldSampler.OnValuesUpdated.RemoveListener(OnValuesUpdated);
             worldSampler.OnValuesUpdated.AddListener(OnValuesUpdated);
-        }
-
-        if (terrainData != null)
-        {
-            terrainData.OnValuesUpdated.RemoveListener(OnValuesUpdated);
-            terrainData.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
 
         if (viewData != null)

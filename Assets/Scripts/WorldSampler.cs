@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
 
 [CreateAssetMenu()]
 public class WorldSampler : UpdatableData
 {
     [Header("Display Data")]
-    public ViewData window;
+    public ViewData Window;
     [Range(0.001f, 10.0f)]
     public float HeightScale;
     [Range(0.001f, 10.0f)]
@@ -16,9 +17,13 @@ public class WorldSampler : UpdatableData
     [Header("World Data")]
     [Range(0.0f, 1.0f)]
     public float OceanLevel;
+    [Range(500f, 10000f)]
+    public float WorldRadius;
 
     [HideInInspector]
     public float[,] HeightMap { get; set; }
+    [HideInInspector]
+    public float[,] MountainMap { get; set; }
     [HideInInspector]
     public float[,] HeatMap { get; set; }
     [HideInInspector]
@@ -33,9 +38,38 @@ public class WorldSampler : UpdatableData
     private float _LocalHeightMax;
     private float _LocalHeightMin;
 
+    public void InitializeMaxHeights(List<NoiseData> height)
+    {
+        ViewData fullWindow = new ViewData();
+        fullWindow.LonAngle = Mathf.PI * 2;
+        fullWindow.LatAngle = Mathf.PI;
+        fullWindow.Resolution = 128;
+
+        float maxHeight, minHeight;
+        Noise.GenerateNoiseMap(height, fullWindow, WorldRadius, out minHeight, out maxHeight);
+        SetWorldHeights(minHeight, maxHeight);
+    }
+
+    public void UpdateMaps(NoiseData height, NoiseData heat, NoiseData windVelocity, NoiseData windRotation, NoiseData mountain)
+    {
+        float minHeight, maxHeight, minMountain, maxMountain;
+        NativeList<JobHandle> handles = new List<JobHandle>(Allocator.Temp);
+        handles.Add(Noise.GenerateNoiseMapJob(height, Window, WorldRadius));
+
+        JobHandle.CompleteAll(handles);
+
+
+        HeightMap = Noise.GenerateNoiseMap(height, Window, WorldRadius, out minHeight, out maxHeight);
+        MountainMap = Noise.GenerateNoiseMap(mountain, Window, WorldRadius, out minMountain, out maxMountain);
+        SetLocalHeights(minHeight + minMountain, maxHeight + maxMountain);
+        HeatMap = Noise.GenerateNoiseMap(heat, Window, WorldRadius);
+        WindVelocityMap = Noise.GenerateNoiseMap(windVelocity, Window, WorldRadius);
+        WindRotationMap = Noise.GenerateNoiseMap(windRotation, Window, WorldRadius);
+    }
+
     public WorldSample SampleFromCoord(float lon, float lat)
     {
-        Vector2 percent = Coordinates.CoordToMercator(lon, lat, window);
+        Vector2 percent = Coordinates.CoordToMercator(lon, lat, Window);
 
         int x = (int)(percent.x * MapIndexWidth());
         int y = (int)(percent.y * MapIndexHeight());
@@ -59,7 +93,7 @@ public class WorldSampler : UpdatableData
         //get Lon & Lat
         float xPercent = (float)xIndex / (float)MapIndexWidth();
         float yPercent = (float)yIndex / (float)MapIndexHeight();
-        Vector2 coords = Coordinates.MercatorToCoord(xPercent, yPercent, window);
+        Vector2 coords = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
 
         return new WorldSample
         {

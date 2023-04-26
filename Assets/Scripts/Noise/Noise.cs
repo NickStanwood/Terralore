@@ -1,16 +1,48 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Jobs;
+
+public struct NoiseGenJob : IJob
+{
+    //INPUT
+    public NoiseData noise;
+    public ViewData window;
+    public float worldRadius;
+
+    //OUTPUT
+    public float[,] map;
+    public float localMax;
+    public float localMin;
+
+    public void Execute()
+    {
+        map = Noise.GenerateNoiseMap(noise, window, worldRadius, out localMin, out localMax);
+    }
+}
+
 
 public static class Noise
 {
-    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, TerrainData terrain)
+    public static JobHandle GenerateNoiseMapJob(NoiseData noise, ViewData window, float worldRadius)
     {
-        float max, min;
-        return GenerateNoiseMap(noise, window, terrain, out min, out max);
+        NoiseGenJob job = new NoiseGenJob
+        {
+            noise = noise,
+            window = window,
+            worldRadius = worldRadius
+        }
+
+        return job.Schedule();
     }
 
-    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, TerrainData terrain, out float localMinNoise, out float localMaxNoise)
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, float worldRadius)
+    {
+        float max, min;
+        return GenerateNoiseMap(noise, window, worldRadius, out min, out max);
+    }
+
+    public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, float worldRadius, out float localMinNoise, out float localMaxNoise)
     {
         float[,] noiseMap = new float[window.LonResolution, window.LatResolution];
 
@@ -26,7 +58,7 @@ public static class Noise
         if(noise.Type == NoiseType.Ridged)
             sampler = new RidgedSampler(noise);
         else if(noise.Type == NoiseType.Grid)
-            sampler = new GridSampler(noise, terrain);
+            sampler = new GridSampler(noise, worldRadius);
         else
             sampler = new PerlinSampler(noise);
 
@@ -36,7 +68,7 @@ public static class Noise
             {
                 float xPercent = (float)x / window.LonResolution;
                 float yPercent = (float)y / window.LatResolution;
-                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, (float)terrain.WorldRadius);
+                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, worldRadius);
 
                 float noiseVal = sampler.Sample(c.x, c.y, c.z);
 
@@ -57,13 +89,13 @@ public static class Noise
     }
 
 
-    public static float[,] GenerateNoiseMap(List<NoiseData> noiseLayers, ViewData window, TerrainData terrain, out float localMinNoise, out float localMaxNoise)
+    public static float[,] GenerateNoiseMap(List<NoiseData> noiseLayers, ViewData window, float worldRadius, out float localMinNoise, out float localMaxNoise)
     {
         List<float[,]> noiseMaps = new List<float[,]>();
         float absoluteMaxNoise = 0.0f;
         foreach(NoiseData noise in noiseLayers)
         {
-            noiseMaps.Add(GenerateNoiseMap(noise, window, terrain));
+            noiseMaps.Add(GenerateNoiseMap(noise, window, worldRadius));
             absoluteMaxNoise += noise.Amplitude;
         }
 

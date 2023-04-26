@@ -6,6 +6,7 @@ public class WindController : MonoBehaviour
 {
     public WindData windData;
     public WorldSampler Sampler;
+    public bool DisplayWind;
     public int WindCurrentColumns = 10;
     public int WindCurrentRows = 4;
     public int KnotCount = 10;
@@ -21,7 +22,7 @@ public class WindController : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (!WindInvalidated || !Application.isPlaying)
+        if (!WindInvalidated || !DisplayWind)
             return;
 
         DestroyWindCurrents();
@@ -162,10 +163,10 @@ public class WindController : MonoBehaviour
 
     private void OnValidate()
     {
-        if (Sampler != null && Sampler.window != null)
+        if (Sampler != null && Sampler.Window != null)
         {
-            Sampler.window.OnValuesUpdated.RemoveListener(OnValuesUpdated);
-            Sampler.window.OnValuesUpdated.AddListener(OnValuesUpdated);
+            Sampler.Window.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            Sampler.Window.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
         WindInvalidated = true;
     }

@@ -7,6 +7,7 @@ public class UpdatableData : ScriptableObject
 {
     [HideInInspector()]
     public UnityEvent OnValuesUpdated;
+
     public bool AutoUpdate;
 
     protected virtual void OnValidate()

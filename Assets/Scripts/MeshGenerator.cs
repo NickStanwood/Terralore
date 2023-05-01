@@ -6,8 +6,8 @@ public static class MeshGenerator
 {
     public static MeshData GenerateTerrainMesh(WorldSampler worldSampler)
     {
-        int width = worldSampler.HeightMap.GetLength(0);
-        int height = worldSampler.HeightMap.GetLength(1);
+        int width = worldSampler.MapIndexWidth();
+        int height = worldSampler.MapIndexHeight();
 
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
@@ -17,6 +17,7 @@ public static class MeshGenerator
             for (int x = 0; x < width; x++)
             {
                 Vector3 pos = worldSampler.SampleFromIndex(x, y).WorldPos;
+                Debug.Log($"({x},{y}) -> ({pos.x},{pos.y},{pos.z})");
                 meshData.Vertices[vertexIndex] = pos;
                 meshData.UVs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 

@@ -163,11 +163,10 @@ public class WindController : MonoBehaviour
 
     private void OnValidate()
     {
-        if (Sampler != null && Sampler.Window != null)
+        if (Sampler != null)
         {
-            Sampler.Window.OnValuesUpdated.RemoveListener(OnValuesUpdated);
-            Sampler.Window.OnValuesUpdated.AddListener(OnValuesUpdated);
+            Sampler.OnValuesUpdated.RemoveListener(OnValuesUpdated);
+            Sampler.OnValuesUpdated.AddListener(OnValuesUpdated);
         }
-        WindInvalidated = true;
     }
 }

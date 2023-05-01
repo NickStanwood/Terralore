@@ -2,38 +2,100 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Collections;
 
 public struct NoiseGenJob : IJob
 {
     //INPUT
+    [ReadOnly]
     public NoiseData noise;
+    [ReadOnly]
     public ViewData window;
+    [ReadOnly]
     public float worldRadius;
 
     //OUTPUT
-    public float[,] map;
-    public float localMax;
-    public float localMin;
+    public NativeArray<float> noiseMap;
+    public float localMaxNoise;
+    public float localMinNoise;
 
     public void Execute()
     {
-        map = Noise.GenerateNoiseMap(noise, window, worldRadius, out localMin, out localMax);
+        double lonSampleFreq = window.LonAngle / window.LonResolution;
+        double latSampleFreq = window.LatAngle / window.LatResolution;
+
+        float absoluteMaxNoise = Noise.GetMaxNoise(noise.Octaves, noise.Persistence);
+
+        localMinNoise = float.MaxValue;
+        localMaxNoise = float.MinValue;
+
+        NoiseSampler sampler = null;
+        if (noise.Type == NoiseType.Ridged)
+            sampler = new RidgedSampler(noise);
+        else if (noise.Type == NoiseType.Grid)
+            sampler = new GridSampler(noise, worldRadius);
+        else
+            sampler = new PerlinSampler(noise);
+
+        for (int y = 0; y < window.LatResolution; y++)
+        {
+            for (int x = 0; x < window.LonResolution; x++)
+            {
+                float xPercent = (float)x / window.LonResolution;
+                float yPercent = (float)y / window.LatResolution;
+                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, worldRadius);
+
+                float noiseVal = sampler.Sample(c.x, c.y, c.z);
+
+                if (noiseVal < localMinNoise)
+                    localMinNoise = noiseVal;
+
+                if (noiseVal > localMaxNoise)
+                    localMaxNoise = noiseVal;
+
+                noiseMap[x*window.LatResolution + y] = noiseVal;
+            }
+        }
+
+        //normalize max and min vlaues as well as noisemap
+        localMaxNoise = localMaxNoise / absoluteMaxNoise;
+        localMinNoise = localMinNoise / absoluteMaxNoise;
+
+        for (int y = 0; y < window.LatResolution; y++)
+        {
+            for (int x = 0; x < window.LonResolution; x++)
+            {
+                noiseMap[x * window.LatResolution + y] *= (noise.Amplitude / absoluteMaxNoise);
+            }
+        }
     }
 }
 
 
 public static class Noise
 {
-    public static JobHandle GenerateNoiseMapJob(NoiseData noise, ViewData window, float worldRadius)
+    public static NoiseGenJob GenerateNoiseMapJob(NoiseData noise, ViewData window, float worldRadius)
     {
         NoiseGenJob job = new NoiseGenJob
         {
             noise = noise,
             window = window,
-            worldRadius = worldRadius
-        }
+            worldRadius = worldRadius,
+            noiseMap = new NativeArray<float>(window.LonResolution*window.LatResolution, Allocator.Persistent)
+        };
 
-        return job.Schedule();
+        return job;
+    }
+
+    public static void RunNoiseJobs(Dictionary<string, NoiseGenJob> noiseJobs)
+    {
+        NativeList<JobHandle> handles = new NativeList<JobHandle>(Allocator.Temp);
+        foreach (NoiseGenJob job in noiseJobs.Values)
+        {
+            handles.Add(job.Schedule());
+        }
+        JobHandle.CompleteAll(handles);
+        handles.Dispose();
     }
 
     public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, float worldRadius)
@@ -49,7 +111,7 @@ public static class Noise
         double lonSampleFreq = window.LonAngle / window.LonResolution;
         double latSampleFreq = window.LatAngle / window.LatResolution;
 
-        float absoluteMaxNoise = GetMaxNoise(noise);
+        float absoluteMaxNoise = GetMaxNoise(noise.Octaves, noise.Persistence);
 
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
@@ -148,7 +210,6 @@ public static class Noise
         }
 
         return noiseMap;
-
     }
 
     public static float[] GetOctaveOffsets(int seed, int octaves)
@@ -163,14 +224,14 @@ public static class Noise
         return seedOffsets;
     }
 
-    public static float GetMaxNoise(NoiseData noise)
+    public static float GetMaxNoise(float octaves, float persistance)
     {
         float maxNoise = 0.0f;
         float amp = 1.0f;
-        for (int i = 0; i < noise.Octaves; i++)
+        for (int i = 0; i < octaves; i++)
         {
             maxNoise += amp;
-            amp *= noise.Persistence;
+            amp *= persistance;
         }
         return maxNoise;
     }

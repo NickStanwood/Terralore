@@ -65,7 +65,7 @@ public class MapGenerator : MonoBehaviour
         }
 
         //create spherical map 
-        MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(worldSampler.Window);
+        MeshData meshDataSphere = MeshGenerator.GenerateSphereMesh(worldSampler.ViewWindow());
         meshFilterSphere.sharedMesh = meshDataSphere.CreateMesh();
     }
 

@@ -25,7 +25,7 @@ public struct NoiseGenJob : IJob
         double latSampleFreq = window.LatAngle / window.LatResolution;
 
         float absoluteMaxNoise = Noise.GetMaxNoise(noise.Octaves, noise.Persistence);
-
+        
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
 

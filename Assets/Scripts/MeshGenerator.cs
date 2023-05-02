@@ -17,7 +17,6 @@ public static class MeshGenerator
             for (int x = 0; x < width; x++)
             {
                 Vector3 pos = worldSampler.SampleFromIndex(x, y).WorldPos;
-                Debug.Log($"({x},{y}) -> ({pos.x},{pos.y},{pos.z})");
                 meshData.Vertices[vertexIndex] = pos;
                 meshData.UVs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 

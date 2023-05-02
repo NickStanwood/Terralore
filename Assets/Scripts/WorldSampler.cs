@@ -8,7 +8,7 @@ using Unity.Collections;
 public class WorldSampler : UpdatableData
 {
     [Header("Display Data")]
-    public ViewData Window;
+    [SerializeField] private ViewData Window;
     [Range(0.001f, 10.0f)]
     public float HeightScale;
     [Range(0.001f, 10.0f)]
@@ -36,6 +36,16 @@ public class WorldSampler : UpdatableData
     private float _LocalHeightMin;
     private ViewData _OldWindow;
 
+    public void UpdateViewWindow(ViewData window)
+    {
+        Window = window;
+        OnWindowUpdated();
+    }
+
+    public ViewData ViewWindow()
+    {
+        return Window;
+    }
 
     public WorldSample SampleFromCoord(float lon, float lat)
     {
@@ -52,7 +62,7 @@ public class WorldSampler : UpdatableData
             Longitude = lon,
             Latitude = lat,
             WorldPos = ConvertMapIndexToWorldPos(x, y),
-            Height = _HeightMap[index],
+            Height = _HeightMap[index] + _MountainMap[index],
             Heat = _HeatMap[index],
             WindRotation = _WindRotationMap[index] * Mathf.PI * 2,
             WindVelocity = _WindVelocityMap[index]
@@ -67,7 +77,7 @@ public class WorldSampler : UpdatableData
         Vector2 coords = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
 
         int index = GetMapIndex(xIndex, yIndex);
-        Debug.Log("index: " + index);
+        //Debug.Log("index: " + index);
         return new WorldSample
         {
             xIndex = xIndex,
@@ -75,7 +85,7 @@ public class WorldSampler : UpdatableData
             Longitude = coords.x,
             Latitude = coords.y,
             WorldPos = ConvertMapIndexToWorldPos(xIndex, yIndex),
-            Height = _HeightMap[index],
+            Height = _HeightMap[index] + _MountainMap[index],
             Heat = _HeatMap[index],
             WindRotation = _WindRotationMap[index] *Mathf.PI*2,
             WindVelocity = _WindVelocityMap[index]
@@ -182,14 +192,14 @@ public class WorldSampler : UpdatableData
     {
         Dictionary<string, NoiseGenJob> noiseJobs = new Dictionary<string, NoiseGenJob>();
         noiseJobs.Add("height", Noise.GenerateNoiseMapJob(WorldData.HeightData, Window, WorldData.WorldRadius));
-        //noiseJobs.Add("mounatin", Noise.GenerateNoiseMapJob(WorldData.MountainData, Window, WorldData.WorldRadius));
-        //noiseJobs.Add("heat", Noise.GenerateNoiseMapJob(WorldData.HeatData, Window, WorldData.WorldRadius));
-        //noiseJobs.Add("windVelocity", Noise.GenerateNoiseMapJob(WorldData.WindVelocityData, Window, WorldData.WorldRadius));
-        //noiseJobs.Add("windRotation", Noise.GenerateNoiseMapJob(WorldData.WindRotationData, Window, WorldData.WorldRadius));
+        noiseJobs.Add("mountain", Noise.GenerateNoiseMapJob(WorldData.MountainData, Window, WorldData.WorldRadius));
+        noiseJobs.Add("heat", Noise.GenerateNoiseMapJob(WorldData.HeatData, Window, WorldData.WorldRadius));
+        noiseJobs.Add("windVelocity", Noise.GenerateNoiseMapJob(WorldData.WindVelocityData, Window, WorldData.WorldRadius));
+        noiseJobs.Add("windRotation", Noise.GenerateNoiseMapJob(WorldData.WindRotationData, Window, WorldData.WorldRadius));
 
         Noise.RunNoiseJobs(noiseJobs);
-        float minHeight = noiseJobs["height"].localMinNoise; //+ noiseJobs["mounatin"].localMinNoise;
-        float maxHeight = noiseJobs["height"].localMaxNoise; //+ noiseJobs["mounatin"].localMaxNoise;
+        float minHeight = noiseJobs["height"].localMinNoise + noiseJobs["mountain"].localMinNoise;
+        float maxHeight = noiseJobs["height"].localMaxNoise + noiseJobs["mountain"].localMaxNoise;
         SetLocalHeights(minHeight, maxHeight);
 
         _HeightMap = new float[MapIndexWidth() * MapIndexHeight()];
@@ -199,22 +209,29 @@ public class WorldSampler : UpdatableData
         _WindRotationMap = new float[MapIndexWidth() * MapIndexHeight()];
 
         NativeArray<float>.Copy(noiseJobs["height"].noiseMap, _HeightMap);
-        //MountainMap = noiseJobs["mounatin"].noiseMap;
-        //HeatMap = noiseJobs["heat"].noiseMap;
-        //WindVelocityMap = noiseJobs["windVelocity"].noiseMap;
-        //WindRotationMap = noiseJobs["windRotation"].noiseMap;
+        NativeArray<float>.Copy(noiseJobs["mountain"].noiseMap, _MountainMap);
+        NativeArray<float>.Copy(noiseJobs["heat"].noiseMap, _HeatMap);
+        NativeArray<float>.Copy(noiseJobs["windVelocity"].noiseMap, _WindVelocityMap);
+        NativeArray<float>.Copy(noiseJobs["windRotation"].noiseMap, _WindRotationMap);
+        
         noiseJobs["height"].noiseMap.Dispose();
+        noiseJobs["mountain"].noiseMap.Dispose();
+        noiseJobs["heat"].noiseMap.Dispose();
+        noiseJobs["windVelocity"].noiseMap.Dispose();
+        noiseJobs["windRotation"].noiseMap.Dispose();
     }
 
     private void OnWorldDataUpdated()
     {
         InitializeMaxHeights();
         UpdateMapArrays();
+        NotifyOfUpdatedValues();
     }
 
     private void OnWindowUpdated()
     {
         UpdateMapArrays();
+        NotifyOfUpdatedValues();
     }
 
     private void OnValidate()
@@ -228,7 +245,9 @@ public class WorldSampler : UpdatableData
         if(Window != _OldWindow)
         {
             OnWindowUpdated();
+            _OldWindow = Window;
         }
+        base.OnValidate();
     }
 }
 

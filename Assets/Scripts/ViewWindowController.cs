@@ -33,7 +33,7 @@ public class ViewWindowController : MonoBehaviour
         if(TryIncrementRotation(DownPressed, UpPressed, deltaLat, ref Window.ZRotation) ||
            TryIncrementRotation(LeftPressed, RightPressed, deltaLon, ref Window.YRotation))
         {
-            World.Window = Window;
+            World.UpdateViewWindow(Window);
         }
 
         //Move view based on mouse
@@ -54,7 +54,7 @@ public class ViewWindowController : MonoBehaviour
 
             Window.YRotation -= delta.x * (Window.LonAngle / Screen.width);
             Window.ZRotation -= delta.y * (Window.LatAngle / Screen.height);
-            World.Window = Window;
+            World.UpdateViewWindow(Window);
         }
 
         if (Input.mouseScrollDelta.y != 0)
@@ -66,7 +66,7 @@ public class ViewWindowController : MonoBehaviour
 
             Zoom(ref Window.LonAngle, ref Window.YRotation, zoom, ViewData.MinViewAngle, Coordinates.MaxLon - Coordinates.MinLon, xPos);
             Zoom(ref Window.LatAngle, ref Window.ZRotation, zoom, ViewData.MinViewAngle / 2f, Coordinates.MaxLat - Coordinates.MinLat, yPos);
-            World.Window = Window;
+            World.UpdateViewWindow(Window);
         }
     }
 

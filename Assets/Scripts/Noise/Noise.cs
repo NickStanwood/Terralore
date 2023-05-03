@@ -72,22 +72,23 @@ public struct NoiseGenJob : IJob
 }
 
 
-public static class Noise
+public class NoiseJobArray
 {
-    public static NoiseGenJob GenerateNoiseMapJob(NoiseData noise, ViewData window, float worldRadius)
+    Dictionary<string, NoiseGenJob> noiseJobs = new Dictionary<string, NoiseGenJob>();
+    public void Add(string name, NoiseData noise, ViewData window, float worldRadius)
     {
         NoiseGenJob job = new NoiseGenJob
         {
             noise = noise,
             window = window,
             worldRadius = worldRadius,
-            noiseMap = new NativeArray<float>(window.LonResolution*window.LatResolution, Allocator.Persistent)
+            noiseMap = new NativeArray<float>(window.LonResolution * window.LatResolution, Allocator.Persistent)
         };
 
-        return job;
+        noiseJobs.Add(name, job);
     }
 
-    public static void RunNoiseJobs(Dictionary<string, NoiseGenJob> noiseJobs)
+    public void RunAll()
     {
         NativeList<JobHandle> handles = new NativeList<JobHandle>(Allocator.Temp);
         foreach (NoiseGenJob job in noiseJobs.Values)
@@ -98,6 +99,43 @@ public static class Noise
         handles.Dispose();
     }
 
+    public void RunOne(string name)
+    {
+        JobHandle handle = noiseJobs[name].Schedule();
+        handle.Complete();
+
+    }
+
+    public float LocalMin(string name)
+    {
+        return noiseJobs[name].localMinNoise;
+    }
+
+    public float LocalMax(string name)
+    {
+        return noiseJobs[name].localMaxNoise;
+    }
+
+    public float[] CopyNoise(string name)
+    {
+        int size = noiseJobs[name].window.LonResolution * noiseJobs[name].window.LatResolution;
+        float[] noise = new float[size];
+
+        NativeArray<float>.Copy(noiseJobs[name].noiseMap, noise);
+        return noise;
+    }
+
+    public void Dispose()
+    {
+        foreach(var job in noiseJobs.Values)
+        {
+            job.noiseMap.Dispose();
+        }
+    }
+}
+
+public static class Noise
+{    
     public static float[,] GenerateNoiseMap(NoiseData noise, ViewData window, float worldRadius)
     {
         float max, min;

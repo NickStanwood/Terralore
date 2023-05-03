@@ -19,10 +19,9 @@ public struct ViewData
 
     //total angle that the window spans window
     [Range(0f, 2 * 3.14159f)]
-    public float LonAngle;
-
-    [Range(0f, 3.14159f)]
-    public float LatAngle;
+    public float ViewAngle;
+    public float LonAngle { get { return ViewAngle; } }
+    public float LatAngle { get { return ViewAngle/2; } }
 
     public int Resolution;
     public int LonResolution { get { return Resolution; } }

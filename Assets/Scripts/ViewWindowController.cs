@@ -64,8 +64,7 @@ public class ViewWindowController : MonoBehaviour
             float xPos = Window.LonAngle * ((Input.mousePosition.x / Screen.width) - 0.5f);
             float yPos = Window.LatAngle * ((Input.mousePosition.y / Screen.height) - 0.5f);
 
-            Zoom(ref Window.LonAngle, ref Window.YRotation, zoom, ViewData.MinViewAngle, Coordinates.MaxLon - Coordinates.MinLon, xPos);
-            Zoom(ref Window.LatAngle, ref Window.ZRotation, zoom, ViewData.MinViewAngle / 2f, Coordinates.MaxLat - Coordinates.MinLat, yPos);
+            Zoom(ref Window.ViewAngle, ref Window.YRotation, ref Window.ZRotation, zoom, ViewData.MinViewAngle, Coordinates.MaxLon - Coordinates.MinLon, xPos, yPos);
             World.UpdateViewWindow(Window);
         }
     }
@@ -105,7 +104,7 @@ public class ViewWindowController : MonoBehaviour
         return false;
     }
 
-    private void Zoom(ref float length, ref float pos, float zoom, float min, float max, float zoomPoint)
+    private void Zoom(ref float length, ref float posX, ref float posY, float zoom, float min, float max, float zoomPointX, float zoomPointY)
     {
         length *= zoom;
 
@@ -114,7 +113,10 @@ public class ViewWindowController : MonoBehaviour
         else if(length > max)
             length = max;
         else
-            pos += zoomPoint * (1.0f - zoom);
+        {
+            posX += zoomPointX * (1.0f - zoom);
+            posY += zoomPointY * (1.0f - zoom);
+        }
         
     }
 

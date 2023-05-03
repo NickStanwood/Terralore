@@ -42,9 +42,6 @@ public abstract class NoiseSampler
 
         float noiseVal = sum / max;
 
-        if (NoiseData.AttenuationCurve != null)
-            noiseVal *= NoiseData.AttenuationCurve.Evaluate((float)x, (float)y);
-
         return noiseVal;
     }
 
@@ -76,8 +73,7 @@ public abstract class NoiseSampler
 
         float noiseVal = sum / max;
 
-        if (NoiseData.AttenuationCurve != null)
-            noiseVal *= NoiseData.AttenuationCurve.Evaluate((float)x, (float)y, (float)z);
+        noiseVal *= NoiseData.AttenuationCurve.Evaluate((float)x, (float)y, (float)z);
 
         return noiseVal;
     }

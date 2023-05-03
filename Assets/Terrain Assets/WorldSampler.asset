@@ -16,7 +16,13 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  window: {fileID: 11400000, guid: a7a6546ce700482408034654d2ab4264, type: 2}
+  Window:
+    XRotation: 0
+    YRotation: 0
+    ZRotation: 0
+    LonAngle: 0
+    LatAngle: 0
+    Resolution: 0
   HeightScale: 2.79
   MapScale: 1.16
-  OceanLevel: 0.591
+  WorldData: {fileID: 11400000, guid: 3d3be7e6df4acfb42b091206a32507d7, type: 2}

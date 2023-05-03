@@ -5,9 +5,9 @@ using UnityEngine;
 public class GridSampler : NoiseSampler
 {
     private float Radius;
-    public GridSampler(NoiseData noise, TerrainData terrain) : base(noise) 
+    public GridSampler(NoiseData noise, float worldRadius) : base(noise) 
     {
-        Radius = terrain.WorldRadius;
+        Radius = worldRadius;
     }
 
     protected override float SampleSingle(int seed, double x, double y)

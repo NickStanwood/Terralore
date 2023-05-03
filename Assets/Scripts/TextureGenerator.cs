@@ -4,10 +4,10 @@ using UnityEngine;
 
 public static class TextureGenerator
 {
-    public static Texture2D GenerateHeatMapTexture(float[,] heatMap, TextureData data, ViewData window)
+    public static Texture2D GenerateHeatMapTexture(WorldSampler sampler, TextureData data)
     {
-        int width = heatMap.GetLength(0);
-        int height = heatMap.GetLength(1);
+        int width = sampler.MapIndexWidth();
+        int height = sampler.MapIndexHeight();
 
         Texture2D texture = new Texture2D(width, height);
         //texture.filterMode = FilterMode.Point;
@@ -20,7 +20,7 @@ public static class TextureGenerator
             {
                 foreach (var range in data.HeatLayers)
                 {
-                    float drawStrength = Mathf.InverseLerp(-range.BlendStrength / 2-0.0001f, range.BlendStrength / 2, heatMap[x, y] - range.StartHeight);
+                    float drawStrength = Mathf.InverseLerp(-range.BlendStrength / 2-0.0001f, range.BlendStrength / 2, sampler.Heat(x, y) - range.StartHeight);
                     colorMap[y * width + x] = colorMap[y * width + x] * (1 - drawStrength) + range.Colour * drawStrength;
                 }
             }

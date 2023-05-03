@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-[CreateAssetMenu()]
-public class ViewData : UpdatableData
+[Serializable]
+public struct ViewData
 {
+    public static float MinViewAngle = 0.002f;
 
     [Range(-3.14159f, 3.14159f)]
     public float XRotation;
@@ -17,55 +19,37 @@ public class ViewData : UpdatableData
 
     //total angle that the window spans window
     [Range(0f, 2 * 3.14159f)]
-    public float LonAngle;
+    public float ViewAngle;
+    public float LonAngle { get { return ViewAngle; } }
+    public float LatAngle { get { return ViewAngle/2; } }
 
-    [Range(0f, 3.14159f)]
-    public float LatAngle;
-
-    public float MinAngle = 0.002f;
-
-
-    //how many mesh nodes per edge
-    public int Resolution = 256;
+    public int Resolution;
     public int LonResolution { get { return Resolution; } }
-    public int LatResolution { get { return Resolution/2; } }
+    public int LatResolution { get { return Resolution / 2; } }
 
-    [HideInInspector]
-    private float _OldLonAngle;
-    [HideInInspector]
-    private float _OldLatAngle;
 
-    [HideInInspector]
-    private float _OldResolution;
-
-    protected override void OnValidate()
+    public override bool Equals(object o)
     {
-        if(_OldLonAngle != LonAngle)
-        {
-            LonAngle = Mathf.Min(LonAngle, Coordinates.MaxLon - Coordinates.MinLon);
-            LatAngle = LonAngle / 2f;
-        }
-        else if(_OldLatAngle != LatAngle)
-        {
-            LatAngle = Mathf.Min(LatAngle, Coordinates.MaxLat - Coordinates.MinLat);
-            LonAngle = LatAngle*2f;
-        }
-            
+        if (!(o is ViewData))
+            return false;
+        ViewData other = (ViewData)o;
+        
+        return this.XRotation == other.XRotation &&
+            this.YRotation == other.YRotation &&
+            this.ZRotation == other.ZRotation &&
+            this.LonAngle == other.LonAngle &&
+            this.LatAngle == other.LatAngle &&
+            this.Resolution == other.Resolution;
+    }
 
-        if(float.IsNaN(LonAngle)      || float.IsNaN(LatAngle)      ||
-           float.IsInfinity(LonAngle) || float.IsInfinity(LatAngle) ||
-           LonAngle < MinAngle || LatAngle < MinAngle / 2f)
-        {
-            LonAngle = MinAngle;
-            LatAngle = MinAngle/2f;
-        }
+    public static bool operator==(ViewData lhs, ViewData rhs)
+    {
+        return lhs.Equals(rhs);            
+    }
 
-        Resolution = (Resolution < 16) ? 16 : Resolution;
-
-        _OldLonAngle = LonAngle;
-        _OldLatAngle = LatAngle;
-        _OldResolution = Resolution;       
-
-        base.OnValidate();
+    public static bool operator !=(ViewData lhs, ViewData rhs)
+    {
+        return !lhs.Equals(rhs);
     }
 }
+

@@ -6,6 +6,7 @@ using UnityEngine.Events;
 public class ViewWindowController : MonoBehaviour
 {
     public ViewData Window;
+    public WorldSampler World;
 
     private bool RightPressed = false;
     private bool LeftPressed = false;
@@ -29,8 +30,11 @@ public class ViewWindowController : MonoBehaviour
 
         float deltaLat = Window.LatAngle * Time.deltaTime/5;
         float deltaLon = Window.LonAngle * Time.deltaTime/5;
-        TryIncrementRotation(DownPressed, UpPressed, deltaLat, ref Window.ZRotation);
-        TryIncrementRotation(LeftPressed, RightPressed, deltaLon, ref Window.YRotation);
+        if(TryIncrementRotation(DownPressed, UpPressed, deltaLat, ref Window.ZRotation) ||
+           TryIncrementRotation(LeftPressed, RightPressed, deltaLon, ref Window.YRotation))
+        {
+            World.UpdateViewWindow(Window);
+        }
 
         //Move view based on mouse
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -50,7 +54,7 @@ public class ViewWindowController : MonoBehaviour
 
             Window.YRotation -= delta.x * (Window.LonAngle / Screen.width);
             Window.ZRotation -= delta.y * (Window.LatAngle / Screen.height);
-            Window.NotifyOfUpdatedValues();
+            World.UpdateViewWindow(Window);
         }
 
         if (Input.mouseScrollDelta.y != 0)
@@ -60,9 +64,8 @@ public class ViewWindowController : MonoBehaviour
             float xPos = Window.LonAngle * ((Input.mousePosition.x / Screen.width) - 0.5f);
             float yPos = Window.LatAngle * ((Input.mousePosition.y / Screen.height) - 0.5f);
 
-            Zoom(ref Window.LonAngle, ref Window.YRotation, zoom, Window.MinAngle, Coordinates.MaxLon - Coordinates.MinLon, xPos);
-            Zoom(ref Window.LatAngle, ref Window.ZRotation, zoom, Window.MinAngle / 2f, Coordinates.MaxLat - Coordinates.MinLat, yPos);
-            Window.NotifyOfUpdatedValues();
+            Zoom(ref Window.ViewAngle, ref Window.YRotation, ref Window.ZRotation, zoom, ViewData.MinViewAngle, Coordinates.MaxLon - Coordinates.MinLon, xPos, yPos);
+            World.UpdateViewWindow(Window);
         }
     }
 
@@ -84,7 +87,6 @@ public class ViewWindowController : MonoBehaviour
                 distance += Mathf.PI * 2;
             while (distance > Mathf.PI * 2)
                 distance -= Mathf.PI * 2;
-            Window.NotifyOfUpdatedValues();
             return true;
 
         }
@@ -96,15 +98,13 @@ public class ViewWindowController : MonoBehaviour
                 distance += Mathf.PI * 2;
             while (distance > Mathf.PI * 2)
                 distance -= Mathf.PI * 2;
-            Window.NotifyOfUpdatedValues();
             return true;
-
         }
 
         return false;
     }
 
-    private void Zoom(ref float length, ref float pos, float zoom, float min, float max, float zoomPoint)
+    private void Zoom(ref float length, ref float posX, ref float posY, float zoom, float min, float max, float zoomPointX, float zoomPointY)
     {
         length *= zoom;
 
@@ -113,7 +113,10 @@ public class ViewWindowController : MonoBehaviour
         else if(length > max)
             length = max;
         else
-            pos += zoomPoint * (1.0f - zoom);
+        {
+            posX += zoomPointX * (1.0f - zoom);
+            posY += zoomPointY * (1.0f - zoom);
+        }
         
     }
 

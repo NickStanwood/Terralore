@@ -28,6 +28,7 @@ public class MapGenerator : MonoBehaviour
 
     public void start()
     {
+        textureData.ApplyToMaterial(terrainMaterial);
     }
 
     public void Update()
@@ -77,10 +78,11 @@ public class MapGenerator : MonoBehaviour
 
     private void OnValuesUpdated()
     {
-        if(Application.isPlaying)
+        if (Application.isPlaying)
             MapInvalidated = true;
         else
         {
+            textureData.ApplyToMaterial(terrainMaterial);
             GenerateMap();
         }
     }

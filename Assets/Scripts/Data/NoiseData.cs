@@ -29,6 +29,63 @@ public struct NoiseData
 
     [Range(1.0f, 100.0f)]
     public float RidgeSteepness;    //used for ridged noise only
+
+    public float Sample(double x, double y)
+    {
+        int seed = Seed;
+        float sum = 0f;
+        float max = 0f;
+        float amp = Amplitude;
+        double freq = Frequency;
+
+        for (int i = 0; i < Octaves; i++)
+        {
+            float noise = 0.0f;
+            if (Type == NoiseType.Ridged)
+                noise = RidgedSampler.SampleSingle(seed++, x * freq, y * freq, RidgeSteepness) * amp;
+            else
+                noise = PerlinSampler.SampleSingle(seed++, x * freq, y * freq) * amp;
+
+            sum += noise;
+            max += amp;
+
+            amp *= Persistence;
+            freq *= Lacunarity;
+        }
+
+        float noiseVal = sum / max;
+
+        return noiseVal;
+    }
+
+    public float Sample(double x, double y, double z)
+    {
+        int seed = Seed;
+        float sum = 0f;
+        float max = 0f;
+        float amp = 1.0f;
+        double freq = Frequency;
+
+        for (int i = 0; i < Octaves; i++)
+        {
+            float noise = 0.0f;
+            if (Type == NoiseType.Ridged)
+                noise = RidgedSampler.SampleSingle(seed++, x * freq, y * freq, z * freq, RidgeSteepness) * amp;
+            else
+                noise = PerlinSampler.SampleSingle(seed++, x * freq, y * freq, z * freq) * amp;
+            sum += noise;
+            max += amp;
+
+            amp *= Persistence;
+            freq *= Lacunarity;
+        }
+
+        float noiseVal = sum * Amplitude / max;
+
+        noiseVal *= AttenuationCurve.Evaluate((float)x, (float)y, (float)z);
+
+        return noiseVal;
+    }
 }
 
 public enum NoiseType { Perlin, Ridged, Grid}

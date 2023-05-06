@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
+using Unity.Burst;
 
+[BurstCompile]
 public struct NoiseGenJob : IJob
 {
     //INPUT
@@ -23,19 +25,9 @@ public struct NoiseGenJob : IJob
     {
         double lonSampleFreq = window.LonAngle / window.LonResolution;
         double latSampleFreq = window.LatAngle / window.LatResolution;
-
-        float absoluteMaxNoise = Noise.GetMaxNoise(noise.Octaves, noise.Persistence);
-        
+                
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
-
-        NoiseSampler sampler = null;
-        if (noise.Type == NoiseType.Ridged)
-            sampler = new RidgedSampler(noise);
-        else if (noise.Type == NoiseType.Grid)
-            sampler = new GridSampler(noise, worldRadius);
-        else
-            sampler = new PerlinSampler(noise);
 
         for (int y = 0; y < window.LatResolution; y++)
         {
@@ -45,7 +37,7 @@ public struct NoiseGenJob : IJob
                 float yPercent = (float)y / window.LatResolution;
                 Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, worldRadius);
 
-                float noiseVal = sampler.Sample(c.x, c.y, c.z);
+                float noiseVal = noise.Sample(c.x, c.y, c.z);
 
                 if (noiseVal < localMinNoise)
                     localMinNoise = noiseVal;
@@ -54,18 +46,6 @@ public struct NoiseGenJob : IJob
                     localMaxNoise = noiseVal;
 
                 noiseMap[x*window.LatResolution + y] = noiseVal;
-            }
-        }
-
-        //normalize max and min vlaues as well as noisemap
-        localMaxNoise = localMaxNoise / absoluteMaxNoise;
-        localMinNoise = localMinNoise / absoluteMaxNoise;
-
-        for (int y = 0; y < window.LatResolution; y++)
-        {
-            for (int x = 0; x < window.LonResolution; x++)
-            {
-                noiseMap[x * window.LatResolution + y] *= (noise.Amplitude / absoluteMaxNoise);
             }
         }
     }
@@ -149,18 +129,8 @@ public static class Noise
         double lonSampleFreq = window.LonAngle / window.LonResolution;
         double latSampleFreq = window.LatAngle / window.LatResolution;
 
-        float absoluteMaxNoise = GetMaxNoise(noise.Octaves, noise.Persistence);
-
         localMinNoise = float.MaxValue;
         localMaxNoise = float.MinValue;
-
-        NoiseSampler sampler = null;
-        if(noise.Type == NoiseType.Ridged)
-            sampler = new RidgedSampler(noise);
-        else if(noise.Type == NoiseType.Grid)
-            sampler = new GridSampler(noise, worldRadius);
-        else
-            sampler = new PerlinSampler(noise);
 
         for (int y = 0; y < window.LatResolution; y++)
         {
@@ -170,7 +140,7 @@ public static class Noise
                 float yPercent = (float)y / window.LatResolution;
                 Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, worldRadius);
 
-                float noiseVal = sampler.Sample(c.x, c.y, c.z);
+                float noiseVal = noise.Sample(c.x, c.y, c.z);
 
                 if (noiseVal < localMinNoise)
                     localMinNoise = noiseVal;
@@ -182,10 +152,7 @@ public static class Noise
             }
         }
 
-        //normalize max and min vlaues as well as noisemap
-        localMaxNoise = localMaxNoise / absoluteMaxNoise;
-        localMinNoise = localMinNoise / absoluteMaxNoise;
-        return Normalize(noiseMap, noise.Amplitude, absoluteMaxNoise, 0.0f);
+        return noiseMap;
     }
 
 
@@ -249,29 +216,4 @@ public static class Noise
 
         return noiseMap;
     }
-
-    public static float[] GetOctaveOffsets(int seed, int octaves)
-    {
-        System.Random rand = new System.Random(seed);
-        float[] seedOffsets = new float[octaves];
-        for (int i = 0; i < octaves; i++)
-        {
-            seedOffsets[i] = rand.Next(-1000, 1000);
-        }
-
-        return seedOffsets;
-    }
-
-    public static float GetMaxNoise(float octaves, float persistance)
-    {
-        float maxNoise = 0.0f;
-        float amp = 1.0f;
-        for (int i = 0; i < octaves; i++)
-        {
-            maxNoise += amp;
-            amp *= persistance;
-        }
-        return maxNoise;
-    }
-
 }

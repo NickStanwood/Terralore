@@ -2,36 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridSampler : NoiseSampler
+public static class GridSampler
 {
-    private float Radius;
-    public GridSampler(NoiseData noise, float worldRadius) : base(noise) 
+    public static float SampleSingle(int seed, double x, double y, double z, float radius)
     {
-        Radius = worldRadius;
-    }
-
-    protected override float SampleSingle(int seed, double x, double y)
-    {
-        return 0.0f;
-    }
-
-    protected override float SampleSingle(int seed, double x, double y, double z)
-    {
-        Vector2 coord = Coordinates.CartesianToCoord((float)x, (float)y, (float)z, Radius);
+        Vector2 coord = Coordinates.CartesianToCoord((float)x, (float)y, (float)z, radius);
         float lon = coord.x;
         float lat = coord.y;
         float lonGridValue = GridLineValue(lon);
-        //string debugMsg = "== sample == \n";
-        //debugMsg += $"xyz: ({x.ToString("N3")},{y},{z})\n";
-        //debugMsg += $"lon: {(int)(lon * 180.0f / Mathf.PI)} -> {lonGridValue}\n";
-
         float latGridValue = GridLineValue(lat);
-        //debugMsg += $"lat: {(int)(lat * 180.0f / Mathf.PI)} -> {latGridValue}\n";
-        //Debug.Log(debugMsg);
         return Mathf.Min(lonGridValue, latGridValue);
     }
 
-    private float GridLineValue(float degree)
+    private static float GridLineValue(float degree)
     {
         int d = (int)(degree * 180.0f / Mathf.PI);
         if (d == 0)
@@ -43,7 +26,7 @@ public class GridSampler : NoiseSampler
         return 1.0f;
     }
 
-    private bool WithinRange(float value, float target)
+    private static bool WithinRange(float value, float target)
     {
         return (value - 0.00001f < target && value + 0.00001f > target);
     }

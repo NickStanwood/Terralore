@@ -8,7 +8,7 @@ using Unity.Collections;
 public class WorldSampler : UpdatableData
 {
     [Header("Display Data")]
-    [Range(0.001f, 10.0f)]
+    [Range(0.001f, 40.0f)]
     public float HeightScale;
     [Range(0.001f, 10.0f)]
     public float MapScale;
@@ -202,10 +202,10 @@ public class WorldSampler : UpdatableData
         SetLocalHeights(minHeight, maxHeight);
 
         _HeightMap = noiseJobs.CopyNoise("height");
-        //_MountainMap = noiseJobs.CopyNoise("mountain");
-        //_HeatMap = noiseJobs.CopyNoise("heat");
-        //_WindVelocityMap = noiseJobs.CopyNoise("windVelocity");
-        //_WindRotationMap = noiseJobs.CopyNoise("windRotation");
+        _MountainMap = noiseJobs.CopyNoise("mountain");
+        _HeatMap = noiseJobs.CopyNoise("heat");
+        _WindVelocityMap = noiseJobs.CopyNoise("windVelocity");
+        _WindRotationMap = noiseJobs.CopyNoise("windRotation");
 
         noiseJobs.Dispose();
     }

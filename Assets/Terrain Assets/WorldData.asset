@@ -18,7 +18,7 @@ MonoBehaviour:
   AutoUpdate: 1
   HeightData:
     Type: 0
-    Seed: 84825
+    Seed: 85277
     Amplitude: 1
     Frequency: 0.00054
     Octaves: 18
@@ -35,7 +35,7 @@ MonoBehaviour:
     RidgeSteepness: 0
   MountainData:
     Type: 1
-    Seed: 66110
+    Seed: 18921
     Amplitude: 0.016
     Frequency: 0.00056
     Octaves: 3
@@ -52,7 +52,7 @@ MonoBehaviour:
     RidgeSteepness: 56
   HeatData:
     Type: 0
-    Seed: 57620
+    Seed: 37870
     Amplitude: 1
     Frequency: 0.00092
     Octaves: 4
@@ -67,14 +67,14 @@ MonoBehaviour:
       Offset: 0
       AsymptoteCutoff: 0
     RidgeSteepness: 0
-  WindVelocityData:
+  MoistureData:
     Type: 0
     Seed: 0
     Amplitude: 1
-    Frequency: 0.00153
-    Octaves: 1
-    Persistence: 0.497
-    Lacunarity: 2.98
+    Frequency: 0.00046
+    Octaves: 2
+    Persistence: 0.5
+    Lacunarity: 2
     AttenuationCurve:
       Type: 0
       EquatorAttenuation: 0
@@ -84,22 +84,6 @@ MonoBehaviour:
       Offset: 0
       AsymptoteCutoff: 0
     RidgeSteepness: 0
-  WindRotationData:
-    Type: 0
-    Seed: 0
-    Amplitude: 1
-    Frequency: 0.00035
-    Octaves: 1
-    Persistence: 0.496
-    Lacunarity: 3.32
-    AttenuationCurve:
-      Type: 0
-      EquatorAttenuation: 0
-      PoleAttenuation: 0
-      Amplitude: 0
-      Frequency: 0
-      Offset: 0
-      AsymptoteCutoff: 0
-    RidgeSteepness: 0
+  MoistureIterations: 1
   OceanLevel: 0.375
   WorldRadius: 2830

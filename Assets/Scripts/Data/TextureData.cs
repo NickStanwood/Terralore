@@ -9,6 +9,7 @@ public class TextureData : UpdatableData
     public TextureType TextureType;
     public TextureLayer[] HeightLayers;
     public TextureLayer[] HeatLayers;
+    public TextureLayer[] MoistureLayers;
 
     public void ApplyToMaterial(Material material)
     {
@@ -29,6 +30,7 @@ public enum TextureType
 {
     HeightMap,
     HeatMap,
+    MoistureMap,
     Blank,
 }
 

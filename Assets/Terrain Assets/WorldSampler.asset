@@ -16,13 +16,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
+  HeightScale: 12.9
+  MapScale: 1.16
   Window:
     XRotation: 0
-    YRotation: 0
-    ZRotation: 0
-    LonAngle: 0
-    LatAngle: 0
-    Resolution: 0
-  HeightScale: 2.79
-  MapScale: 1.16
+    YRotation: 0.6068827
+    ZRotation: -0.6799382
+    ViewAngle: 6.24
+    Resolution: 256
   WorldData: {fileID: 11400000, guid: 3d3be7e6df4acfb42b091206a32507d7, type: 2}

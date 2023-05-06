@@ -16,8 +16,9 @@ public class MapGeneratorEditor : Editor
         {
             System.Random rand = new System.Random();
             mapGen.worldSampler.WorldData.HeightData.Seed = rand.Next(0, 100000);
+            mapGen.worldSampler.WorldData.MountainData.Seed = rand.Next(0, 100000);
             mapGen.worldSampler.WorldData.HeatData.Seed = rand.Next(0, 100000);
-            mapGen.GenerateMap();
+            mapGen.worldSampler.WorldData.NotifyOfUpdatedValues();
         }
     }
 }

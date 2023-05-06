@@ -9,8 +9,11 @@ public class WorldData : UpdatableData
     public NoiseData HeightData;
     public NoiseData MountainData;
     public NoiseData HeatData;
-    public NoiseData WindVelocityData;
-    public NoiseData WindRotationData;
+    public NoiseData MoistureData;
+
+    [Header("Map Refinement")]
+    [Range(1, 10)]
+    public int MoistureIterations;
 
     [Header("World Data")]
     [Range(0.0f, 1.0f)]

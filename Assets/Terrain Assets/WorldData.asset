@@ -54,7 +54,7 @@ MonoBehaviour:
     Type: 0
     Seed: 37870
     Amplitude: 1
-    Frequency: 0.00092
+    Frequency: 0.00066
     Octaves: 4
     Persistence: 0.5
     Lacunarity: 2

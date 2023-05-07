@@ -219,7 +219,7 @@ public class WorldSampler : UpdatableData
 
     private void RefineWorldMaps()
     {
-        _MoistureMap = MoistureGen.RefineMap(_MoistureMap, _HeatMap, _MountainMap, Window, WorldData.WorldRadius, WorldData.MoistureIterations);
+        _MoistureMap = MoistureGen.RefineMap(_MoistureMap, _HeightMap, _MountainMap, WorldData, Window);
     }
 
     private void GenerateClimateMap()

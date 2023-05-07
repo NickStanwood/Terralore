@@ -64,19 +64,19 @@ MonoBehaviour:
     Colour: {r: 0.93333334, g: 0.20968208, b: 0.18823528, a: 0}
     BlendStrength: 0.2
   MoistureLayers:
-  - Name: Water
+  - Name: Arid
     StartHeight: 0
-    Colour: {r: 0.033675194, g: 0, b: 1, a: 0}
+    Colour: {r: 0.8428672, g: 0.8490566, b: 0.44455323, a: 0}
+    BlendStrength: 0
+  - Name: Dry
+    StartHeight: 0.877
+    Colour: {r: 0.20392156, g: 1, b: 0.56443185, a: 0}
     BlendStrength: 0
   - Name: Humid
-    StartHeight: 0.361
-    Colour: {r: 0.2028302, g: 0.6489001, b: 1, a: 0}
-    BlendStrength: 0.2
-  - Name: Dry
-    StartHeight: 0.486
-    Colour: {r: 0.0788092, g: 0.7264151, b: 0.4211687, a: 0}
-    BlendStrength: 0.2
-  - Name: Arid
-    StartHeight: 0.575
-    Colour: {r: 0.9716981, g: 0.961833, b: 0.64627093, a: 0}
-    BlendStrength: 0.2
+    StartHeight: 0.927
+    Colour: {r: 0.1960784, g: 0.85868496, b: 0.8862745, a: 0}
+    BlendStrength: 0
+  - Name: Water
+    StartHeight: 0.956
+    Colour: {r: 0, g: 0.08090782, b: 1, a: 0}
+    BlendStrength: 0

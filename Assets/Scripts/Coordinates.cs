@@ -8,11 +8,18 @@ public struct Mercator
     {
         XSample = (int)(xPercent * xResolution);
         if (XSample >= xResolution)
-            XSample -= 1;
+            XSample = xResolution - 1;
 
-        YSample = (int)(yPercent * xResolution/2);
-        if(YSample >= xResolution/2)
-            YSample -= 1;
+        if (XSample < 0)
+            XSample = 0;
+
+        int yResolution = xResolution / 2;
+        YSample = (int)(yPercent * yResolution);
+        if(YSample >= yResolution)
+            YSample = yResolution -1;
+
+        if (YSample < 0)
+            YSample = 0;
 
         _Resolution = xResolution;
     }

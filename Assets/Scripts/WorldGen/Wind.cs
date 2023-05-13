@@ -4,78 +4,85 @@ using UnityEngine;
 
 public static class Wind
 {
-    public static Vector2 FindOrigin(Vector2 coord)
+    private const float _WindScale = Mathf.PI / 30;
+    public static List<Coord> FindWindOriginBoundary(Coord coord)
     {
+        List<Coord> result = new List<Coord>();
+        Coord origin = GetConnectedPoint(coord, false);
+        result.Add(new Coord(origin.Lon, origin.Lat + _WindScale));
+        result.Add(new Coord(origin.Lon, origin.Lat - _WindScale));
 
-        Vector2 origin = GetConnectedPoint(coord, false);
+        //TODO find a way to scale these origins points based on the velocity 
 
+        return result;
+    }
+
+    public static Coord FindOrigin(Coord coord)
+    {
+        Coord origin = GetConnectedPoint(coord, false);
         return origin;
     }
 
-    public static Vector2 FindDestination(Vector2 coord)
+    public static Coord FindDestination(Coord coord)
     {
-        Vector2 dest = GetConnectedPoint(coord, true);
-
+        Coord dest = GetConnectedPoint(coord, true);
         return dest;
     }
 
-    public static float Velocity(Vector2 coord)
+    public static float Velocity(Coord coord)
     {
         //TODO:
         return 1.0f;
     }
-    private static Vector2 GetConnectedPoint(Vector2 coord, bool isDestination)
+    private static Coord GetConnectedPoint(Coord coord, bool isDestination)
     {
         int direction = isDestination ? 1 : -1;
-        float lon = coord.x;
-        float lat = coord.y;
-        float scale = Mathf.PI / 30;
         const float outerBand = Mathf.PI / 3;
         const float innerBand = Mathf.PI / 6;
         const float bandSize = Mathf.PI / 6;
         const float bandAngleScale = Mathf.PI / (2 * bandSize);
-        if (lat >= outerBand)
+        if (coord.Lat >= outerBand)
         {
             //float angle = (lat - outerBand) * bandAngleScale;
             //lon += Mathf.Cos(angle) * scale;
             //lat += Mathf.Sin(angle) * scale;
-            lon -= scale * direction;
+            coord.Lon -= _WindScale * direction;
         }
-        else if (lat >= innerBand)
+        else if (coord.Lat >= innerBand)
         {
             //float angle = (lat - innerBand) * bandAngleScale;
             //lon -= Mathf.Sin(angle) * scale;
             //lat -= Mathf.Cos(angle) * scale;
-            lon += scale * direction;
+            coord.Lon += _WindScale * direction;
         }
-        else if (lat >= 0)
+        else if (coord.Lat >= 0)
         {
             //float angle = (lat) * bandAngleScale;
             //lon += Mathf.Cos(angle) * scale;
             //lat += Mathf.Sin(angle) * scale;
-            lon -= scale * direction;
+            coord.Lon -= _WindScale * direction;
         }
-        else if (lat >= -innerBand)
+        else if (coord.Lat >= -innerBand)
         {
             //float angle = (lat + innerBand) * bandAngleScale;
             //lon += Mathf.Sin(angle) * scale;
             //lat -= Mathf.Cos(angle) * scale;
-            lon -= scale * direction;
+            coord.Lon -= _WindScale * direction;
         }
-        else if (lat >= -outerBand)
+        else if (coord.Lat >= -outerBand)
         {
             //float angle = (lat + outerBand) * bandAngleScale;
             //lon -= Mathf.Cos(angle) * scale;
             //lat += Mathf.Sin(angle) * scale;
-            lon += scale * direction;
+            coord.Lon += _WindScale * direction;
         }
         else
         {
             //float angle = (lat + Mathf.PI / 2) * bandAngleScale;
             //lon += Mathf.Sin(angle) * scale;
             //lat -= Mathf.Cos(angle) * scale;
-            lon += scale * direction;
+            coord.Lon += _WindScale * direction;
         }
-        return new Vector2(lon, lat);
+        return coord;
     }
 }

@@ -4,6 +4,14 @@ using UnityEngine;
 
 public static class MoistureGen
 {
+    private class MoistureInfo
+    {
+        public Coord Coord;
+        public Mercator mercator;
+        public float Moisture;
+        public float Amplitude;
+    };
+
     public static float[] RefineMap(float[] moistureNoise, float[] height, float[] mountain, WorldData world, ViewData window)
     {
         float[] moistureMap = new float[window.LonResolution * window.LatResolution];
@@ -12,44 +20,29 @@ public static class MoistureGen
         {
             for (int x = 0; x < window.LonResolution; x++)
             {
-                float alt = height[x* window.LatResolution + y] + mountain[x * window.LatResolution + y];
+                Mercator merc = new Mercator(x,y, window.LonResolution);
+                float alt = height[merc.FlatSample] + mountain[merc.FlatSample];
                 if (alt < world.OceanLevel)
                 {
-                    moistureMap[x * window.LatResolution + y] = 1.0f;
+                    moistureMap[merc.FlatSample] = 1.0f;
                     continue;
                 }                   
 
                 float xPercent = (float)x / window.LonResolution;
                 float yPercent = (float)y / window.LatResolution;
 
-                float nMoisture = moistureNoise[x * window.LatResolution + y] * Mathf.Max(world.MoistureIterations, 1);
+                float nMoisture = moistureNoise[merc.FlatSample] * Mathf.Max(world.MoistureIterations, 1);
                 float nMax = world.MoistureData.Amplitude * Mathf.Max(world.MoistureIterations, 1);
 
 
                 float wMoisture = 0.0f;
                 float wMax = 0.0f;
-                float windAmp = 1.0f;
-                List<Vector2> windOrigins = FindWindOriginList( Coordinates.MercatorToCoord(xPercent, yPercent, window) , world.MoistureIterations);
-                foreach (Vector2 o in windOrigins)
+                Coord coord = merc.ToCoord(window);
+                List<MoistureInfo> windOrigins = FindWindOriginList( coord, height, mountain , world, window);
+                foreach (MoistureInfo o in windOrigins)
                 {
-                    windAmp = Wind.Velocity(o);
-
-                    //convert new coord to mercator
-                    Vector2 mercator = Coordinates.CoordToMercator(o.x, o.y, window);
-
-                    //convert mercator to index
-                    int xSample = (int)(mercator.x * window.LonResolution);
-                    int ySample = (int)(mercator.y * window.LatResolution);
-                    int noiseIndex = xSample * window.LatResolution + ySample;
-
-                    //sample height & mountain at index
-                    float h = height[noiseIndex];
-                    float m = mountain[noiseIndex];
-
-                    wMoisture += CalculateMoisture(h, m, world.OceanLevel) * windAmp * world.MoistureAmplitude;
-                    wMax += windAmp * world.MoistureAmplitude;
-
-                        
+                    wMoisture += o.Moisture*o.Amplitude;
+                    wMax += o.Amplitude;                        
                 }
                 
                 float moisture = (nMoisture + wMoisture)/(nMax + wMax);
@@ -62,25 +55,28 @@ public static class MoistureGen
         return moistureMap;
     }
 
-    private static List<Vector2> FindWindOriginList(Vector2 coord, int iterations)
+    private static List<MoistureInfo> FindWindOriginList(Coord coord, float[] height, float[] mountain, WorldData world, ViewData window)
     {
-        List<Vector2> windOriginList = new List<Vector2>();
+        List<Coord> windOriginList = Wind.FindWindOriginBoundary(coord);
+        List<MoistureInfo> moistureList = new List<MoistureInfo>();
 
-        Vector2 c0 = coord;
-        Vector2 c1 = new Vector2(coord.x, coord.y + Mathf.PI / 60);
-        Vector2 c2 = new Vector2(coord.x, coord.y - Mathf.PI / 60);
-        for (int i = 0; i < iterations; i++)
+        Mercator mercO = coord.ToMercator(window);
+        foreach(Coord c in windOriginList)
         {
-            windOriginList.Add(c0);
-            //windOriginList.Add(c1);
-            //windOriginList.Add(c2);
+            Mercator m = c.ToMercator(window);
+            MoistureInfo info = new MoistureInfo();
+            info.Coord = c;
+            info.mercator = m;
 
-            c0 = Wind.FindOrigin(c0);
-            //c1 = Wind.FindOrigin(c1);
-            //c2 = Wind.FindOrigin(c2);
+            float h1 = height[m.FlatSample];
+            float h2 = mountain[m.FlatSample];
 
+            info.Moisture = CalculateMoisture(h1, h2, world.OceanLevel);
+            info.Amplitude = world.MoistureAmplitude;
+            moistureList.Add(info);
         }
-        return windOriginList;
+
+        return moistureList;
     }
 
     public static float CalculateMoisture(float height, float mountain, float oceanLevel)

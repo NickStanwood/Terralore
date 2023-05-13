@@ -2,6 +2,163 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct Mercator
+{
+    public Mercator(float xPercent, float yPercent, int xResolution)
+    {
+        XSample = (int)(xPercent * xResolution);
+        if (XSample >= xResolution)
+            XSample -= 1;
+
+        YSample = (int)(yPercent * xResolution/2);
+        if(YSample >= xResolution/2)
+            YSample -= 1;
+
+        _Resolution = xResolution;
+    }
+
+    public Mercator(int xSample, int ySample, int xResolution)
+    {
+        XSample = xSample;
+        YSample = ySample;
+        _Resolution = xResolution;
+    }
+
+    public int XSample;
+    public int YSample;
+    public int FlatSample { get { return XSample * _Resolution/2 + YSample; } }
+
+    public float XPercent { get { return (float)XSample / _Resolution; } }
+    public float YPercent { get { return (float)YSample / (_Resolution/2); } }
+
+    private int _Resolution;
+
+    public Coord ToCoord(ViewData window)
+    {
+        Cartesian cart = ToCartesian(window, 1.0f);
+        return cart.ToCoord();
+    }
+
+    public Cartesian ToCartesian(ViewData window, float radius)
+    {
+        //get coord of mercator without any window rotations
+        float lon = (XPercent - 0.5f) * window.LonAngle;
+        float lat = -(YPercent - 0.5f) * window.LatAngle;
+        Coord coord = new Coord(lon, lat, radius);
+
+        Cartesian cart = coord.ToCartesian();
+        cart.Rotate(window.XRotation, window.YRotation, window.ZRotation);
+        return cart;
+    }
+}
+
+public struct Coord
+{
+    public float Lon;
+    public float Lat;
+
+    private float _Radius;
+
+    public Coord(float lon, float lat, float radius = 1.0f)
+    {
+        Lon = lon;
+        Lat = lat;
+
+        if (Lat > Mathf.PI/2)
+        {
+            Lat = Mathf.PI/2 - Lat;
+            Lon += Mathf.PI;
+        }
+
+        if (Lat < -Mathf.PI/2)
+        {
+            Lat = -Mathf.PI / 2 + Lat;
+            Lon += Mathf.PI;
+        }
+
+        while (Lon >= Mathf.PI)
+            Lon -= Mathf.PI;
+
+        while (Lon < -Mathf.PI)
+            Lon += Mathf.PI;
+
+        _Radius = radius;
+    }
+
+    public Cartesian ToCartesian()
+    {
+        float x = _Radius * Mathf.Cos(Lat) * Mathf.Cos(Lon);
+        float z = _Radius * Mathf.Cos(Lat) * Mathf.Sin(Lon);
+        float y = _Radius * Mathf.Sin(Lat);
+        return new Cartesian(x, y, z, _Radius);
+    }
+
+    public Mercator ToMercator(ViewData window)
+    {
+        Cartesian cart = ToCartesian();
+        return cart.ToMercator(window);
+    }
+}
+
+public struct Cartesian
+{
+    public float X;
+    public float Y;
+    public float Z;
+
+    private float _Radius;
+    public Cartesian(float x, float y, float z, float radius = 1.0f)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+        _Radius= radius;
+    }
+
+    public void Rotate(float xRotation, float yRotation, float zRotation)
+    {
+        float x, y, z;
+
+        //X Rotation
+        y = Y;
+        z = Z;
+        Y = y * Mathf.Cos(xRotation) + z * Mathf.Sin(xRotation);
+        Z = z * Mathf.Cos(xRotation) - y * Mathf.Sin(xRotation);
+
+
+        //Y Rotation
+        x = X;
+        z = Z;
+        X = x * Mathf.Cos(yRotation) - z * Mathf.Sin(yRotation);
+        Z = z * Mathf.Cos(yRotation) + x * Mathf.Sin(yRotation);
+
+        //Z Rotation
+        x = X;
+        y = Y;
+        X = x * Mathf.Cos(zRotation) + y * Mathf.Sin(zRotation);
+        Y = y * Mathf.Cos(zRotation) - x * Mathf.Sin(zRotation);
+    }
+
+    public Coord ToCoord()
+    {
+        float lon = Mathf.Atan2(Z, X);
+        float lat = Mathf.Asin(Y / _Radius);
+        return new Coord(lon, lat, _Radius);
+    }
+
+    public Mercator ToMercator(ViewData window)
+    {
+        //create copy of our cartesian coordinates
+        Cartesian copy = new Cartesian(X,Y,Z,_Radius);
+        //undo the rotation of the window
+        copy.Rotate(-window.XRotation, -window.YRotation, -window.ZRotation);
+        Coord coord = copy.ToCoord();
+        float xPercent = (coord.Lon / window.LonAngle) + 0.5f;
+        float yPercent = (-coord.Lat / window.LatAngle) + 0.5f;
+        return new Mercator(xPercent, yPercent, window.Resolution);
+    }
+}
+
 public static class Coordinates
 {
     #region static properties

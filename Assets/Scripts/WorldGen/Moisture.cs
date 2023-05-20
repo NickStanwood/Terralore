@@ -6,8 +6,6 @@ public static class MoistureGen
 {
     private class MoistureInfo
     {
-        public Coord Coord;
-        public Mercator mercator;
         public float Moisture;
         public float Amplitude;
     };
@@ -28,12 +26,8 @@ public static class MoistureGen
                     continue;
                 }                   
 
-                float xPercent = (float)x / window.LonResolution;
-                float yPercent = (float)y / window.LatResolution;
-
-                float nMoisture = moistureNoise[merc.FlatSample] * Mathf.Max(world.MoistureIterations, 1);
-                float nMax = world.MoistureData.Amplitude * Mathf.Max(world.MoistureIterations, 1);
-
+                float nMoisture = moistureNoise[merc.FlatSample];
+                float nMax = 1.0f;
 
                 float wMoisture = 0.0f;
                 float wMax = 0.0f;
@@ -57,22 +51,25 @@ public static class MoistureGen
 
     private static List<MoistureInfo> FindWindOriginList(Coord coord, float[] height, float[] mountain, WorldData world, ViewData window)
     {
-        List<Coord> windOriginList = Wind.FindWindOriginBoundary(coord);
+        List<Coord> windOriginList = Wind.FindWindOriginBoundary(coord, world.WindVelocity);
         List<MoistureInfo> moistureList = new List<MoistureInfo>();
 
         Mercator mercO = coord.ToMercator(window);
-        foreach(Coord c in windOriginList)
+        Mercator v0 = windOriginList[0].ToMercator(window);
+        Mercator v1 = windOriginList[1].ToMercator(window);
+        List<int> samples = mercO.RasterizeFlatSamples(v0, v1);
+        foreach(int sample in samples)
         {
-            Mercator m = c.ToMercator(window);
             MoistureInfo info = new MoistureInfo();
-            info.Coord = c;
-            info.mercator = m;
+            float hVal = height[sample];
+            float mVal = mountain[sample];
+            //if we are within a mountain range, then this wind-moisture sample wont make it to the origin
+            //if (mVal > world.MountainData.Amplitude / 2)
+            //   break;
 
-            float h1 = height[m.FlatSample];
-            float h2 = mountain[m.FlatSample];
-
-            info.Moisture = CalculateMoisture(h1, h2, world.OceanLevel);
-            info.Amplitude = world.MoistureAmplitude;
+            info.Moisture = CalculateMoisture(hVal, mVal, world.OceanLevel);
+            //TODO reduce amplitude the further away from mecO this sample is.
+            info.Amplitude = 1.0f;
             moistureList.Add(info);
         }
 

@@ -33,7 +33,7 @@ public struct Mercator
 
     public int XSample;
     public int YSample;
-    public int FlatSample { get { return XSample * _Resolution/2 + YSample; } }
+    public int FlatSample { get { return ToFlatSample(XSample, YSample); } }
 
     public float XPercent { get { return (float)XSample / _Resolution; } }
     public float YPercent { get { return (float)YSample / (_Resolution/2); } }
@@ -56,6 +56,98 @@ public struct Mercator
         Cartesian cart = coord.ToCartesian();
         cart.Rotate(window.XRotation, window.YRotation, window.ZRotation);
         return cart;
+    }
+
+    public List<int> CalculateFlatSampleLine(Mercator destination)
+    {
+        //Use Breshenham's algorithm to determine sample line
+        List<int> samples = new List<int>();
+        int x0 = XSample;
+        int y0 = YSample;
+        int x1 = destination.XSample;
+        int y1 = destination.YSample;
+
+        samples.Add(ToFlatSample(x0,y0));
+
+        int xinc = (x1 < x0) ? -1 : 1;
+        int yinc = (y1 < y0) ? -1 : 1;
+        int dx = xinc * (x1 - x0);
+        int dy = yinc * (y1 - y0);
+
+        int side = -1 * ((dx == 0 ? yinc : xinc) - 1);
+
+        int i = dx + dy;
+        int error = dx - dy;
+
+        dx *= 2;
+        dy *= 2;
+
+        while (i-- > 0)
+        {
+            if (error > 0 || error == side)
+            {
+                x0 += xinc;
+                error -= dy;
+            }
+            else
+            {
+                y0 += yinc;
+                error += dx;
+            }
+
+            samples.Add(ToFlatSample(x0, y0));
+        }
+
+        return samples;
+    }
+    
+    public List<int> RasterizeFlatSamples(Mercator v0, Mercator v1)
+    {
+        List<int> samples = new List<int>();
+
+        int minX = v0.XSample < v1.XSample ? v0.XSample : v1.XSample;
+        minX = minX < XSample ? minX : XSample;
+
+        int maxX = v0.XSample > v1.XSample ? v0.XSample : v1.XSample;
+        maxX = maxX > XSample ? maxX : XSample;
+
+
+        int minY = v0.YSample < v1.YSample ? v0.YSample : v1.YSample;
+        minY = minY < YSample ? minY : YSample;
+
+        int maxY = v0.YSample > v1.YSample ? v0.YSample : v1.YSample;
+        maxY = maxY > YSample ? maxY : YSample;
+
+        for(int x = minX; x < maxX; x++)
+        {
+            for(int y = minY; y < maxY; y++)
+            {
+                int e01 = EdgeFunction(x, y, v0.XSample, v0.YSample, v1.XSample, v1.YSample);
+                if (e01 < 0)
+                    break;
+
+                int e12 = EdgeFunction(x, y, v1.XSample, v1.YSample, XSample, YSample);
+                if (e12 < 0)
+                    break;
+
+                int e20 = EdgeFunction(x, y, XSample, YSample, v0.XSample, v0.YSample);
+                if (e20 < 0)
+                    break;
+
+                samples.Add(ToFlatSample(x,y));
+            }
+        }
+        return samples;
+    }
+
+    private int EdgeFunction(int px, int py, int vax, int vay, int vbx, int vby)
+    {
+        return (px - vax) * (vby - vay) - (py - vay) * (vbx - vax);
+    }
+
+    private int ToFlatSample(int x, int y)
+    {
+        return x * _Resolution / 2 + y;
     }
 }
 

@@ -20,8 +20,8 @@ MonoBehaviour:
   MapScale: 1.16
   Window:
     XRotation: 0
-    YRotation: 0.7894169
-    ZRotation: 0.051616408
-    ViewAngle: 5.652
+    YRotation: 0
+    ZRotation: 0
+    ViewAngle: 6.28
     Resolution: 256
   WorldData: {fileID: 11400000, guid: 3d3be7e6df4acfb42b091206a32507d7, type: 2}

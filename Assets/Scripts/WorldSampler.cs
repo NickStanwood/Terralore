@@ -220,6 +220,7 @@ public class WorldSampler : UpdatableData
     private void RefineWorldMaps()
     {
         _MoistureMap = MoistureGen.RefineMap(_MoistureMap, _HeightMap, _MountainMap, WorldData, Window);
+        //_MoistureMap = MoistureGen.TestWindAOE(_MoistureMap, _HeightMap, _MountainMap, WorldData, Window);
     }
 
     private void GenerateClimateMap()

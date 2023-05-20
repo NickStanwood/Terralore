@@ -8,7 +8,51 @@ public static class MoistureGen
     {
         public float Moisture;
         public float Amplitude;
+        public int FlatSample;
     };
+
+    public static float[] TestWindAOE(float[] moistureNoise, float[] height, float[] mountain, WorldData world, ViewData window)
+    {
+        float[] moistureMap = new float[window.LonResolution * window.LatResolution];
+        int sampleDistance = window.LatResolution / 6;
+        for (int y = 0; y < window.LatResolution; y++)
+        {
+            for (int x = 0; x < window.LonResolution; x++)
+            {
+                Mercator merc = new Mercator(x, y, window.LonResolution);
+                float alt = height[merc.FlatSample] + mountain[merc.FlatSample];
+                if (alt < world.OceanLevel)
+                {
+                    moistureMap[merc.FlatSample] = 1.0f;
+                    continue;
+                }
+
+                if(y % (sampleDistance) != sampleDistance/2)
+                {
+                    moistureMap[merc.FlatSample] = 0.0f;
+                    continue;
+                }
+
+                if (x != window.LonResolution / 2)
+                {
+                    moistureMap[merc.FlatSample] = 0.0f;
+                    continue;
+                }
+
+                Coord coord = merc.ToCoord(window);
+                List<MoistureInfo> windOrigins = FindWindOriginList(coord, height, mountain, world, window);
+                foreach (MoistureInfo o in windOrigins)
+                {
+                    moistureMap[o.FlatSample] = 0.5f;
+                }
+
+
+                moistureMap[merc.FlatSample] = 0.75f;
+            }
+        }
+
+        return moistureMap;
+    }
 
     public static float[] RefineMap(float[] moistureNoise, float[] height, float[] mountain, WorldData world, ViewData window)
     {
@@ -42,7 +86,7 @@ public static class MoistureGen
                 float moisture = (nMoisture + wMoisture)/(nMax + wMax);
                 
 
-                moistureMap[x* window.LatResolution + y] = moisture;
+                moistureMap[merc.FlatSample] = moisture;
             }
         }
 
@@ -57,8 +101,13 @@ public static class MoistureGen
         Mercator mercO = coord.ToMercator(window);
         Mercator v0 = windOriginList[0].ToMercator(window);
         Mercator v1 = windOriginList[1].ToMercator(window);
-        List<int> samples = mercO.RasterizeFlatSamples(v0, v1);
-        foreach(int sample in samples)
+        List<int> samples = new List<int>();
+        if (v1.XSample > mercO.XSample)
+            samples = mercO.RasterizeFlatSamples(v1, v0);
+        else
+            samples = mercO.RasterizeFlatSamples(v0, v1);
+
+        foreach (int sample in samples)
         {
             MoistureInfo info = new MoistureInfo();
             float hVal = height[sample];
@@ -70,6 +119,7 @@ public static class MoistureGen
             info.Moisture = CalculateMoisture(hVal, mVal, world.OceanLevel);
             //TODO reduce amplitude the further away from mecO this sample is.
             info.Amplitude = 1.0f;
+            info.FlatSample = sample;
             moistureList.Add(info);
         }
 

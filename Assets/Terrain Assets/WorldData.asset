@@ -84,7 +84,6 @@ MonoBehaviour:
       Offset: 0
       AsymptoteCutoff: 0
     RidgeSteepness: 0
-  MoistureIterations: 2
-  MoistureAmplitude: 0
   OceanLevel: 0.456
-  WorldRadius: 2830
+  WindVelocity: 0.548
+  WorldRadius: 2473

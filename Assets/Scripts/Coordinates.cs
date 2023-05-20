@@ -118,21 +118,22 @@ public struct Mercator
         int maxY = v0.YSample > v1.YSample ? v0.YSample : v1.YSample;
         maxY = maxY > YSample ? maxY : YSample;
 
+
         for(int x = minX; x < maxX; x++)
         {
             for(int y = minY; y < maxY; y++)
             {
                 int e01 = EdgeFunction(x, y, v0.XSample, v0.YSample, v1.XSample, v1.YSample);
                 if (e01 < 0)
-                    break;
+                    continue;
 
                 int e12 = EdgeFunction(x, y, v1.XSample, v1.YSample, XSample, YSample);
                 if (e12 < 0)
-                    break;
+                    continue;
 
                 int e20 = EdgeFunction(x, y, XSample, YSample, v0.XSample, v0.YSample);
                 if (e20 < 0)
-                    break;
+                    continue;
 
                 samples.Add(ToFlatSample(x,y));
             }

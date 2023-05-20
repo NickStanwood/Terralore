@@ -34,8 +34,7 @@ public class WorldSampler : UpdatableData
             WorldPos = ConvertMapIndexToWorldPos(x, y),
             Height = _HeightMap[index] + _MountainMap[index],
             Heat = _HeatMap[index],
-            WindRotation = _WindRotationMap[index] * Mathf.PI * 2,
-            WindVelocity = _WindVelocityMap[index]
+            Moisture = _MoistureMap[index]
         };
     }
 
@@ -57,8 +56,7 @@ public class WorldSampler : UpdatableData
             WorldPos = ConvertMapIndexToWorldPos(xIndex, yIndex),
             Height = _HeightMap[index] + _MountainMap[index],
             Heat = _HeatMap[index],
-            WindRotation = _WindRotationMap[index] * Mathf.PI*2,
-            WindVelocity = _WindVelocityMap[index]
+            Moisture = _MoistureMap[index]
         };
     }
 
@@ -82,6 +80,11 @@ public class WorldSampler : UpdatableData
     public float Heat(int xIndex, int yIndex)
     {
         return _HeatMap[GetMapIndex(xIndex, yIndex)];
+    }
+
+    public float Moisture(int xIndex, int yIndex)
+    {
+        return _MoistureMap[GetMapIndex(xIndex, yIndex)];
     }
 
     public float MinWorldHeight()
@@ -111,8 +114,7 @@ public class WorldSampler : UpdatableData
     private float[] _HeightMap { get; set; }
     private float[] _MountainMap { get; set; }
     private float[] _HeatMap { get; set; }
-    private float[] _WindVelocityMap { get; set; }
-    private float[] _WindRotationMap { get; set; }  //A value between 0-1. 1 pointing due west, and 0 pointing due east
+    private float[] _MoistureMap { get; set; }
 
     private float _WorldHeightMax;
     private float _WorldHeightMin;
@@ -188,12 +190,18 @@ public class WorldSampler : UpdatableData
 
     private void UpdateMapArrays()
     {
+        GenerateNoiseMaps();
+        RefineWorldMaps();
+        GenerateClimateMap();
+    }
+
+    private void GenerateNoiseMaps()
+    {
         NoiseJobArray noiseJobs = new NoiseJobArray();
         noiseJobs.Add("height", WorldData.HeightData, Window, WorldData.WorldRadius);
         noiseJobs.Add("mountain", WorldData.MountainData, Window, WorldData.WorldRadius);
         noiseJobs.Add("heat", WorldData.HeatData, Window, WorldData.WorldRadius);
-        noiseJobs.Add("windVelocity", WorldData.WindVelocityData, Window, WorldData.WorldRadius);
-        noiseJobs.Add("windRotation", WorldData.WindRotationData, Window, WorldData.WorldRadius);
+        noiseJobs.Add("moisture", WorldData.MoistureData, Window, WorldData.WorldRadius);
 
         noiseJobs.RunAll();
 
@@ -204,10 +212,20 @@ public class WorldSampler : UpdatableData
         _HeightMap = noiseJobs.CopyNoise("height");
         _MountainMap = noiseJobs.CopyNoise("mountain");
         _HeatMap = noiseJobs.CopyNoise("heat");
-        _WindVelocityMap = noiseJobs.CopyNoise("windVelocity");
-        _WindRotationMap = noiseJobs.CopyNoise("windRotation");
+        _MoistureMap = noiseJobs.CopyNoise("moisture");
 
         noiseJobs.Dispose();
+    }
+
+    private void RefineWorldMaps()
+    {
+        _MoistureMap = MoistureGen.RefineMap(_MoistureMap, _HeightMap, _MountainMap, WorldData, Window);
+        //_MoistureMap = MoistureGen.TestWindAOE(_MoistureMap, _HeightMap, _MountainMap, WorldData, Window);
+    }
+
+    private void GenerateClimateMap()
+    {
+
     }
 
     private void OnWorldDataUpdated()
@@ -253,8 +271,7 @@ public struct WorldSample
 
     public float Height;
     public float Heat;
-    public float WindRotation;
-    public float WindVelocity;
+    public float Moisture;
 
     public static WorldSample Empty = new WorldSample
     {

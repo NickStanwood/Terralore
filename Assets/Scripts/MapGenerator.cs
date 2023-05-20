@@ -16,6 +16,7 @@ public class MapGenerator : MonoBehaviour
     public TextureData textureData;
     public Material terrainMaterial;
     public Material heatMaterial;
+    public Material moistureMaterial;
     public Material blankMaterial;
 
     [Header("World Data")]
@@ -49,20 +50,30 @@ public class MapGenerator : MonoBehaviour
         MeshData meshData = MeshGenerator.GenerateTerrainMesh(worldSampler);
         meshFilterFlat.sharedMesh = meshData.CreateMesh();
 
-        if(textureData.TextureType == TextureType.HeatMap)
+        switch(textureData.TextureType)
         {
-            //apply heat map texture to 2D mercator map
-            Texture2D texture = TextureGenerator.GenerateHeatMapTexture(worldSampler, textureData);
-            heatMaterial.SetTexture("_MainTex", texture);
-            meshRendererFlat.sharedMaterial = heatMaterial;
-        }
-        else if(textureData.TextureType == TextureType.HeightMap)
-        {
-            meshRendererFlat.sharedMaterial = terrainMaterial;
-        }
-        else if (textureData.TextureType == TextureType.Blank)
-        {
-            meshRendererFlat.sharedMaterial = blankMaterial;
+            case TextureType.HeightMap:
+                meshRendererFlat.sharedMaterial = terrainMaterial;
+                break;
+            case TextureType.HeatMap:
+                {
+                    //apply heat map texture to 2D mercator map
+                    Texture2D texture = TextureGenerator.GenerateHeatMapTexture(worldSampler, textureData);
+                    heatMaterial.SetTexture("_MainTex", texture);
+                    meshRendererFlat.sharedMaterial = heatMaterial;
+                    break;
+                }                
+            case TextureType.MoistureMap:
+                {
+                    //apply heat map texture to 2D mercator map
+                    Texture2D texture = TextureGenerator.GenerateMoistureMapTexture(worldSampler, textureData);
+                    moistureMaterial.SetTexture("_MainTex", texture);
+                    meshRendererFlat.sharedMaterial = moistureMaterial;
+                    break;
+                }                
+            default:
+                meshRendererFlat.sharedMaterial = blankMaterial;
+                break;
         }
 
         //create spherical map 

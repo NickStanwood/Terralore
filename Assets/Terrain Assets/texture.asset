@@ -16,7 +16,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   AutoUpdate: 1
-  TextureType: 0
+  TextureType: 2
   HeightLayers:
   - Name: Water
     StartHeight: 0
@@ -63,3 +63,20 @@ MonoBehaviour:
     StartHeight: 0.578
     Colour: {r: 0.93333334, g: 0.20968208, b: 0.18823528, a: 0}
     BlendStrength: 0.2
+  MoistureLayers:
+  - Name: Arid
+    StartHeight: 0
+    Colour: {r: 0.9056604, g: 0.8773178, b: 0.56817377, a: 0}
+    BlendStrength: 0
+  - Name: Dry
+    StartHeight: 0.219
+    Colour: {r: 0.6811295, g: 0.8207547, b: 0.4219918, a: 0}
+    BlendStrength: 0
+  - Name: Humid
+    StartHeight: 0.396
+    Colour: {r: 0.259167, g: 0.6037736, b: 0.28354222, a: 0}
+    BlendStrength: 0
+  - Name: Water
+    StartHeight: 0.983
+    Colour: {r: 0, g: 0.08090782, b: 1, a: 0}
+    BlendStrength: 0

@@ -49,12 +49,11 @@ public static class MeshGenerator
         {
             for (int x = 0; x < width; x++)
             {
-                float xPercent = (float)x / window.LonResolution;
-                float yPercent = (float)y / window.LatResolution;
-                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, radius);
+                Mercator merc = new Mercator(x, y, width);
+                Cartesian cart = merc.ToCartesian(window, radius);
 
-                meshData.Vertices[vertexIndex] = new Vector3(c.x, c.y, c.z);
-                meshData.UVs[vertexIndex] = new Vector2((float)x / width, (float)y / height);
+                meshData.Vertices[vertexIndex] = new Vector3(cart.X, cart.Y, cart.Z);
+                meshData.UVs[vertexIndex] = new Vector2(merc.XPercent, merc.YPercent);
 
                 if (y < height - 1 && x < width - 1)
                 {

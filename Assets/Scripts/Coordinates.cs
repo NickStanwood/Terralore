@@ -255,7 +255,7 @@ public struct Cartesian
         Coord coord = copy.ToCoord();
         float xPercent = (coord.Lon / window.LonAngle) + 0.5f;
         float yPercent = (-coord.Lat / window.LatAngle) + 0.5f;
-        return new Mercator(xPercent, yPercent, window.Resolution);
+        return new Mercator(xPercent, yPercent, window.LonResolution);
     }
 }
 

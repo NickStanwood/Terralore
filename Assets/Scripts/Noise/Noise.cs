@@ -24,11 +24,10 @@ public static class Noise
         {
             for (int x = 0; x < window.LonResolution; x++)
             {
-                float xPercent = (float)x / window.LonResolution;
-                float yPercent = (float)y / window.LatResolution;
-                Vector3 c = Coordinates.MercatorToCartesian(xPercent, yPercent, window, worldRadius);
+                Mercator merc = new Mercator(x, y, window.LonResolution);
+                Cartesian cart = merc.ToCartesian(window, worldRadius);
 
-                float noiseVal = noise.Sample(c.x, c.y, c.z);
+                float noiseVal = noise.Sample(cart.X, cart.Y, cart.Z);
 
                 if (noiseVal < localMinNoise)
                     localMinNoise = noiseVal;

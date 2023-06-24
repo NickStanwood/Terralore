@@ -19,44 +19,33 @@ public class WorldSampler : UpdatableData
 
     public WorldSample SampleFromCoord(float lon, float lat)
     {
-        Vector2 percent = Coordinates.CoordToMercator(lon, lat, Window);
+        Coord coord = new Coord(lon, lat);
+        Mercator merc = coord.ToMercator(Window);
 
-        int x = (int)(percent.x * MapIndexWidth());
-        int y = (int)(percent.y * MapIndexHeight());
-
-        int index = GetMapIndex(x, y);
         return new WorldSample
         {
-            xIndex = x,
-            yIndex = y,
-            Longitude = lon,
-            Latitude = lat,
-            WorldPos = ConvertMapIndexToWorldPos(x, y),
-            Height = _HeightMap[index] + _MountainMap[index],
-            Heat = _HeatMap[index],
-            Moisture = _MoistureMap[index]
+            Index = merc,
+            Coord = coord,
+            WorldPos = ConvertMapIndexToWorldPos(merc),
+            Height = _HeightMap[merc.FlatSample] + _MountainMap[merc.FlatSample],
+            Heat = _HeatMap[merc.FlatSample],
+            Moisture = _MoistureMap[merc.FlatSample]
         };
     }
 
     public WorldSample SampleFromIndex(int xIndex, int yIndex)
     {
-        //get Lon & Lat
-        float xPercent = (float)xIndex / (float)MapIndexWidth();
-        float yPercent = (float)yIndex / (float)MapIndexHeight();
-        Vector2 coords = Coordinates.MercatorToCoord(xPercent, yPercent, Window);
+        Mercator merc = new Mercator(xIndex, yIndex, Window.LonResolution);
+        Coord coord = merc.ToCoord(Window);
 
-        int index = GetMapIndex(xIndex, yIndex);
-        //Debug.Log("index: " + index);
         return new WorldSample
         {
-            xIndex = xIndex,
-            yIndex = yIndex,
-            Longitude = coords.x,
-            Latitude = coords.y,
-            WorldPos = ConvertMapIndexToWorldPos(xIndex, yIndex),
-            Height = _HeightMap[index] + _MountainMap[index],
-            Heat = _HeatMap[index],
-            Moisture = _MoistureMap[index]
+            Index = merc,
+            Coord = coord,
+            WorldPos = ConvertMapIndexToWorldPos(merc),
+            Height = _HeightMap[merc.FlatSample] + _MountainMap[merc.FlatSample],
+            Heat = _HeatMap[merc.FlatSample],
+            Moisture = _MoistureMap[merc.FlatSample]
         };
     }
 
@@ -140,10 +129,10 @@ public class WorldSampler : UpdatableData
         _LocalHeightMax = localMaxHeight;
     }
 
-    private Vector3 ConvertMapIndexToWorldPos(int xIndex, int yIndex)
+    private Vector3 ConvertMapIndexToWorldPos(Mercator merc)
     {
         //get value between 0 - 1. 0 being world min height. 1 being worldmax height
-        float noiseHeight = (Height(xIndex, yIndex) - _WorldHeightMin) / (_WorldHeightMax - _WorldHeightMin);
+        float noiseHeight = (Height(merc.XSample, merc.YSample) - _WorldHeightMin) / (_WorldHeightMax - _WorldHeightMin);
         noiseHeight = Mathf.Max(noiseHeight, WorldData.OceanLevel);
 
         float minNoiseHeight = (_LocalHeightMin - _WorldHeightMin) / (_WorldHeightMax - _WorldHeightMin);
@@ -154,11 +143,11 @@ public class WorldSampler : UpdatableData
 
         //calculate x mesh location so the center of the map is at 0
         float topLeftX = (MapIndexWidth() - 1) / -2f;
-        float meshX = (xIndex + topLeftX) * MapScale;
+        float meshX = (merc.XSample + topLeftX) * MapScale;
 
         //calculate z mesh location so the center of the map is at 0
         float topLeftZ = (MapIndexHeight() - 1) / 2f;
-        float meshZ = (topLeftZ - yIndex) * MapScale;
+        float meshZ = (topLeftZ - merc.YSample) * MapScale;
 
         return new Vector3(meshX, meshY, meshZ);
     }
@@ -261,11 +250,8 @@ public class WorldSampler : UpdatableData
 [Serializable]
 public struct WorldSample
 {
-    public int xIndex;
-    public int yIndex;
-
-    public float Longitude;
-    public float Latitude;
+    public Mercator Index;
+    public Coord Coord;
 
     public Vector3 WorldPos;
 
@@ -275,12 +261,11 @@ public struct WorldSample
 
     public static WorldSample Empty = new WorldSample
     {
-        xIndex = -1,
-        yIndex = -1
+        Index = new Mercator(-1, -1, 0)
     };
 
     public bool IsEmpty()
     {
-        return xIndex == -1 && yIndex == -1;
+        return Index.XSample == -1 && Index.XSample == -1;
     }
 }

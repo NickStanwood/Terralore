@@ -6,11 +6,10 @@ public static class GridSampler
 {
     public static float SampleSingle(int seed, double x, double y, double z, float radius)
     {
-        Vector2 coord = Coordinates.CartesianToCoord((float)x, (float)y, (float)z, radius);
-        float lon = coord.x;
-        float lat = coord.y;
-        float lonGridValue = GridLineValue(lon);
-        float latGridValue = GridLineValue(lat);
+        Cartesian cart = new Cartesian((float)x, (float)y, (float)z, radius);
+        Coord coord = cart.ToCoord();
+        float lonGridValue = GridLineValue(coord.Lon);
+        float latGridValue = GridLineValue(coord.Lat);
         return Mathf.Min(lonGridValue, latGridValue);
     }
 

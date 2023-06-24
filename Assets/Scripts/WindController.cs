@@ -42,7 +42,7 @@ public class WindController : MonoBehaviour
                                 ?  y      * ySampleFreq + 4
                                 : (y + 1) * ySampleFreq - 4 ;
                 WorldSample s = Sampler.SampleFromIndex(xIndex, yIndex);
-                knots = CalculateWindCurrentKnots(s.Longitude, s.Latitude);
+                knots = CalculateWindCurrentKnots(s.Coord);
                 CreateWindCurrent(knots);
             }
         }
@@ -55,72 +55,69 @@ public class WindController : MonoBehaviour
         DestroyWindCurrents();
     }
 
-    private List<Vector3> CalculateWindCurrentKnots(float lon, float lat)
+    private List<Vector3> CalculateWindCurrentKnots(Coord coord)
     {
         List<Vector3> knots = new List<Vector3>();
         WorldSample lastSample = WorldSample.Empty;
         for (int i = 0; i < KnotCount; i++)
         {
-            WorldSample s = Sampler.SampleFromCoord(lon, lat);
+            WorldSample s = Sampler.SampleFromCoord(coord.Lon, coord.Lat);
             s.WorldPos.y += 1;
 
             if (lastSample.IsEmpty())
                 lastSample = s;
-            else if (Mathf.Abs(s.xIndex - lastSample.xIndex) > (Sampler.MapIndexWidth() - 1)/ 2)
+            else if (Mathf.Abs(s.Index.XSample - lastSample.Index.XSample) > (Sampler.MapIndexWidth() - 1)/ 2)
                 break;
 
             knots.Add(s.WorldPos);
 
-            Vector2 coord = GetNextWindCurrentKnot(lon, lat);
-            lon = coord.x;
-            lat = coord.y;
+            coord = GetNextWindCurrentKnot(coord);
         }
         return knots;
     }
 
-    private Vector2 GetNextWindCurrentKnot(float lon, float lat)
+    private Coord GetNextWindCurrentKnot(Coord coord)
     {
-        Vector2 coord = new Vector2(lon, lat);
         float scale = Mathf.PI/60;
         const float outerBand = Mathf.PI / 3;
         const float innerBand = Mathf.PI / 6;
         const float bandSize = Mathf.PI / 6;
         const float bandAngleScale = Mathf.PI / (2 * bandSize);
-        if (lat > outerBand)
+        if (coord.Lat > outerBand)
         {
-            float angle = (lat - outerBand) * bandAngleScale;
-            coord.x -= Mathf.Cos(angle) * scale;
-            coord.y -= Mathf.Sin(angle) * scale;
+            float angle = (coord.Lat - outerBand) * bandAngleScale;
+            coord.Lon -= Mathf.Cos(angle) * scale;
+            coord.Lat -= Mathf.Sin(angle) * scale;
         }
-        else if (lat > innerBand)
+        else if (coord.Lat > innerBand)
         {
-            float angle = (lat - innerBand) * bandAngleScale;
-            coord.x += Mathf.Sin(angle) * scale;
-            coord.y += Mathf.Cos(angle) * scale;
+            float angle = (coord.Lat - innerBand) * bandAngleScale;
+            coord.Lon += Mathf.Sin(angle) * scale;
+            coord.Lat += Mathf.Cos(angle) * scale;
         }
-        else if (lat >= 0)
+        else if (coord.Lat >= 0)
         {
-            float angle = (lat) * bandAngleScale;
-            coord.x -= Mathf.Cos(angle) * scale;
-            coord.y -= Mathf.Sin(angle) * scale;
+            float angle = (coord.Lat) * bandAngleScale;
+            coord.Lon -= Mathf.Cos(angle) * scale;
+            coord.Lat -= Mathf.Sin(angle) * scale;
         }
-        else if (lat > -innerBand)
+        else if (coord.Lat > -innerBand)
         {
-            float angle = (lat + innerBand) * bandAngleScale;
-            coord.x -= Mathf.Sin(angle) * scale;
-            coord.y += Mathf.Cos(angle) * scale;
+            float angle = (coord.Lat + innerBand) * bandAngleScale;
+            coord.Lon -= Mathf.Sin(angle) * scale;
+            coord.Lat += Mathf.Cos(angle) * scale;
         }
-        else if (lat > -outerBand)
+        else if (coord.Lat > -outerBand)
         {
-            float angle = (lat + outerBand) * bandAngleScale;
-            coord.x += Mathf.Cos(angle) * scale;
-            coord.y -= Mathf.Sin(angle) * scale;
+            float angle = (coord.Lat + outerBand) * bandAngleScale;
+            coord.Lon += Mathf.Cos(angle) * scale;
+            coord.Lat -= Mathf.Sin(angle) * scale;
         }
         else
         {
-            float angle = (lat + Mathf.PI / 2) * bandAngleScale;
-            coord.x -= Mathf.Sin(angle) * scale;
-            coord.y += Mathf.Cos(angle) * scale;
+            float angle = (coord.Lat + Mathf.PI / 2) * bandAngleScale;
+            coord.Lon -= Mathf.Sin(angle) * scale;
+            coord.Lat += Mathf.Cos(angle) * scale;
         }
         return coord;
     }
